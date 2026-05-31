@@ -3,198 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Сімрейсер: Симулятор Життя</title>
+    <title>Сімрейсер: PRO Симулятор</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
-            color: #ffffff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             height: 100vh;
-            overflow: hidden;
+            box-sizing: border-box;
         }
 
         #game-container {
-            background-color: #2d2d2d;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            background-color: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
             width: 100%;
-            max-width: 400px;
-            text-align: center;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-height: 680px;
         }
 
-        h1 { font-size: 20px; margin-bottom: 10px; color: #0088cc; }
-        .stats { display: flex; justify-content: space-between; width: 100%; margin-bottom: 20px; font-weight: bold; }
-        .stat-item { background: #3d3d3d; padding: 10px; border-radius: 8px; width: 45%; }
+        h1 { font-size: 18px; margin: 0 0 10px 0; color: #ff5722; text-align: center; letter-spacing: 1px; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            background: #2a2a2a;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .time-banner {
+            background: #333;
+            padding: 5px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
         
         #log-window {
-            background-color: #111;
-            border-radius: 10px;
-            padding: 15px;
-            height: 150px;
+            background-color: #0b0b0b;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            flex-grow: 1;
             overflow-y: auto;
-            margin-bottom: 20px;
-            text-align: left;
-            font-size: 14px;
-            color: #aaa;
-            border: 1px solid #444;
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .action-btn {
-            background-color: #0088cc;
+            background-color: #2e7d32;
             color: white;
             border: none;
-            padding: 15px;
-            margin: 5px 0;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.2s;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .action-btn:hover { background-color: #00aaff; }
-        .action-btn:active { transform: scale(0.98); }
-        .action-btn:disabled { background-color: #555; cursor: not-allowed; }
+        .action-btn:hover { background-color: #388e3c; }
+        .action-btn.shop { background-color: #0288d1; }
+        .action-btn.shop:hover { background-color: #03a9f4; }
+        
+        /* Спеціальний блок магазину */
+        #shop-modal {
+            display: none;
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #0288d1;
+        }
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+            font-size: 13px;
+        }
+        .shop-buy-btn {
+            background: #0288d1;
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-        #final-screen { display: none; text-align: center; }
+        #final-screen { display: none; text-align: center; margin-auto: auto; }
+        .danger-text { color: #f44336; }
+        .success-text { color: #4caf50; }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <h1>🏁 ДЕНЬ З ЖИТТЯ СІМРЕЙСЕРА 🏁</h1>
+        <h1>🏎 СІМРЕЙСЕР: ХРОНІКИ САППОРТУ 👨‍💻</h1>
         
-        <div class="stats">
-            <div class="stat-item">⚡️ Енергія: <span id="energy-val">100</span>%</div>
-            <div class="stat-item">💵 Баланс: <span id="money-val">1000</span> грн</div>
+        <div class="stats-grid">
+            <div class="stat-card">⚡️ Енергія<br><span id="energy-val">100</span>%</div>
+            <div class="stat-card">🧠 Стрес<br><span id="stress-val">0</span>%</div>
+            <div class="stat-card">💵 Баланс<br><span id="money-val">1000</span>₴</div>
         </div>
 
-        <div id="game-core">
-            <p>⏰ Час: <span id="time-val">9</span>:00</p>
-            <div id="log-window">Ти прокинувся. Пора починати зміну в саппорті...</div>
-            
-            <button class="action-btn" onclick="makeChoice(1)">🖥 Працювати (відповідати в чатах)</button>
-            <button class="action-btn" onclick="makeChoice(2)">🛒 Піти у Varus (Баланс -150, Енергія +30)</button>
-            <button class="action-btn" onclick="makeChoice(3)">🏎 Катнути в Спа на Moza (Енергія -25)</button>
+        <div class="time-banner">⏰ Година зміни: <span id="time-val">09</span>:00</div>
+
+        <div id="log-window">Зміна розпочалась. Керуюча онлайн. Наплив клієнтів середній. Що будемо робити цю годину?</div>
+        
+        <div id="shop-modal">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <b style="color:#03a9f4">🛒 Магазин апгрейдів:</b>
+                <button onclick="toggleShop()" style="background:none; border:none; color:white; cursor:pointer;">❌ Закрити</button>
+            </div>
+            <div class="shop-item">
+                <span>🤖 Скрипт-ботів (Робота бере менше енергії)</span>
+                <button class="shop-buy-btn" onclick="buyItem('script', 400)">400₴</button>
+            </div>
+            <div class="shop-item">
+                <span>📚 Курс Java (Керуюча хвалить, -15% стресу)</span>
+                <button class="shop-buy-btn" onclick="buyItem('java', 300)">300₴</button>
+            </div>
+            <div class="shop-item">
+                <span>🏎 Педалі Moza CRP (+20% до шансу виграти)</span>
+                <button class="shop-buy-btn" onclick="buyItem('moza', 600)">600₴</button>
+            </div>
+        </div>
+
+        <div id="game-controls" class="btn-group">
+            <button class="action-btn" onclick="takeStep('work')"><span>🖥 Закривати чати підтримки</span> <small>+Гроші, +Стрес</small></button>
+            <button class="action-btn" onclick="takeStep('varus')"><span>🛒 Перекусон у Varus (-120₴)</span> <small>+Енергія, -Стрес</small></button>
+            <button class="action-btn" onclick="takeStep('race')"><span>🏁 Катнути практику в ACC</span> <small>-Енергія, -Стрес</small></button>
+            <button class="action-btn shop" onclick="toggleShop()"><span>🛒 Відкрити Магазин Апгрейдів</span></button>
         </div>
 
         <div id="final-screen">
             <h2 id="final-title"></h2>
-            <p id="final-stats"></p>
             <p id="final-desc"></p>
-            <button class="action-btn" onclick="resetGame()">🔁 Зіграти знову</button>
+            <button class="action-btn" onclick="resetGame()" style="text-align:center; justify-content:center;">🔁 Почати новий день</button>
         </div>
     </div>
 
     <script>
-        // Ініціалізація Telegram Web App
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Розгорнути на весь екран
-        tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
+        tg.expand();
+        tg.MainButton.setText("Вийти з гри").show().onClick(() => tg.close());
 
-        // Змінні гри
+        // Стан гри
         let energy = 100;
+        let stress = 0;
         let money = 1000;
         let hour = 9;
+        
+        // Булеві змінні апгрейдів
+        let hasScript = false;
+        let hasJava = false;
+        let hasMoza = false;
 
         const logWindow = document.getElementById('log-window');
 
         function updateUI() {
             document.getElementById('energy-val').innerText = energy;
+            document.getElementById('stress-val').innerText = stress;
             document.getElementById('money-val').innerText = money;
-            document.getElementById('time-val').innerText = hour;
-        }
-
-        function addLog(text, color = "#aaa") {
-            const p = document.createElement('p');
-            p.style.color = color;
-            p.style.margin = "5px 0";
-            p.innerText = text;
-            logWindow.appendChild(p);
-            logWindow.scrollTop = logWindow.scrollHeight; // Автоскрол вниз
-        }
-
-        function makeChoice(choice) {
-            hour += 3;
-            let logText = "";
-            let logColor = "#aaa";
-
-            if (choice === 1) { // Працювати
-                const event = Math.floor(Math.random() * 3);
-                if (event === 0) {
-                    logText = "🎰 Клієнт програв у казіку і кричить. Енергія -20, Премія +300 грн!";
-                    energy -= 20; money += 300; logColor = "#ffb703";
-                } else if (event === 1) {
-                    logText = "💳 Адекватний гравець, питання вирішено за хвилину. Енергія -5, Баланс +150.";
-                    energy -= 5; money += 150; logColor = "#8bc34a";
-                } else {
-                    logText = "🤯 Керуюча викликала на збори підтримки! Духота... Енергія -40%.";
-                    energy -= 40; logColor = "#f44336";
-                }
-            } else if (choice === 2) { // Varus
-                money -= 150;
-                energy += 30;
-                if (energy > 100) energy = 100;
-                logText = "🛒 Сходив у Варус. Кайфуєш від енергетика. (Баланс -150, Енергія +30)";
-                logColor = "#2196f3";
-            } else if (choice === 3) { // Спа
-                energy -= 25;
-                logText = "🏎 Сів у кокпіт Moza, дав кута в Спа! Настрій топ, але сили пішли. (Енергія -25)";
-                logColor = "#9c27b0";
-                if (Math.floor(Math.random() * 4) === 0) {
-                    logText += " ⚠️ Керуюча помітила! Штраф -400 грн!";
-                    money -= 400; logColor = "#d32f2f";
-                }
-            }
-
-            addLog(`⏰ ${hour-3}:00 -> ${logText}`, logColor);
-            updateUI();
-            checkGameOver();
-        }
-
-        function checkGameOver() {
-            if (energy <= 0) {
-                showFinal("💀 ГЕЙМ ОВЕР!", "energy", "Ти повністю вигорів на роботі. Гонка скасовується, Юра вчить Джаву замість тебе.");
-            } else if (money <= 0) {
-                showFinal("💀 ГЕЙМ ОВЕР!", "money", "Баланс пішов у мінус. Ти збанкрутував, Moza віджав ломбард.");
-            } else if (hour >= 18) {
-                if (energy >= 50 && money >= 1200) {
-                    showFinal("🏆 СУПЕР ФІНАЛ!", "win", "Ти виграв гонку в ACC, отримав підвищення і замовив суші! Повний тріумф!");
-                } else {
-                    showFinal("🏁 ФІНІШ!", "normal", "До гонки ти доїхав, але фінішував останнім, бо засинав за кермом.");
-                }
-            }
-        }
-
-        function showFinal(title, type, desc) {
-            document.getElementById('game-core').style.display = 'none';
-            document.getElementById('final-screen').style.display = 'block';
-            document.getElementById('final-title').innerText = title;
-            document.getElementById('final-stats').innerText = `🔋 Енергія: ${energy}% | 💵 Гроші: ${money} грн`;
-            document.getElementById('final-desc').innerText = desc;
+            document.getElementById('time-val').innerText = hour < 10 ? '0' + hour : hour;
             
-            if (type === 'win') document.getElementById('final-title').style.color = "#8bc34a";
-            else if (type.includes('Game Over')) document.getElementById('final-title').style.color = "#f44336";
+            // Підсвітка критичних станів
+            document.getElementById('energy-val').className = energy < 30 ? 'danger-text' : '';
+            document.getElementById('stress-val').className = stress > 70 ? 'danger-text' : '';
+        }
+
+        function printLog(text) {
+            const p = document.createElement('div');
+            p.style.marginBottom = "8px";
+            p.innerHTML = text;
+            logWindow.appendChild(p);
+            logWindow.scrollTop = logWindow.scrollHeight;
+        }
+
+        function toggleShop() {
+            const modal = document.getElementById('shop-modal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function buyItem(item, price) {
+            if (money < price) {
+                alert("Не вистачає гривень! Треба більше працювати в підтримці.");
+                return;
+            }
+            if ((item === 'script' && hasScript) || (item === 'java' && hasJava) || (item === 'moza' && hasMoza)) {
+                alert("Цей апгрейд уже куплено!");
+                return;
+            }
+
+            money -= price;
+            if (item === 'script') { hasScript = true; printLog("⚙️ <b>Куплено автоматизацію:</b> Тепер робота забирає на 50% менше енергії."); }
+            if (item === 'java') { hasJava = true; stress = Math.max(0, stress - 20); printLog("☕️ <b>Куплено курс Java:</b> Керуюча задоволена твоєю ініціативністю. Стрес упав."); }
+            if (item === 'moza') { hasMoza = true; printLog("🏎 <b>Встановлено педалі Moza CRP:</b> Шанси на перемогу у вечірній гонці значно зросли!"); }
+            
+            updateUI();
+            toggleShop();
+        }
+
+        function takeStep(action) {
+            hour += 1;
+            logWindow.innerHTML = ""; // Очищуємо для нового ходу
+            let eventRoll = Math.floor(Math.random() * 100);
+
+            // 1. Обробка базових дій
+            if (action === 'work') {
+                let energyCost = hasScript ? 10 : 20;
+                energy -= energyCost;
+                stress += 15;
+                money += 250;
+                printLog(`🖥 <b>Ви відпрацювали годину:</b> Закрили 15 тікетів. Зарплата +250₴. (Енергія -${energyCost}, Стрес +15)`);
+            } 
+            else if (action === 'varus') {
+                money -= 120;
+                energy = Math.min(100, energy + 25);
+                stress = Math.max(0, stress - 15);
+                printLog("🛒 <b>Похід у Varus:</b> Енергетик та сендвіч роблять речі. (Баланс -120₴, Енергія +25%, Стрес -15%)");
+            } 
+            else if (action === 'race') {
+                energy -= 15;
+                stress = Math.max(0, stress - 25);
+                printLog("🏎 <b>Тренування в ACC:</b> Катнув практику в Монці. Стрес як рукою зняло! (Енергія -15%, Стрес -25%)");
+            }
+
+            // 2. Генерація випадкових подій (квестів) на ходу
+            if (hour < 18 && eventRoll < 40) { // 40% шанс на випадкову подію
+                generateRandomEvent();
+            }
+
+            updateUI();
+            checkGameState();
+        }
+
+        function generateRandomEvent() {
+            const events = [
+                {
+                    title: "⚠️ <b>КРАШ СЕРВЕРІВ!</b>",
+                    desc: "Усі сервери впали, 300 злих геймерів ломанулися в чат саппорту! Стрес +20%.",
+                    action: () => { stress += 20; }
+                },
+                {
+                    title: "💬 <b>Дзвінок від Колі:</b>",
+                    desc: "Коля кличе обговорити важливий план на перекурі. Ви відпочили. Енергія +10%, але керуюча незадоволена (Стрес +5%).",
+                    action: () => { energy = Math.min(100, energy + 10); stress += 5; }
+                },
+                {
+                    title: "👨‍💻 <b>Юра просить допомоги:</b>",
+                    desc: "Юра скинув свій код на Java і просить знайти баг. Ви витратили сили (Енергія -15%), зате він скинув на карту 150₴ за хелп.",
+                    action: () => { energy -= 15; money += 150; }
+                },
+                {
+                    title: "👑 <b>Аудит від Керуючої:</b>",
+                    desc: "Ваші чати перевіряють. Якщо у вас є куплений курс Java, вона каже 'Красава' (-10% стресу). Якщо немає — виписує догану (Стрес +15%).",
+                    action: () => { if (hasJava) { stress = Math.max(0, stress - 10); } else { stress += 15; } }
+                }
+            ];
+
+            let randomEvent = events[Math.floor(Math.random() * events.length)];
+            printLog(`<br><span style="color:#ffcc00">${randomEvent.title}</span> ${randomEvent.desc}`);
+            randomEvent.action();
+        }
+
+        function checkGameState() {
+            if (energy <= 0) {
+                endGame(false, "💀 ГЕЙМ ОВЕР: Повне вигорання!", "У тебе закінчилися сили, ти заснув прямо за робочим столом. Керуюча звільнила тебе, а Moza покрилася пилом.");
+            } else if (stress >= 100) {
+                endGame(false, "💀 ГЕЙМ ОВЕР: Нервовий зрив!", "Ти не витримав тупих питань користувачів казіка, розбив монітор і викинув роутер у вікно. Повна депресія.");
+            } else if (hour >= 18) {
+                // Розрахунок фіналу вечірньої гонки
+                let winChance = 40; // базовий шанс
+                if (hasMoza) winChance += 40;
+                if (energy > 60) winChance += 20;
+                
+                let isVictory = Math.floor(Math.random() * 100) < winChance;
+                
+                if (isVictory) {
+                    endGame(true, "🏆 ТОТАЛЬНА ПЕРЕМОГА! ПОДВІЙНИЙ ТРІУМФ!", `Ти успішно допрацював зміну із балансом ${money}₴! А ввечері на офіційній гонці в ACC ти взяв ПОУЛ і виграв золото на трасі Спа! Хлопці в шоці, Юра видалив Java від заздрощів!`);
+                } else {
+                    endGame(true, "🏁 Зміна закінчена, але гонка злита...", `Ти вижив на роботі, але через старі педалі або брак сил твою машину розвернуло в першому ж повороті Монци. Ти приїхав останнім. Треба купувати апгрейди в магазині!`);
+                }
+            }
+        }
+
+        function endGame(isWin, title, desc) {
+            document.getElementById('game-core-ui').style.display = 'none'; // приховуємо ігрові елементи
+            document.getElementById('game-controls').style.display = 'none';
+            document.getElementById('shop-modal').style.display = 'none';
+            
+            const finalScreen = document.getElementById('final-screen');
+            finalScreen.style.display = 'block';
+            
+            const titleElem = document.getElementById('final-title');
+            titleElem.innerText = title;
+            titleElem.className = isWin ? 'success-text' : 'danger-text';
+            
+            document.getElementById('final-desc').innerHTML = `${desc}<br><br><b>Твої фінальні ресурси:</b><br>💵 Гроші: ${money}₴ | 🔋 Енергія: ${energy}% | 🧠 Стрес: ${stress}%`;
         }
 
         function resetGame() {
-            energy = 100; money = 1000; hour = 9;
-            logWindow.innerHTML = "Ти прокинувся. Пора починати зміну в саппорті...";
-            document.getElementById('game-core').style.display = 'block';
+            energy = 100; stress = 0; money = 1000; hour = 9;
+            hasScript = false; hasJava = false; hasMoza = false;
+            
+            logWindow.innerHTML = "Зміна розпочалась. Керуюча онлайн. Наплив клієнтів середній. Що будемо робити цю годину?";
+            
+            document.getElementById('game-controls').style.display = 'flex';
             document.getElementById('final-screen').style.display = 'none';
             updateUI();
         }
 
-        updateUI(); // Початкове оновлення
+        updateUI();
     </script>
+    
+    <div id="game-core-ui"></div>
 </body>
 </html>
