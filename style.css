@@ -8,7 +8,7 @@ body {
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 #game-container {
@@ -25,42 +25,60 @@ body {
 }
 
 h1 { 
-    font-size: 18px; 
-    margin: 0 0 10px 0; 
+    font-size: 16px; 
+    margin: 0 0 12px 0; 
     color: #ff5722; 
     text-align: center; 
     letter-spacing: 1px; 
+    text-transform: uppercase;
 }
 
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     margin-bottom: 15px;
 }
 
-.stat-card {
+.stat-row {
     background: #2a2a2a;
-    padding: 8px;
-    border-radius: 6px;
-    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: bold;
-    border-bottom: 3px solid #555;
 }
 
-/* Кольорові бордери для показників */
-#energy-card { border-color: #4caf50; }
-#stress-card { border-color: #9c27b0; }
-#money-card { border-color: #ffcc00; }
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+/* Контейнери для прогрес-барів */
+.progress-bar-bg {
+    background: #444;
+    border-radius: 4px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 100%;
+    transition: width 0.4s ease-in-out; /* Плавна анімація зміни */
+}
+
+#energy-fill { background-color: #4caf50; }
+#stress-fill { background-color: #9c27b0; }
 
 .time-banner {
     background: #333;
-    padding: 5px;
+    padding: 6px;
     border-radius: 4px;
     text-align: center;
     font-size: 14px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-weight: bold;
     color: #ffcc00;
 }
@@ -74,7 +92,13 @@ h1 {
     overflow-y: auto;
     margin-bottom: 15px;
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.45;
+}
+
+.log-entry {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #222;
 }
 
 .btn-group {
@@ -96,6 +120,7 @@ h1 {
     text-align: left;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .action-btn:hover { 
@@ -132,12 +157,12 @@ h1 {
     background: #0288d1;
     border: none;
     color: white;
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
 }
 
 #final-screen { display: none; text-align: center; margin: auto 0; }
-.danger-text { color: #f44336; font-size: 16px; font-weight: bold; }
-.success-text { color: #4caf50; font-size: 16px; font-weight: bold; }
+.danger-text { color: #f44336; }
+.success-text { color: #4caf50; }
