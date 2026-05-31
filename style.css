@@ -1,0 +1,143 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+#game-container {
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 680px;
+}
+
+h1 { 
+    font-size: 18px; 
+    margin: 0 0 10px 0; 
+    color: #ff5722; 
+    text-align: center; 
+    letter-spacing: 1px; 
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.stat-card {
+    background: #2a2a2a;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 3px solid #555;
+}
+
+/* Кольорові бордери для показників */
+#energy-card { border-color: #4caf50; }
+#stress-card { border-color: #9c27b0; }
+#money-card { border-color: #ffcc00; }
+
+.time-banner {
+    background: #333;
+    padding: 5px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+#log-window {
+    background-color: #0b0b0b;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.action-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+}
+
+.action-btn:hover { 
+    background-color: #388e3c; 
+    transform: translateY(-1px);
+}
+
+.action-btn:active {
+    transform: translateY(1px);
+}
+
+.action-btn.shop { background-color: #0288d1; }
+.action-btn.shop:hover { background-color: #03a9f4; }
+
+#shop-modal {
+    display: none;
+    background: #252525;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #0288d1;
+}
+
+.shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+    font-size: 13px;
+}
+
+.shop-buy-btn {
+    background: #0288d1;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#final-screen { display: none; text-align: center; margin: auto 0; }
+.danger-text { color: #f44336; font-size: 16px; font-weight: bold; }
+.success-text { color: #4caf50; font-size: 16px; font-weight: bold; }
