@@ -2,24 +2,6 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
 
-// 🎬 Анімація заставки (Splash Screen) — ФІКС ЗАВИСАННЯ
-window.addEventListener('DOMContentLoaded', () => {
-    const loaderFill = document.getElementById('splash-loader-fill');
-    let progress = 0;
-    
-    const interval = setInterval(() => {
-        progress += 4;
-        if (loaderFill) loaderFill.style.width = progress + '%';
-        
-        if (progress >= 100) {
-            clearInterval(interval);
-            // Виправлено: прибрано дубльований .style
-            document.getElementById('splash-screen').style.display = 'none';
-            document.getElementById('game-container').style.display = 'flex';
-        }
-    }, 100);
-});
-
 // Дані кастомізації
 let racerName = "Mykyta";
 let racerGender = "Хлопець";
@@ -127,18 +109,18 @@ const QUESTS = [
         b1: "Піти з Колею (-1 год роботи)",
         b2: "Залишитись на лінії",
         action: (choice) => {
-            if (choice === 1) { stress = Math.max(0, stress - 15); energy = Math.min(maxEnergy, energy + 10); return "🚬 <b>Перекусон:</b> Нерви розвантажив, але годину роботи пропустив. (Стрес -15%, Енергія +10)"; }
+            if (choice === 1) { stress = Math.max(0, stress - 15); energy = Math.min(maxEnergy, energy + 10); return "🚬 <b>Перекусон:</b> Нерви розвантажил, але годину роботи пропустив. (Стрес -15%, Енергія +10)"; }
             else { money += 50; return "🖥 <b>Трудоголік:</b> Ти залишився закривати чати. Керуюча помітила і скинула бонус +50₴."; }
         }
     }
 ];
 
-// --- 🔋 ПАСИВНА РЕГЕНЕРАЦІЯ ЕНЕРГІЇ В РЕАЛЬНОМУ ЧАСІ ---
+// --- ПАСИВНА РЕГЕНЕРАЦІЯ ЕНЕРГІЇ В РЕАЛЬНОМУ ЧАСІ ---
 function initPassiveEnergyRegen() {
     const lastSavedTime = localStorage.getItem('simracer_last_time');
     if (lastSavedTime) {
         const timeDiffMs = Date.now() - parseInt(lastSavedTime);
-        const passiveEnergyGained = Math.floor(timeDiffMs / 120000); // +1 енергія за 2 хв
+        const passiveEnergyGained = Math.floor(timeDiffMs / 120000); 
         if (passiveEnergyGained > 0) {
             energy = Math.min(maxEnergy, energy + passiveEnergyGained);
         }
@@ -281,7 +263,7 @@ function relaxAction(type) {
     if (type === 'sleep') {
         energy = Math.min(maxEnergy, energy + 30);
         stress = Math.max(0, stress - 5);
-        document.getElementById('work-log').innerHTML = "💤 <b>Домашній сон:</b> Ти дріманути 2 години. Сил додалось. (+30⚡️, -5🧠, +2 год зміні)";
+        document.getElementById('work-log').innerHTML = "💤 <b>Домашній сон:</b> Ти дріманути 2 години. Сил додалось. (+30⚡️, -5🧠, +2 god зміні)";
         advanceTime(2);
     }
     if (type === 'varus') {
