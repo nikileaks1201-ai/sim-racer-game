@@ -2,14 +2,23 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
 
-// Твоя економіка
+// Дані персонажа (Кастомізація на старті)
+let racerName = "Mykyta";
+let racerGender = "Хлопець";
+let racerStyle = "";
+let selectedTalentIdx = 0; // 0 - Хотлапер, 1 - Гік, 2 - Заряджений
+const TALENT_NAMES = ["Природжений Хотлапер", "Java-Гік", "Заряджений Monster'ом"];
+
+// Ресурси
 let money = 1000;
 let energy = 100;
+let maxEnergy = 100; // Може бути 130 для третього таланту!
 let stress = 0;
 
-// ТАЙМ-МЕНЕДЖМЕНТ (Твоя зміна)
+// ТАЙМ ТА ВІК
 let currentDay = 1;
-let currentHour = 9; // Початок зміни о 09:00
+let currentHour = 9;
+let racerAge = 18; // Старт у 18 років
 
 // RPG
 let level = 1;
@@ -17,17 +26,9 @@ let xp = 0;
 let skillPoints = 0;
 let stats = { ment: 0, phys: 0, eng: 0 };
 
-// Технічний стан
 let wheelCondition = 100;
-let upgrades = { 
-    keyboard: false, 
-    ups: false, 
-    wheel: false, 
-    pedals: false, 
-    monitor: false 
-};
+let upgrades = { keyboard: false, ups: false, wheel: false, pedals: false, monitor: false };
 
-// Конфігурація Чемпіонатів
 const LEAGUES = [
     { name: "Dark Race Simclub", fee: 0, laps: 3, speed: 3.5, reward: 900, req: "none" },
     { name: "КМАМК Україна", fee: 700, laps: 4, speed: 5.2, reward: 2000, req: "wheel" },
@@ -37,12 +38,9 @@ const LEAGUES = [
 ];
 let currentLeagueIdx = 0;
 
-// Заїзд
 let currentLap = 0;
 let racePosition = 20;
 let isRaceActive = false;
-
-// Бігунок
 let runnerPos = 0;
 let runnerSpeed = 1;
 let animationId = null;
@@ -52,39 +50,42 @@ let shakeTime = 0;
 let currentActiveQuest = null;
 let turnsSinceLastQuest = 0;
 
-const QUESTS = [
-    {
-        title: "🛸 ПРОПОЗИЦІЯ ХАКЕРІВ",
-        desc: "Конкуренти пропонують тобі злити базу даних хайроллерів твого казіка за великі гроші. Що вибереш?",
-        b1: "Злити базу (+2000₴, Ризик)",
-        b2: "Здати їх СБ (+15 Очок Менталки)",
-        action: (choice) => {
-            if (choice === 1) {
-                money += 2000;
-                if (Math.random() < 0.5) { stress = 90; return "💀 <b>Наслідок:</b> Керуюча помітила витік! Твій стрес підскочив до 90%."; }
-                return "💰 <b>Наслідок:</b> Все пройшло гладко. Гроші на карті, але совість гризе.";
-            } else {
-                stats.ment += 15;
-                return "🛡 <b>Наслідок:</b> СБ закрило загрозу. Твоя Холоднокровність виросла!";
-            }
-        }
-    },
-    {
-        title: "⚡️ КРАШ СЕРВЕРІВ",
-        desc: "Впали сервери оплати. Якщо в тебе є ДБЖ (безжеребнійник), ти застрахований. Якщо немає — ти застряг на лінії.",
-        b1: "Спробувати пофіксити",
-        b2: "Чекати (Мінус сили)",
-        action: (choice) => {
-            if (upgrades.ups) {
-                money += 300; gainXP(20);
-                return "🔋 <b>Рятунок ДБЖ:</b> Твоє залізо не вирубилось, ти миттєво переключився на резервний канал і закрив проблему. Керуюча дала премію +300₴!";
-            } else {
-                energy -= 20; stress = Math.min(100, stress + 25);
-                return "🤯 <b>Жах:</b> Твій ПК вирубився, ти втратив купу тікетів. Година пройшла в пекельному стресі (+25% стресу, -20 енергії).";
-            }
-        }
+// --- СИСТЕМА КАСТОМІЗАЦІЇ НА СТАРТІ ---
+function selectTalent(idx, element) {
+    selectedTalentIdx = idx;
+    document.querySelectorAll('.talent-card').forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+}
+
+function startGameWithCharacter() {
+    // Зчитуємо дані з форми
+    racerName = document.getElementById('creation-name').value.trim() || "Mykyta";
+    racerGender = document.getElementById('creation-gender').value;
+    racerStyle = document.getElementById('creation-style').value;
+
+    // Застосовуємо ефекти вроджених талантів
+    if (selectedTalentIdx === 1) {
+        stats.eng = 2; // Java-гік стартує з +2 інженерії
     }
-];
+    if (selectedTalentIdx === 2) {
+        maxEnergy = 130; // Енергетик має розширений бак сил
+        energy = 130;
+    }
+
+    // Заповнюємо Досьє на вкладці Гонщика
+    document.getElementById('bio-name').innerText = racerName;
+    document.getElementById('bio-gender').innerText = racerGender;
+    document.getElementById('bio-style').innerText = racerStyle;
+    document.getElementById('bio-talent').innerText = TALENT_NAMES[selectedTalentIdx];
+
+    // Ховаємо екран створення, вмикаємо інтерфейс гри
+    document.getElementById('screen-creation').classList.remove('active');
+    document.getElementById('main-game-header').style.display = 'block';
+    document.getElementById('global-tabs').style.display = 'flex';
+    
+    switchTab('work');
+    updateUI();
+}
 
 function switchTab(tabName) {
     document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
@@ -106,22 +107,34 @@ function switchTab(tabName) {
 function advanceTime(hours) {
     currentHour += hours;
     if (currentHour >= 18) {
-        // КІНЕЦЬ РОБОЧОГО ДНЯ (Пасивне списання)
         currentHour = 9;
         currentDay += 1;
-        money -= 400; // Оренда, комуналка, інтернет
         
-        alert(`⏰ Зміна завершена! Настав новий день. \n💸 Знято 400₴ за оренду житла та інтернет.`);
+        // Оренда дорожча для таланту №2 (бо п'є багато Monster Energy)
+        let rentCost = (selectedTalentIdx === 2) ? 500 : 400;
+        money -= rentCost;
         
-        // Перевірка банкрутства
+        alert(`⏰ Зміна завершена! \n💸 Списано ${rentCost}₴ за оренду квартири та інтернет.`);
+        
+        // СИСТЕМА СТАРІННЯ: Кожні 10 днів — плюс 1 рік життя!
+        if (currentDay % 10 === 1 && currentDay > 1) {
+            racerAge += 1;
+            alert(`👴 СВЯТКУЄМО ДЕНЬ НАРОДЖЕННЯ! \nТобі виповнилося ${racerAge} років! Час іде!`);
+        }
+
         if (money < 0) {
-            endGame("💀 БАНКРУТСТВО ТА ВИСЕЛЕННЯ!", "У тебе закінчилися гроші на оплату оренди. Керуюча звільнила за прогули, а власник квартири виставив твої речі та кокпіт на вулицю.");
+            endGame("💀 БАНКРУТСТВО ТА ВИСЕЛЕННЯ!", "Ти не зміг заробити на оренду квартири. Кокпіт конфісковано за борги.");
         }
     }
     updateUI();
 }
 
 function gainXP(amount) {
+    // Штраф до досвіду для таланту Хотлапер (-15% XP в офісі)
+    if (selectedTalentIdx === 0) {
+        amount = Math.floor(amount * 0.85);
+    }
+    
     xp += amount;
     if (xp >= 100) {
         xp -= 100;
@@ -142,10 +155,12 @@ function upgradeStat(stat) {
 function updateUI() {
     document.getElementById('global-money').innerText = money;
     document.getElementById('global-energy').innerText = energy;
+    document.getElementById('max-energy-display').innerText = maxEnergy;
     document.getElementById('global-stress').innerText = stress;
     document.getElementById('racer-level').innerText = level;
     document.getElementById('racer-xp').innerText = xp;
     document.getElementById('skill-points').innerText = skillPoints;
+    document.getElementById('racer-age').innerText = racerAge;
     
     document.getElementById('game-day').innerText = currentDay;
     document.getElementById('game-hour').innerText = currentHour < 10 ? '0' + currentHour : currentHour;
@@ -169,10 +184,10 @@ function updateUI() {
 }
 
 function workAnHour() {
-    if (energy < 20) { alert("Немає сил! Збігай у Варус."); return; }
+    if (energy < 20) { alert("Немає сил!"); return; }
     
     let salary = (upgrades.monitor ? 450 : 250) + (stats.eng * 20);
-    let stressCost = upgrades.keyboard ? 6 : 12; // Клавіатура зменшує стрес
+    let stressCost = upgrades.keyboard ? 6 : 12;
     
     energy -= 18;
     stress = Math.min(100, stress + stressCost);
@@ -181,27 +196,39 @@ function workAnHour() {
     gainXP(15);
     turnsSinceLastQuest += 1;
 
-    document.getElementById('work-log').innerHTML = `🖥 <b>Година роботи:</b> Закрив пачку чатів користувачів казіка. Заробіток: +${salary}₴.`;
+    document.getElementById('work-log').innerHTML = `🖥 <b>Година роботи:</b> Закрив пачку чатів. Заробіток: +${salary}₴.`;
     
     if (turnsSinceLastQuest >= 3 && currentActiveQuest === null) {
         triggerRandomQuest();
     }
 
-    advanceTime(1); // Кожна робота забирає 1 годину
+    advanceTime(1);
     checkGameOver();
 }
 
 function goToVarus() {
     if (money < 120) { alert("Не вистачає коштів!"); return; }
     money -= 120;
-    energy = Math.min(100, energy + 45);
+    energy = Math.min(maxEnergy, energy + 45);
     stress = Math.max(0, stress - 15);
-    document.getElementById('work-log').innerHTML = "🛒 <b>Varus:</b> Хвилина спокою, енергетик та паніні відновлюють показники.";
-    
-    advanceTime(1); // Похід у магазин забирає 1 годину
+    document.getElementById('work-log').innerHTML = "🛒 <b>Varus:</b> Заправився паніні та кавою.";
+    advanceTime(1);
 }
 
 function triggerRandomQuest() {
+    // Випадкові сюжетні квести
+    const QUESTS = [
+        {
+            title: "🛸 ПРОПОЗИЦІЯ ХАКЕРІВ",
+            desc: "Конкуренти пропонують тобі злити базу даних хайроллерів твого казіка за великі гроші. Що вибереш?",
+            b1: "Злити базу (+2000₴, Ризик)",
+            b2: "Здати їх СБ (+15 Очок Менталки)",
+            action: (choice) => {
+                if (choice === 1) { money += 2000; if (Math.random() < 0.5) { stress = 90; return "💀 <b>Наслідок:</b> Витік помітили! Твій стрес підскочив до 90%."; } return "💰 <b>Наслідок:</b> Гроші отримано успішно."; }
+                else { stats.ment += 15; return "🛡 <b>Наслідок:</b> СБ закрило загрозу. Твоя Холоднокровність виросла!"; }
+            }
+        }
+    ];
     currentActiveQuest = QUESTS[Math.floor(Math.random() * QUESTS.length)];
     document.getElementById('quest-zone').style.display = "block";
     document.getElementById('quest-title').innerText = currentActiveQuest.title;
@@ -235,32 +262,28 @@ function buyUpgrade(type, price) {
 function repairWheel() {
     let repairCost = Math.max(0, 400 - (stats.eng * 80));
     if (money < repairCost) { alert("Немає грошей!"); return; }
-    
     money -= repairCost;
     wheelCondition = 100;
     updateUI();
 }
 
-// --- ГОНКА: НОВИЙ БАЛАНС ОБГОНІВ ДЛЯ DARK RACE SIMCLUB ---
+// --- ГОНКА ТА МАТЕМАТИКА ТАЛАНТІВ ---
 function startRaceWeekend() {
     let league = LEAGUES[currentLeagueIdx];
     if (league.req !== "none" && !upgrades[league.req]) {
-        let reqName = league.req === "wheel" ? "Moza R9" : league.req === "pedals" ? "Moza CRP" : "Тримонітор";
-        alert(`❌ Обмеження регламенту ліги! Необхідно: ${reqName}`);
-        return;
+        alert(`❌ Потрібно залізо регламенту: ${league.req}`); return;
     }
-    if (money < league.fee) { alert("Немає грошей на внесок!"); return; }
+    if (money < league.fee) { alert("Немає грошень на внесок!"); return; }
     
     money -= league.fee;
     isRaceActive = true;
     currentLap = 0;
-    racePosition = 20; // Починаємо з кінця решітки P20
-
-    runnerSpeed = 1; // напрямок руху
+    racePosition = 20;
+    runnerSpeed = 1;
 
     document.getElementById('start-race-btn').style.display = 'none';
     document.getElementById('hit-apex-btn').style.display = 'block';
-    document.getElementById('race-log').innerHTML = `🏁 <b>Етап ліги ${league.name} розпочато!</b> Ти на P20. Кожен вдалий апекс гарантує потужний прорив!`;
+    document.getElementById('race-log').innerHTML = `🏁 <b>Етап ліги ${league.name} розпочато!</b>`;
     
     isRaceScreenActive = true;
     updateUI();
@@ -274,9 +297,14 @@ function startRunnerAnimation() {
 
     let league = LEAGUES[currentLeagueIdx];
     
-    // Вплив менталки на швидкість
-    let targetSpeed = league.speed - (stats.ment * 0.15);
-    if (targetSpeed < 1.5) targetSpeed = 1.5; // мінімальний ліміт швидкості
+    // ВПЛИВ ТАЛАНТУ №0: Хотлапер спочатку має на 10% повільніший (простіший) бігунок!
+    let talentBonus = (selectedTalentIdx === 0) ? 0.9 : 1.0;
+    
+    // Вплив старіння: після 30 років реакція падає (маркер прискорюється)
+    let agePenalty = (racerAge >= 30) ? 1.2 : 1.0;
+
+    let targetSpeed = (league.speed - (stats.ment * 0.15)) * talentBonus * agePenalty;
+    if (targetSpeed < 1.5) targetSpeed = 1.5;
 
     let shake = 0;
     if (wheelCondition < 50) {
@@ -298,7 +326,7 @@ function hitApex() {
     if (!isRaceActive) return;
     
     let energyCost = Math.max(4, 15 - stats.phys * 2);
-    if (energy < energyCost) { alert("Немає сил тиснути педалі!"); return; }
+    if (energy < energyCost) { alert("Немає сил!"); return; }
     
     energy -= energyCost;
     currentLap += 1;
@@ -312,18 +340,18 @@ function hitApex() {
     let trackCenter = track.clientWidth / 2;
     let allowedDiff = apex.clientWidth / 2;
 
-    // ПЕРЕПИСАНА МАТЕМАТИКА ОБГОНІВ (БІЛЬШ СТАБІЛЬНА ДЛЯ ПОДІУМУ)
+    // Вплив Таланту №1: Java-гік отримує на 20% більше стресу при промахах
+    let stressMultiplier = (selectedTalentIdx === 1) ? 1.2 : 1.0;
+
     if (Math.abs(runnerCenter - trackCenter) <= allowedDiff) {
-        // ВЛУЧИВ: гарантований прорив на 4-6 позицій вгору!
         let overtakes = Math.floor(Math.random() * 3) + 4; 
         racePosition = Math.max(1, racePosition - overtakes);
-        document.getElementById('race-log').innerHTML = `🟢 <b>Коло ${currentLap}:</b> Філігранний апекс! Ти пройшов групу машин. Позиція: P${racePosition}.`;
+        document.getElementById('race-log').innerHTML = `🟢 <b>Коло ${currentLap}:</b> Влучний апекс! Позиція: P${racePosition}.`;
     } else {
-        // ПРОМАХНУВСЯ: втрата всього 1-2 позицій, а не кінець гонки
-        let penaltyStress = upgrades.pedals ? 8 : 16;
+        let penaltyStress = (upgrades.pedals ? 8 : 16) * stressMultiplier;
         stress = Math.min(100, stress + penaltyStress);
-        racePosition = Math.min(20, racePosition + Math.floor(Math.random() * 2) + 1);
-        document.getElementById('race-log').innerHTML = `🔴 <b>Коло ${currentLap}:</b> Помилка по ширині треку. Суперники контратакують. Позиція: P${racePosition}.`;
+        racePosition = Math.min(20, racePosition + 1);
+        document.getElementById('race-log').innerHTML = `🔴 <b>Коло ${currentLap}:</b> Промах траєкторії! Позиція: P${racePosition}.`;
     }
 
     if (currentLap >= LEAGUES[currentLeagueIdx].laps) {
@@ -335,40 +363,37 @@ function hitApex() {
 }
 
 function endRaceWeekend() {
-    isRaceActive = false;
-    isRaceScreenActive = false;
-    cancelAnimationFrame(animationId);
-
+    isRaceActive = false; isRaceScreenActive = false; cancelAnimationFrame(animationId);
     document.getElementById('start-race-btn').style.display = 'block';
     document.getElementById('hit-apex-btn').style.display = 'none';
 
     let league = LEAGUES[currentLeagueIdx];
 
-    // Умова проходження далі: ТОП-3 (Подіум)
     if (racePosition <= 3) {
         money += league.reward;
         gainXP(60);
-        document.getElementById('race-log').innerHTML = `🏆 <b>ФІНІШ НА ПОДІУМІ (P${racePosition})!</b> Спонсори задоволені. Призові: +${league.reward}₴. Відкрита наступна категорія перегонів!`;
+        document.getElementById('race-log').innerHTML = `🏆 <b>ПОДІУМ (P${racePosition})!</b> Призові: +${league.reward}₴. Ліцензію оновлено!`;
         if (currentLeagueIdx < LEAGUES.length - 1) currentLeagueIdx += 1;
-        else endGame("🏆 СВІТОВА ЛЕГЕНДА СІМРЕЙСИНГУ!", "Ти пройшов кар'єру від оператора саппорту до чемпіона світу Formula 1!");
+        else endGame("🏆 СВІТОВА ЛЕГЕНДА СІМРЕЙСИНГУ!", `Ти виграв F1 World Series у віці ${racerAge} років! Абсолютний тріумф.`);
     } else {
-        document.getElementById('race-log').innerHTML = `🏁 <b>Фініш на P${racePosition}.</b> Непогано, але для кваліфікації далі потрібен ТОР-3. Прокачай Холоднокровність або візьми Moza DD базу в Гаражі!`;
+        document.getElementById('race-log').innerHTML = `🏁 <b>Фініш на P${racePosition}.</b> Потрібен ТОП-3.`;
     }
     
     currentLap = 0;
-    advanceTime(1); // Гонка забирає 1 годину робочої зміни
-    updateUI();
+    advanceTime(1);
 }
 
 function checkGameOver() {
-    if (stress >= 100) endGame("💀 НЕРВОВИЙ ЗРИВ!", "Стрес 100%. Ти послав Керуючу, розбив робочий комп і вилетів з кар'єри.");
-    if (energy <= 0) endGame("💀 ФІЗИЧНИЙ КОЛАПС", "У тебе повністю закінчилися сили прямо посеред зміни.");
+    if (stress >= 100) endGame("💀 НЕРВОВИЙ ЗРИВ!", "Стрес знищив твою менталку. Кар'єру закінчено.");
+    if (energy <= 0) endGame("💀 ФІЗИЧНИЙ КОЛАПС", "Повна перевтома.");
+    if (racerAge >= 40) endGame("👴 СІМРЕЙСЕРСЬКА ПЕНСІЯ!", "Тобі стукнуло 40 років. Реакція вже не та, спонсори закрили контракти. Ти йдеш на пенсію оператором підтримки.");
 }
 
 function endGame(title, desc) {
     isRaceActive = false; isRaceScreenActive = false; cancelAnimationFrame(animationId);
     document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
     document.getElementById('global-tabs').style.display = 'none';
+    document.getElementById('main-game-header').style.display = 'none';
     const finalScreen = document.getElementById('screen-final');
     finalScreen.classList.add('active');
     document.getElementById('final-title').innerText = title;
@@ -376,20 +401,19 @@ function endGame(title, desc) {
 }
 
 function resetGame() {
-    money = 1000; energy = 100; stress = 0; currentLeagueIdx = 0; level = 1; xp = 0; skillPoints = 0;
-    currentDay = 1; currentHour = 9;
+    money = 1000; energy = 100; maxEnergy = 100; stress = 0; currentLeagueIdx = 0; level = 1; xp = 0; skillPoints = 0;
+    currentDay = 1; currentHour = 9; racerAge = 18;
     stats = { ment: 0, phys: 0, eng: 0 }; wheelCondition = 100; isRaceActive = false;
     upgrades = { keyboard: false, ups: false, wheel: false, pedals: false, monitor: false };
 
     document.querySelectorAll('.upgrade-card').forEach(c => c.classList.remove('owned'));
     document.getElementById('start-race-btn').style.display = 'block';
     document.getElementById('hit-apex-btn').style.display = 'none';
-    document.getElementById('global-tabs').style.display = 'flex';
+    document.getElementById('main-game-header').style.display = 'none';
     document.getElementById('quest-zone').style.display = "none";
     currentActiveQuest = null; turnsSinceLastQuest = 0;
     
-    updateUI();
-    switchTab('work');
+    document.getElementById('screen-creation').classList.add('active');
 }
-
+// Створення персонажа активне при запуску, UI гри чекає
 updateUI();
