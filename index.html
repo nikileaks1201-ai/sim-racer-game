@@ -3,85 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Сімрейсер: PRO Симулятор</title>
+    <title>SimRacer Tycoon</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
     <div id="game-container">
-        <h1>🏎 СІМРЕЙСЕР: ХРОНІКИ САППОРТУ 👨‍💻</h1>
         
-        <div class="stats-grid">
-            <!-- Прогрес-бар Енергії -->
-            <div class="stat-row">
-                <div class="stat-header">
-                    <span>⚡️ Енергія</span>
-                    <span><span id="energy-val">100</span>%</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div id="energy-fill" class="progress-bar-fill"></div>
-                </div>
-            </div>
+        <div class="global-header">
+            <div>💵 <span id="global-money">1000</span>₴</div>
+            <div>⚡️ <span id="global-energy">100</span>%</div>
+            <div>🧠 <span id="global-stress">0</span>%</div>
+        </div>
 
-            <!-- Прогрес-бар Стресу -->
-            <div class="stat-row">
-                <div class="stat-header">
-                    <span>🧠 Рівень Стресу</span>
-                    <span><span id="stress-val">0</span>%</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div id="stress-fill" class="progress-bar-fill"></div>
-                </div>
-            </div>
+        <div id="screen-work" class="game-screen active">
+            <h2>🖥 ЧАТИ ПІДТРИМКИ (Служба Саппорту)</h2>
+            <div id="work-log">Керуюча зайшла в мережу. Гравці в казіку починають писати в чати. Твоє завдання — закривати тікети.</div>
+            <button class="main-action-btn" onclick="workAnHour()">🖥 Закрити пачку чатів (+250₴)</button>
+            <button class="main-action-btn relax" onclick="goToVarus()">🛒 Перекусон у Varus (-120₴)</button>
+        </div>
 
-            <!-- Баланс грошей -->
-            <div class="stat-row" style="text-align: center; font-size: 15px;">
-                💵 Гаманець: <span id="money-val" style="color: #ffcc00;">1000</span>₴
+        <div id="screen-garage" class="game-screen">
+            <h2>🛠 ТВІЙ КОКПІТ (Модернізація)</h2>
+            <p style="font-size: 13px; color: #aaa; text-align: center; margin-top: -10px;">Купуй залізо, щоб збільшити ідеальну зону в гонці!</p>
+            
+            <div class="upgrade-list">
+                <div class="upgrade-card" id="upg-wheel">
+                    <div><b>Кермо: Дешевий пластик</b><br><small id="wheel-desc">Зона апексу: Вузька</small></div>
+                    <button onclick="buyUpgrade('wheel', 800)" id="btn-wheel">Купити Moza R9 (800₴)</button>
+                </div>
+                <div class="upgrade-card" id="upg-pedals">
+                    <div><b>Педалі: Старі пластикові</b><br><small id="pedals-desc">Енергія на тренуваннях: -20</small></div>
+                    <button onclick="buyUpgrade('pedals', 1200)" id="btn-pedals">Moza CRP (1200₴)</button>
+                </div>
+                <div class="upgrade-card" id="upg-monitor">
+                    <div><b>Екран: Старий ноутбук</b><br><small id="monitor-desc">Зарплата в саппорті: Базова</small></div>
+                    <button onclick="buyUpgrade('monitor', 1500)" id="btn-monitor">Тримонітор (1500₴)</button>
+                </div>
             </div>
         </div>
 
-        <div class="time-banner">⏰ Година зміни: <span id="time-val">09</span>:00</div>
+        <div id="screen-race" class="game-screen">
+            <h2>🏎 ЕТАП ЧЕМПІОНАТУ: SPA-FRANCORCHAMPS</h2>
+            <p style="text-align: center; font-size: 13px; margin: 0 0 15px 0;">Влучи бігунком точно в зелену зону <b>АПЕКСУ</b>!</p>
+            
+            <div class="track-line">
+                <div id="apex-zone"></div>
+                <div id="car-runner"></div>
+            </div>
 
-        <div id="log-window">Зміна розпочалась. Керуюча в мережі. Наплив користувачів у казіку помірний. Що вибереш на цю годину?</div>
-        
-        <!-- Магазин апгрейдів -->
-        <div id="shop-modal">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <b style="color:#03a9f4">🛒 Магазин тюнінгу та софту:</b>
-                <button onclick="toggleShop()" style="background:none; border:none; color:white; font-weight:bold; cursor:pointer;">❌</button>
-            </div>
-            <div class="shop-item">
-                <span>🤖 ZennoPoster макрос (Робота бере менше сил)</span>
-                <button class="shop-buy-btn" onclick="buyItem('script', 400)">400₴</button>
-            </div>
-            <div class="shop-item">
-                <span>📚 Курс Java від Сеньйора (-25% стресу)</span>
-                <button class="shop-buy-btn" onclick="buyItem('java', 300)">300₴</button>
-            </div>
-            <div class="shop-item">
-                <span>🏎 Педалі Moza CRP (+45% до шансу гонки)</span>
-                <button class="shop-buy-btn" onclick="buyItem('moza', 600)">600₴</button>
+            <button id="hit-apex-btn" class="main-action-btn race" onclick="hitApex()">🔥 СТАТИ НА АПЕКС (ТАП!)</button>
+            
+            <div id="race-log">Ти стоїш на стартовій решітці... Чекаємо твого маневру!</div>
+            <div style="text-align: center; font-weight: bold; margin-top: 10px; color: #ffcc00;">
+                🏁 Очки чемпіонату: <span id="race-points">0</span> / 5
             </div>
         </div>
 
-        <!-- Кнопки управління -->
-        <div id="game-controls" class="btn-group">
-            <button class="action-btn" onclick="takeStep('work')"><span>🖥 Лупити чати на зміні</span> <small>+₴, +🧠</small></button>
-            <button class="action-btn" onclick="takeStep('varus')"><span>🛒 Перекусон у Varus (-120₴)</span> <small>+⚡️, -🧠</small></button>
-            <button class="action-btn" onclick="takeStep('race')"><span>🏁 Катнути хотлап у Спа</span> <small>-⚡️, -🧠</small></button>
-            <button class="action-btn shop" onclick="toggleShop()"><span>🛒 Відкрити Магазин Апгрейдів</span></button>
-        </div>
-
-        <!-- Фінал -->
-        <div id="final-screen">
+        <div id="screen-final" class="game-screen">
             <h2 id="final-title"></h2>
             <p id="final-desc"></p>
-            <button class="action-btn" onclick="resetGame()" style="text-align:center; justify-content:center;">🔁 Почати новий день</button>
+            <button class="main-action-btn" onclick="resetGame()">🔁 Почати нову кар'єру</button>
         </div>
-    </div>
 
-    <div id="game-core-ui"></div>
+        <div class="tab-bar" id="global-tabs">
+            <div class="tab-button active" onclick="switchTab('work')">🖥 Робота</div>
+            <div class="tab-button" onclick="switchTab('garage')">🛠 Гараж</div>
+            <div class="tab-button" onclick="switchTab('race')">🏎 Гонка</div>
+        </div>
+
+    </div>
 
     <script src="script.js"></script>
 </body>
