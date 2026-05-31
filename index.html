@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Сімрейсер: Симулятор Життя</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            background-color: #2d2d2d;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 { font-size: 20px; margin-bottom: 10px; color: #0088cc; }
+        .stats { display: flex; justify-content: space-between; width: 100%; margin-bottom: 20px; font-weight: bold; }
+        .stat-item { background: #3d3d3d; padding: 10px; border-radius: 8px; width: 45%; }
+        
+        #log-window {
+            background-color: #111;
+            border-radius: 10px;
+            padding: 15px;
+            height: 150px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 14px;
+            color: #aaa;
+            border: 1px solid #444;
+        }
+
+        .action-btn {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .action-btn:hover { background-color: #00aaff; }
+        .action-btn:active { transform: scale(0.98); }
+        .action-btn:disabled { background-color: #555; cursor: not-allowed; }
+
+        #final-screen { display: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1>🏁 ДЕНЬ З ЖИТТЯ СІМРЕЙСЕРА 🏁</h1>
+        
+        <div class="stats">
+            <div class="stat-item">⚡️ Енергія: <span id="energy-val">100</span>%</div>
+            <div class="stat-item">💵 Баланс: <span id="money-val">1000</span> грн</div>
+        </div>
+
+        <div id="game-core">
+            <p>⏰ Час: <span id="time-val">9</span>:00</p>
+            <div id="log-window">Ти прокинувся. Пора починати зміну в саппорті...</div>
+            
+            <button class="action-btn" onclick="makeChoice(1)">🖥 Працювати (відповідати в чатах)</button>
+            <button class="action-btn" onclick="makeChoice(2)">🛒 Піти у Varus (Баланс -150, Енергія +30)</button>
+            <button class="action-btn" onclick="makeChoice(3)">🏎 Катнути в Спа на Moza (Енергія -25)</button>
+        </div>
+
+        <div id="final-screen">
+            <h2 id="final-title"></h2>
+            <p id="final-stats"></p>
+            <p id="final-desc"></p>
+            <button class="action-btn" onclick="resetGame()">🔁 Зіграти знову</button>
+        </div>
+    </div>
+
+    <script>
+        // Ініціалізація Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Розгорнути на весь екран
+        tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
+
+        // Змінні гри
+        let energy = 100;
+        let money = 1000;
+        let hour = 9;
+
+        const logWindow = document.getElementById('log-window');
+
+        function updateUI() {
+            document.getElementById('energy-val').innerText = energy;
+            document.getElementById('money-val').innerText = money;
+            document.getElementById('time-val').innerText = hour;
+        }
+
+        function addLog(text, color = "#aaa") {
+            const p = document.createElement('p');
+            p.style.color = color;
+            p.style.margin = "5px 0";
+            p.innerText = text;
+            logWindow.appendChild(p);
+            logWindow.scrollTop = logWindow.scrollHeight; // Автоскрол вниз
+        }
+
+        function makeChoice(choice) {
+            hour += 3;
+            let logText = "";
+            let logColor = "#aaa";
+
+            if (choice === 1) { // Працювати
+                const event = Math.floor(Math.random() * 3);
+                if (event === 0) {
+                    logText = "🎰 Клієнт програв у казіку і кричить. Енергія -20, Премія +300 грн!";
+                    energy -= 20; money += 300; logColor = "#ffb703";
+                } else if (event === 1) {
+                    logText = "💳 Адекватний гравець, питання вирішено за хвилину. Енергія -5, Баланс +150.";
+                    energy -= 5; money += 150; logColor = "#8bc34a";
+                } else {
+                    logText = "🤯 Керуюча викликала на збори підтримки! Духота... Енергія -40%.";
+                    energy -= 40; logColor = "#f44336";
+                }
+            } else if (choice === 2) { // Varus
+                money -= 150;
+                energy += 30;
+                if (energy > 100) energy = 100;
+                logText = "🛒 Сходив у Варус. Кайфуєш від енергетика. (Баланс -150, Енергія +30)";
+                logColor = "#2196f3";
+            } else if (choice === 3) { // Спа
+                energy -= 25;
+                logText = "🏎 Сів у кокпіт Moza, дав кута в Спа! Настрій топ, але сили пішли. (Енергія -25)";
+                logColor = "#9c27b0";
+                if (Math.floor(Math.random() * 4) === 0) {
+                    logText += " ⚠️ Керуюча помітила! Штраф -400 грн!";
+                    money -= 400; logColor = "#d32f2f";
+                }
+            }
+
+            addLog(`⏰ ${hour-3}:00 -> ${logText}`, logColor);
+            updateUI();
+            checkGameOver();
+        }
+
+        function checkGameOver() {
+            if (energy <= 0) {
+                showFinal("💀 ГЕЙМ ОВЕР!", "energy", "Ти повністю вигорів на роботі. Гонка скасовується, Юра вчить Джаву замість тебе.");
+            } else if (money <= 0) {
+                showFinal("💀 ГЕЙМ ОВЕР!", "money", "Баланс пішов у мінус. Ти збанкрутував, Moza віджав ломбард.");
+            } else if (hour >= 18) {
+                if (energy >= 50 && money >= 1200) {
+                    showFinal("🏆 СУПЕР ФІНАЛ!", "win", "Ти виграв гонку в ACC, отримав підвищення і замовив суші! Повний тріумф!");
+                } else {
+                    showFinal("🏁 ФІНІШ!", "normal", "До гонки ти доїхав, але фінішував останнім, бо засинав за кермом.");
+                }
+            }
+        }
+
+        function showFinal(title, type, desc) {
+            document.getElementById('game-core').style.display = 'none';
+            document.getElementById('final-screen').style.display = 'block';
+            document.getElementById('final-title').innerText = title;
+            document.getElementById('final-stats').innerText = `🔋 Енергія: ${energy}% | 💵 Гроші: ${money} грн`;
+            document.getElementById('final-desc').innerText = desc;
+            
+            if (type === 'win') document.getElementById('final-title').style.color = "#8bc34a";
+            else if (type.includes('Game Over')) document.getElementById('final-title').style.color = "#f44336";
+        }
+
+        function resetGame() {
+            energy = 100; money = 1000; hour = 9;
+            logWindow.innerHTML = "Ти прокинувся. Пора починати зміну в саппорті...";
+            document.getElementById('game-core').style.display = 'block';
+            document.getElementById('final-screen').style.display = 'none';
+            updateUI();
+        }
+
+        updateUI(); // Початкове оновлення
+    </script>
+</body>
+</html>
