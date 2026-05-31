@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SimRacer RPG Manager PRO</title>
+    <title>SimRacer RPG Manager Ultimate</title>
     
     <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ CSS БЕЗ КЕШУ -->
     <script>
@@ -19,25 +19,66 @@
 
     <div id="game-container">
         
-        <!-- ХЕДЕР З РЕСУРСАМИ -->
-        <div class="global-header">
-            <div>💵 <span id="global-money">1000</span>₴</div>
-            <div>⚡️ <span id="global-energy">100</span>%</div>
-            <div>🧠 <span id="global-stress">0</span>%</div>
+        <!-- ================= ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА (СТАРТ) ================= -->
+        <div id="screen-creation" class="game-screen active" style="margin-bottom: 0;">
+            <h1 style="color:#ff5722; font-size:16px;">👤 СТВОРЕННЯ НОВОГО ГОНЩИКА</h1>
+            <p style="font-size:11px; text-align:center; color:#888; margin-top:-10px;">Налаштуй свій профайл перед початком кар'єри</p>
+            
+            <div class="creation-form">
+                <label>Ім'я / Нікнейм:</label>
+                <input type="text" id="creation-name" value="Mykyta" placeholder="Введіть нік...">
+
+                <label>Стать:</label>
+                <select id="creation-gender">
+                    <option value="Хлопець">Чоловіча (Хлопець)</option>
+                    <option value="Дівчина">Жіноча (Дівчина)</option>
+                </select>
+
+                <label>Стиль / Зовнішність:</label>
+                <select id="creation-style">
+                    <option value="🛹 Стріт-рейсер у худі">Стріт-рейсер у худі</option>
+                    <option value="🎮 Кіберспортсмен у джерсі">Кіберспортсмен у джерсі</option>
+                    <option value="🏎️ Про-пілот у комбінезоні">Про-пілот у комбінезоні</option>
+                </select>
+
+                <label style="color:#ffcc00;">🔮 Вроджений Талант (Головний Перк):</label>
+                <div class="talent-options">
+                    <div class="talent-card active" onclick="selectTalent(0, this)">
+                        <b>🏎️ Хотлапер</b><br><small>Швидкість бігунка -10%, але -15% XP в офісі.</small>
+                    </div>
+                    <div class="talent-card" onclick="selectTalent(1, this)">
+                        <b>💻 Java-Гік</b><br><small>Старт з +2 Інженерії. Стрес у гонках +20%.</small>
+                    </div>
+                    <div class="talent-card" onclick="selectTalent(2, this)">
+                        <b>🔋 Заряджений Monster'ом</b><br><small>Макс. Енергія 130%. Оренда житла: 500₴.</small>
+                    </div>
+                </div>
+
+                <button class="main-action-btn" onclick="startGameWithCharacter()" style="background:#ff5722; justify-content:center; margin-top:15px;">🚀 Запустити Симуляцію Життя</button>
+            </div>
         </div>
 
-        <div class="championship-banner">
-            🏆 <span id="current-league-name">Dark Race Simclub</span> | Рівень: <span id="racer-level">1</span> (<span id="racer-xp">0</span>/100 XP)
-        </div>
-        
-        <div class="time-banner-rpg">
-            📅 День: <span id="game-day">1</span> | ⏰ Час зміні: <span id="game-hour">09</span>:00 (Кінець о 18:00)
+        <!-- ГЛОБАЛЬНИЙ ХЕДЕР ІГРОВОГО ПРОЦЕСУ (За замовчуванням прихований) -->
+        <div id="main-game-header" style="display:none;">
+            <div class="global-header">
+                <div>💵 <span id="global-money">1000</span>₴</div>
+                <div>⚡️ <span id="global-energy">100</span>% / <span id="max-energy-display">100</span>%</div>
+                <div>🧠 <span id="global-stress">0</span>%</div>
+            </div>
+
+            <div class="championship-banner">
+                🏆 <span id="current-league-name">Dark Race Simclub</span> | Рівень: <span id="racer-level">1</span> (<span id="racer-xp">0</span>/100 XP)
+            </div>
+            
+            <div class="time-banner-rpg">
+                👴 Вік: <span id="racer-age">18</span> років (Пенсія в 40) | 📅 День: <span id="game-day">1</span> | ⏰ <span id="game-hour">09</span>:00
+            </div>
         </div>
 
         <!-- ================= ЕКРАН 1: ОФІС / КВЕСТИ ================= -->
-        <div id="screen-work" class="game-screen active">
+        <div id="screen-work" class="game-screen">
             <h2>🖥 РАБОЧА ЗМІНА ТА СТРАТЕГІЯ</h2>
-            <div id="work-log">Робочий день розпочався. Кожна дія займає 1 годину. О 18:00 відбудеться списання коштів за оренду житла (-400₴)! Балансуй час розумно.</div>
+            <div id="work-log">Робочий день розпочався. Кожна дія займає 1 годину. О 18:00 відбудеться списання коштів за оренду житла! Балансуй час розумно.</div>
             
             <button class="main-action-btn" onclick="workAnHour()">🖥 Працювати годину в саппорті (+1 год, +15 XP)</button>
             <button class="main-action-btn relax" onclick="goToVarus()">🛒 Забіг у Varus (-120₴, +1 год)</button>
@@ -54,8 +95,14 @@
 
         <!-- ================= ЕКРАН 2: ПРОФІЛЬ ГОНЩИКА ================= -->
         <div id="screen-racer" class="game-screen">
-            <h2>👤 ХАРАКТЕРИСТИКИ ТА ПЕРКИ</h2>
-            <div style="text-align:center; margin-bottom:15px; color:#ffcc00; font-weight:bold;">
+            <h2>👤 ДОСЬЄ ПІЛОТА ТА ХАРАКТЕРИСТИКИ</h2>
+            <div id="racer-bio-card" style="background:#1c1c1c; padding:10px; border-radius:8px; font-size:12px; margin-bottom:15px; border-left:3px solid #ff5722;">
+                <b>Ім'я:</b> <span id="bio-name">Mykyta</span> (<span id="bio-gender">Хлопець</span>)<br>
+                <b>Стиль:</b> <span id="bio-style">-</span><br>
+                <b>Талант:</b> <span id="bio-talent">-</span>
+            </div>
+
+            <div style="text-align:center; margin-bottom:15px; color:#ffcc00; font-weight:bold; font-size:13px;">
                 Вільні очки навичок: <span id="skill-points">0</span>
             </div>
             
@@ -84,7 +131,6 @@
             </div>
             
             <div class="upgrade-list">
-                <!-- ТЕХНІКА ДЛЯ РОБОТИ -->
                 <div class="upgrade-card work-item" id="upg-keyboard">
                     <div><b>⌨️ Механічна Клавіатура</b><br><small id="keyboard-desc">Робота бере на 25% менше стресу</small></div>
                     <button onclick="buyUpgrade('keyboard', 600)" id="btn-keyboard">600₴</button>
@@ -93,10 +139,8 @@
                     <div><b>🔋 Джерело безперебійного живлення (ДБЖ)</b><br><small id="ups-desc">Захист від крашу серверів та вимкнень світла</small></div>
                     <button onclick="buyUpgrade('ups', 1800)" id="btn-ups">1800₴</button>
                 </div>
-                
-                <!-- ТЕХНІКА ДЛЯ СІМРЕЙСИНГУ -->
                 <div class="upgrade-card" id="upg-wheel">
-                    <div><b>🏎 База Moza R9 DD</b><br><small id="wheel-desc">Розширює зону апексу на треку. Обов'язково для КМАМК!</small></div>
+                    <div><b>🏎 База Moza R9 DD</b><br><small id="wheel-desc">Розширює зону апексу. Обов'язково для КМАМК!</small></div>
                     <button onclick="buyUpgrade('wheel', 2200)" id="btn-wheel">2200₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-pedals">
@@ -140,8 +184,8 @@
             <button class="main-action-btn" onclick="resetGame()" style="text-align:center; justify-content:center;">🔁 Почати нову кар'єру</button>
         </div>
 
-        <!-- ТАБ-БАР (Нижня навігація) -->
-        <div class="tab-bar" id="global-tabs">
+        <!-- ТАБ-БАР (За замовчуванням прихований до створення персонажа) -->
+        <div class="tab-bar" id="global-tabs" style="display:none;">
             <div class="tab-button active" onclick="switchTab('work')">🖥 Офіс</div>
             <div class="tab-button" onclick="switchTab('racer')">👤 Гонщик</div>
             <div class="tab-button" onclick="switchTab('garage')">🛠 Гараж</div>
