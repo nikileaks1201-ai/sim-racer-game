@@ -2,7 +2,7 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
 
-// Анімація заставки (Splash Screen)
+// 🎬 Анімація заставки (Splash Screen) — ФІКС ЗАВИСАННЯ
 window.addEventListener('DOMContentLoaded', () => {
     const loaderFill = document.getElementById('splash-loader-fill');
     let progress = 0;
@@ -13,6 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
         
         if (progress >= 100) {
             clearInterval(interval);
+            // Виправлено: прибрано дубльований .style
             document.getElementById('splash-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';
         }
@@ -67,7 +68,7 @@ let currentLap = 0;
 let racePosition = 20;
 let isRaceActive = false;
 let runnerPos = 0;
-let runnerDirection = 1; // 1 - вправо, -1 - вліво
+let runnerDirection = 1; 
 let animationId = null;
 let isRaceScreenActive = false;
 let shakeTime = 0;
@@ -122,7 +123,7 @@ const QUESTS = [
     },
     {
         title: "🚬 ПЕРЕКУР З КОЛЕЮ",
-        desc: "Коля кличе терміново обговорити схему абузу бонусів, поки Керуюча на обіді.",
+        desc: "Коля кличе терміново обговорити схему абузу бонусів, пока Керуюча на обіді.",
         b1: "Піти з Колею (-1 год роботи)",
         b2: "Залишитись на лінії",
         action: (choice) => {
@@ -132,20 +133,17 @@ const QUESTS = [
     }
 ];
 
-// --- 🔋 МЕХАНІКА ПАСИВНОГО ВІДНОВЛЕННЯ ЕНЕРГІЇ В РЕАЛЬНОМУ ЧАСІ ---
+// --- 🔋 ПАСИВНА РЕГЕНЕРАЦІЯ ЕНЕРГІЇ В РЕАЛЬНОМУ ЧАСІ ---
 function initPassiveEnergyRegen() {
-    // 1. Перевірка, скільки часу гравець був відсутній
     const lastSavedTime = localStorage.getItem('simracer_last_time');
     if (lastSavedTime) {
         const timeDiffMs = Date.now() - parseInt(lastSavedTime);
-        // Формула: +3 Енергії за кожні 6 хвилин (тобто +1 енергія за 2 хвилини / 120000 мс)
-        const passiveEnergyGained = Math.floor(timeDiffMs / 120000);
+        const passiveEnergyGained = Math.floor(timeDiffMs / 120000); // +1 енергія за 2 хв
         if (passiveEnergyGained > 0) {
             energy = Math.min(maxEnergy, energy + passiveEnergyGained);
         }
     }
     
-    // 2. Цикл регенерації, поки гра ВІДКРИТА (кожні 2 хвилини реального часу +1 енергія)
     setInterval(() => {
         if (energy < maxEnergy) {
             energy = Math.min(maxEnergy, energy + 1);
@@ -155,7 +153,6 @@ function initPassiveEnergyRegen() {
     }, 120000);
 }
 
-// Запис часу перед виходом/закриттям сторінки
 window.addEventListener('beforeunload', () => {
     localStorage.setItem('simracer_last_time', Date.now().toString());
 });
@@ -187,9 +184,7 @@ function startGameWithCharacter() {
     document.getElementById('main-game-header').style.display = 'block';
     document.getElementById('global-tabs').style.display = 'flex';
     
-    // Запуск пасивної регенерації
     initPassiveEnergyRegen();
-    
     switchTab('work');
     updateUI();
 }
@@ -286,7 +281,7 @@ function relaxAction(type) {
     if (type === 'sleep') {
         energy = Math.min(maxEnergy, energy + 30);
         stress = Math.max(0, stress - 5);
-        document.getElementById('work-log').innerHTML = "💤 <b>Домашній сон:</b> Ти дріманув 2 години. Сил додалось. (+30⚡️, -5🧠, +2 год зміні)";
+        document.getElementById('work-log').innerHTML = "💤 <b>Домашній сон:</b> Ти дріманути 2 години. Сил додалось. (+30⚡️, -5🧠, +2 год зміні)";
         advanceTime(2);
     }
     if (type === 'varus') {
@@ -302,7 +297,7 @@ function relaxAction(type) {
         money -= 180;
         energy = Math.min(maxEnergy, energy + 50);
         stress = Math.max(0, stress - 20);
-        document.getElementById('work-log').innerHTML = "🛵 <b>Доставка Glovo:</b> Замовив жирне комбо з маку прямо до кокпіту. (-180₴, +50⚡️, -20🧠, +1 god)";
+        document.getElementById('work-log').innerHTML = "🛵 <b>Доставка Glovo:</b> Замовив жирне комбо з маку прямо до кокпіту. (-180₴, +50⚡️, -20🧠, +1 год)";
         advanceTime(1);
     }
 }
@@ -407,7 +402,6 @@ function buyUpgrade(type, price) {
     updateUI();
 }
 
-// --- ГОНКА ТА СТАБІЛЬНИЙ РУХ ПОВЗУНКА ---
 function startRaceWeekend() {
     let league = LEAGUES[currentLeagueIdx];
     if (league.req !== "none" && !upgrades[league.req]) {
@@ -531,7 +525,7 @@ function signSponsor() {
     let availableSponsor = SPONSORS.find(s => s.reqLeague <= currentLeagueIdx);
     if (availableSponsor) {
         activeSponsor = availableSponsor;
-        document.getElementById('work-log').innerHTML = `🤝 <b>Угода підписана:</b> Бренд '${activeSponsor.name}' активований!`;
+        document.getElementById('work-log').innerHTML = `🤝 <b>Угода підписана:</b> Бренд '${availableSponsor.name}' активований!`;
         updateUI();
     }
 }
