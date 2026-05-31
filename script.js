@@ -1,175 +1,224 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
-tg.MainButton.setText("Вийти з гри").show().onClick(() => tg.close());
+tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
 
+// Основні ресурси
+let money = 1000;
 let energy = 100;
 let stress = 0;
-let money = 1000;
-let hour = 9;
 
-let hasScript = false;
-let hasJava = false;
-let hasMoza = false;
+// Стан прокачки
+let upgrades = {
+    wheel: false,    // Moza R9
+    pedals: false,   // Moza CRP
+    monitor: false   // Тримонітор
+};
 
-const logWindow = document.getElementById('log-window');
+// Стан гонки
+let racePoints = 0;
+
+// Перемінні для анімації бігунка
+let runnerPos = 0;
+let runnerSpeed = 3; 
+let animationId = null;
+let isRaceScreenActive = false;
+
+// --- СИСТЕМА ПЕРЕКЛЮЧЕННЯ ВКЛАДОК ---
+function switchTab(tabName) {
+    // Ховаємо всі екрани
+    document.querySelectorAll('.game-screen').forEach(screen => screen.classList.remove('active'));
+    // Знімаємо підсвітку з усіх кнопок таб-бару
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    
+    // Показуємо потрібний екран
+    document.getElementById(`screen-${tabName}`).classList.add('active');
+    
+    // Підсвічуємо поточну кнопку в таб-барі
+    const tabs = ['work', 'garage', 'race'];
+    const idx = tabs.indexOf(tabName);
+    document.getElementById('global-tabs').children[idx].classList.add('active');
+
+    // Керування рухом бігунка: запускаємо рух ТІЛЬКИ на вкладці Гонки
+    if (tabName === 'race') {
+        isRaceScreenActive = true;
+        startRunnerAnimation();
+    } else {
+        isRaceScreenActive = false;
+        cancelAnimationFrame(animationId);
+    }
+}
 
 function updateUI() {
-    // Оновлення тексту
-    document.getElementById('energy-val').innerText = energy;
-    document.getElementById('stress-val').innerText = stress;
-    document.getElementById('money-val').innerText = money;
-    document.getElementById('time-val').innerText = hour < 10 ? '0' + hour : hour;
-    
-    // Анімація прогрес-барів через плавну зміну ширини (CSS transition)
-    document.getElementById('energy-fill').style.width = energy + '%';
-    document.getElementById('stress-fill').style.width = stress + '%';
-    
-    // Зміна кольору шкал при критичних значеннях
-    document.getElementById('energy-fill').style.backgroundColor = energy < 30 ? '#f44336' : '#4caf50';
-    document.getElementById('stress-fill').style.backgroundColor = stress > 70 ? '#f44336' : '#9c27b0';
-}
+    document.getElementById('global-money').innerText = money;
+    document.getElementById('global-energy').innerText = energy;
+    document.getElementById('global-stress').innerText = stress;
+    document.getElementById('race-points').innerText = racePoints;
 
-function printLog(text) {
-    const div = document.createElement('div');
-    div.className = "log-entry";
-    div.innerHTML = text;
-    logWindow.appendChild(div);
-    logWindow.scrollTop = logWindow.scrollHeight;
-}
-
-function toggleShop() {
-    const modal = document.getElementById('shop-modal');
-    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-}
-
-function buyItem(item, price) {
-    if (money < price) {
-        alert("Не вистачає гривень! Закривай більше чатів підтримки.");
-        return;
+    // Якщо купили кермо Moza R9 -> розширюємо зелену зону апексу на екрані!
+    if (upgrades.wheel) {
+        document.getElementById('apex-zone').style.width = '75px';
     }
-    if ((item === 'script' && hasScript) || (item === 'java' && hasJava) || (item === 'moza' && hasMoza)) {
-        alert("Цей апгрейд уже куплено!");
-        return;
+}
+
+// --- ЛОГІКА ВКЛАДКИ: РОБОТА ---
+function workAnHour() {
+    if (energy < 15) { alert("Немає сил! Сходи у Varus по енергетик."); return; }
+    
+    // Якщо куплено Тримонітор -> платять більше!
+    let salary = upgrades.monitor ? 400 : 250;
+    energy -= 15;
+    stress = Math.min(100, stress + 10);
+    money += salary;
+
+    let logText = `🖥 <b>Чати закриті:</b> Розібрав скаргу VIP-гравця на затримку виплати в казіку. Керуюча задоволена. Заробіток: <span style="color:#4caf50">+${salary}₴</span>.`;
+    
+    // Рандомний форс-мажор на зміні (30% шанс)
+    if (Math.random() * 100 < 30) {
+        stress = Math.min(100, stress + 15);
+        logText += "<br><br>⚠️ <b>ФОРС-МАЖОР:</b> Упали платіжні шлюзи! Наплив матюків у чаті збільшився. (Стрес +15%)";
     }
+
+    document.getElementById('work-log').innerHTML = logText;
+    updateUI();
+    checkGameOver();
+}
+
+function goToVarus() {
+    if (money < 120) { alert("Не вистачає грошей на Varus! Треба працювати."); return; }
+    money -= 120;
+    energy = Math.min(100, energy + 35);
+    stress = Math.max(0, stress - 15);
+    document.getElementById('work-log').innerHTML = "🛒 <b>Varus хелпує:</b> Випив холодний енергетик Monster та з'їв сендвіч. Сили повернулись, стрес трохи відпустив. (Енергія +35%, Стрес -15%)";
+    updateUI();
+}
+
+// --- ЛОГІКА ВКЛАДКИ: ГАРАЖ (ПРОКАЧКА) ---
+function buyUpgrade(type, price) {
+    if (money < price) { alert("Не вистачає коштів!"); return; }
+    if (upgrades[type]) { alert("Вже куплено!"); return; }
 
     money -= price;
-    if (item === 'script') { hasScript = true; printLog("⚙️ <b>АПГРЕЙД:</b> Ти налаштував макроси та автоскрипти для типових питань. Енергія на роботу тепер витрачається вдвічі менше!"); }
-    if (item === 'java') { hasJava = true; stress = Math.max(0, stress - 25); printLog("📚 <b>АПГРЕЙД:</b> Купив преміум-курс по Java. Керуюча побачила вкладку на твоєму екрані й похвалила за саморозвиток. Стрес -25%!"); }
-    if (item === 'moza') { hasMoza = true; printLog("🏎 <b>АПГРЕЙД:</b> Кур'єр Нової Пошти заніс коробку з педалями Moza CRP. Один їхній вигляд піднімає бойовий дух! Шанс на вечірній подіум виріс!"); }
-    
-    updateUI();
-    toggleShop();
-}
+    upgrades[type] = true;
 
-function takeStep(action) {
-    hour += 1;
-    logWindow.innerHTML = ""; // Очищення для свіжого ходу
+    const card = document.getElementById(`upg-${type}`);
+    card.classList.add('owned');
     
-    // Шанс випадкової події (45%)
-    let hasEvent = Math.floor(Math.random() * 100) < 45;
-
-    if (action === 'work') {
-        let energyCost = hasScript ? 10 : 20;
-        
-        if (hasEvent) {
-            // Якщо сталась подія — логіка роботи переривається форс-мажором (ГРОШІ НЕ ДАЮТЬСЯ ПРОСТО ТАК)
-            generateRandomEvent();
-        } else {
-            // Спокійна успішна година роботи
-            energy -= energyCost;
-            stress += 12;
-            money += 250;
-            printLog(`🖥 <b>09:00 - 18:00 | Робочий процес:</b> Година пройшла спокійно. Ти розігрів чат, закрив 12 тікетів по заблокованих акаунтах і допоміг VIP-клієнту. <span class='success-text'>Баланс +250₴</span>. (Енергія -${energyCost}, Стрес +12)`);
-        }
-    } 
-    else if (action === 'varus') {
-        money -= 120;
-        energy = Math.min(100, energy + 30);
-        stress = Math.max(0, stress - 15);
-        printLog("🛒 <b>Перерва на Varus:</b> Прогулявся до супермаркету, взяв холодний енергетик та свіжий паніні. Черга на касі змусила понервувати, але сили повернулися. (Баланс -120₴, Енергія +30%, Стрес -15%)");
-        if (hasEvent) generateRandomEvent();
-    } 
-    else if (action === 'race') {
-        energy -= 15;
-        stress = Math.max(0, stress - 30);
-        printLog("🏎 <b>Таємне тренування:</b> Поки Керуюча відійшла, ти увімкнув Moza, зайшов на сервер і проїхав 5 стабільних кіл у Спа. Чистий кайф, нерви відновлено! (Енергія -15%, Стрес -30%)");
-        if (hasEvent) generateRandomEvent();
+    if (type === 'wheel') {
+        document.getElementById('wheel-desc').innerText = "Зона апексу: ШИРОКА (Полегшує гонку)";
+        document.getElementById('btn-wheel').innerText = "КУПЛЕНО";
+    }
+    if (type === 'pedals') {
+        document.getElementById('pedals-desc').innerText = "Енергія на тренуваннях: 0 (Педалі CRP ідеальні)";
+        document.getElementById('btn-pedals').innerText = "КУПЛЕНО";
+    }
+    if (type === 'monitor') {
+        document.getElementById('monitor-desc').innerText = "Зарплата в саппорті: +400₴/год";
+        document.getElementById('btn-monitor').innerText = "КУПЛЕНО";
     }
 
     updateUI();
-    checkGameState();
 }
 
-function generateRandomEvent() {
-    const events = [
-        {
-            title: "⚠️ <b>АВАРІЯ НА СЕРВЕРІ!</b>",
-            desc: "Упав платіжний шлюз! 500 розлючених користувачів одночасно ломанулися в чат, система саппорту горить. Ти цілу годину відбивався від матюків. Грошей не заробив, сил немає. (Енергія -25, Стрес +25%)",
-            action: () => { energy -= 25; stress += 25; }
-        },
-        {
-            title: "📞 <b>План із Колею:</b>",
-            desc: "Коля затягнув тебе на довгу розмову на курилці. Ви годину обговорювали геніальний план, як показати яйця керуючій і вибити підвищення. Трохи відпочив, але роботу завалено. (Енергія +15, Стрес -5)",
-            action: () => { energy = Math.min(100, energy + 15); stress = Math.max(0, stress - 5); }
-        },
-        {
-            title: "👨‍💻 <b>Крик про допомогу від Юри:</b>",
-            desc: "Юра запустив свій код, спіймав безкінечний цикл і в паніці пише тобі. Ти зжалився, витратив годину і закрив його баг. За допомогу Юра скинув тобі на карту <span class='success-text'>+200₴</span>! (Енергія -15)",
-            action: () => { energy -= 15; money += 200; }
-        },
-        {
-            title: "👑 <b>Раптовий аудит чатів:</b>",
-            desc: "Керуюча підняла логи твоїх діалогів за тиждень. Якщо у тебе <u>є курс Java</u>, вона бачить твій потенціал і виписує премію <span class='success-text'>+300₴</span>. Якщо курсу немає — каже, що твої відповіді сухі, і дає догану (Стрес +20%).",
-            action: () => { if (hasJava) { money += 300; } else { stress += 20; } }
-        }
-    ];
+// --- ДВИГУН МІНІ-ГРИ: РУХ БІГУНКА (ГОНКА) ---
+function startRunnerAnimation() {
+    const runner = document.getElementById('car-runner');
+    const track = document.querySelector('.track-line');
+    
+    if (!runner || !track || !isRaceScreenActive) return;
 
-    let randomEvent = events[Math.floor(Math.random() * events.length)];
-    printLog(`<br><span style="color:#ffcc00">${randomEvent.title}</span> ${randomEvent.desc}`);
-    randomEvent.action();
+    // Рухаємо бігунок
+    runnerPos += runnerSpeed;
+
+    // Якщо вперлися в край шкали — розвертаємо назад
+    let maxPos = track.clientWidth - runner.clientWidth;
+    if (runnerPos >= maxPos || runnerPos <= 0) {
+        runnerSpeed = -runnerSpeed;
+    }
+
+    runner.style.left = runnerPos + 'px';
+
+    // Зациклюємо анімацію екрану в реальному часі
+    animationId = requestAnimationFrame(startRunnerAnimation);
 }
 
-function checkGameState() {
-    if (energy <= 0) {
-        endGame(false, "💀 МОРЛЬНЕ ТА ФІЗИЧНЕ ВИГОРЯННЯ!", "Енергія впала до нуля. Ти заснув прямо з мишкою в руці. Керуюча помітила це через моніторинг екрану і звільнила тебе без виплати залишку. Moza CRP їде в ломбард...");
-    } else if (stress >= 100) {
-        endGame(false, "🤯 НЕРВОВИЙ ЗРИВ НА РОБОТІ!", "Стрес досяг 100%. Останній клієнт добив тебе питанням 'Чому не заходить депо?'. Ти розбив клавіатуру об стіл, послав Керуючу в загальний чат і гордо пішов у захід сонця. Грошей немає, гонка скасована.");
-    } else if (hour >= 18) {
-        let winChance = 35; 
-        if (hasMoza) winChance += 45;
-        if (energy > 70) winChance += 20;
-        
-        let isVictory = Math.floor(Math.random() * 100) < winChance;
-        
-        if (isVictory) {
-            endGame(true, "🏆 ТОТАЛЬНИЙ ТРІУМФ СІМРЕЙСЕРА!!!", `Ти витримав цю пекельну зміну! На балансі компанії залишилось ${money}₴. А ввечері на лізі в Assetto Corsa Competizione на трасі Spa-Francorchamps ти береш ПОУЛ і впевнено виграєш гонку! Друзі в дикому захваті, Юра видалив компилятор Java зі свого ПК від шоку!`);
-        } else {
-            endGame(true, "🏁 Зміна закрита, але гонку злито...", `Робочий день закінчено, гроші на базі. Але на вечірньому етапі через втому ти проспав старт, а на другому колі перегазував у повороті Raidillon і розбив машину об відбійник. Потрібно купувати нові педалі Moza CRP для контролю гальм!`);
-        }
+// КЛІК НА КНОПКУ ТАП! (ПЕРЕВІРКА ВЛУЧАННЯ В АПЕКС)
+function hitApex() {
+    let cost = upgrades.pedals ? 0 : 15; // Якщо педалі пластикові — бере сили, якщо CRP — 0!
+    if (energy < cost) { alert("Немає сил тиснути на педалі! Сходи в Varus."); return; }
+    
+    energy -= cost;
+
+    const runner = document.getElementById('car-runner');
+    const track = document.querySelector('.track-line');
+    const apex = document.getElementById('apex-zone');
+
+    // Вираховуємо координати центру бігунка та центру зеленої зони
+    let runnerCenter = runnerPos + (runner.clientWidth / 2);
+    let trackCenter = track.clientWidth / 2;
+    
+    // Допуск влучання залежить від ширини зони апексу
+    let allowedDiff = apex.clientWidth / 2;
+
+    if (Math.abs(runnerCenter - trackCenter) <= allowedDiff) {
+        // ВЛУЧИВ!
+        racePoints += 1;
+        document.getElementById('race-log').innerHTML = "🟢 <b>ІДЕАЛЬНИЙ АПЕКС!</b> Ти філігранно влучив у траєкторію повороту Eau Rouge! Позиція покращена. Очки чемпіонату зростають!";
+    } else {
+        // ПРОМАЗАВ
+        stress = Math.min(100, stress + 15);
+        document.getElementById('race-log').innerHTML = "🔴 <b>ПРОМАХ!</b> Ти запізнився з гальмуванням, машину викинуло на поребрик і розвернуло! Шматок гуми відлетів. (Стрес +15%)";
+    }
+
+    updateUI();
+    checkGameOver();
+}
+
+// --- ПЕРЕВІРКА СТАНУ ГРИ ---
+function checkGameOver() {
+    if (stress >= 100) {
+        endGame("💀 НЕРВОВИЙ ЗРИВ!", "Стрес досяг 100%. Ти не витримав напливу клієнтів казіка, викинув роутер у вікно та злив зміну. Сімрейсинг заблоковано.");
+    } else if (energy <= 0) {
+        endGame("💀 ПОВНЕ ВИГОРЯННЯ!", "Сили на нулі. Ти заснув прямо на клавіатурі. Керуюча звільнила тебе за сон на робочому місці.");
+    } else if (racePoints >= 5) {
+        endGame("🏆 ЧЕМПІОН СВІТУ!", `ТИ ЗРОБИВ ЦЕ! Накопичив грошей, зібрав кокпіт на базі Moza і виграв офіційну лігу в Спа! Юра видалив Java, Коля аплодує стоячи! Твій фінальний баланс: ${money}₴.`);
     }
 }
 
-function endGame(isWin, title, desc) {
-    document.getElementById('game-controls').style.display = 'none';
-    document.getElementById('shop-modal').style.display = 'none';
+function endGame(title, desc) {
+    cancelAnimationFrame(animationId);
+    isRaceScreenActive = false;
     
-    const finalScreen = document.getElementById('final-screen');
-    finalScreen.style.display = 'block';
+    // Ховаємо всі екрани та меню
+    document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('global-tabs').style.display = 'none';
     
-    const titleElem = document.getElementById('final-title');
-    titleElem.innerText = title;
-    titleElem.className = isWin ? 'success-text' : 'danger-text';
+    // Показуємо екран фіналу
+    const finalScreen = document.getElementById('screen-final');
+    finalScreen.classList.add('active');
     
-    document.getElementById('final-desc').innerHTML = `${desc}<br><br><b>Твій фінальний звіт:</b><br>💵 Зароблено: ${money}₴<br>🔋 Залишок сил: ${energy}%<br>🧠 Рівень психозу: ${stress}%`;
+    document.getElementById('final-title').innerText = title;
+    document.getElementById('final-desc').innerText = desc;
 }
 
 function resetGame() {
-    energy = 100; stress = 0; money = 1000; hour = 9;
-    hasScript = false; hasJava = false; hasMoza = false;
-    logWindow.innerHTML = "Зміна розпочалась. Керуюча онлайн. Наплив клієнтів середній. Що будемо робити цю годину?";
-    document.getElementById('game-controls').style.display = 'flex';
-    document.getElementById('final-screen').style.display = 'none';
+    money = 1000; energy = 100; stress = 0; racePoints = 0;
+    upgrades = { wheel: false, pedals: false, monitor: false };
+    
+    // Скидаємо картки гаражу в початковий стан
+    document.querySelectorAll('.upgrade-card').forEach(c => c.classList.remove('owned'));
+    document.getElementById('wheel-desc').innerText = "Зона апексу: Вузька";
+    document.getElementById('btn-wheel').innerText = "Купити Moza R9 (800₴)";
+    document.getElementById('pedals-desc').innerText = "Енергія на тренуваннях: -20";
+    document.getElementById('btn-pedals').innerText = "Moza CRP (1200₴)";
+    document.getElementById('monitor-desc').innerText = "Зарплата в саппорті: Базова";
+    document.getElementById('btn-monitor').innerText = "Тримонітор (1500₴)";
+
+    document.getElementById('global-tabs').style.display = 'flex';
+    document.getElementById('work-log').innerHTML = "Зміна розпочалась. Керуюча онлайн. Наплив клієнтів середній. Що будемо робити цю годину?";
+    
     updateUI();
+    switchTab('work');
 }
 
+// Запуск
 updateUI();
