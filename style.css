@@ -43,6 +43,9 @@ body {
     width: 0%; height: 100%; background: #ff5722; border-radius: 2px;
     box-shadow: 0 0 8px #ff5722;
 }
+.game-version-display {
+    font-size: 11px; color: #444; margin-top: 25px; font-family: monospace; font-weight: bold;
+}
 
 #game-container {
     background-color: #111111;
@@ -104,8 +107,24 @@ body {
 h2 { font-size: 13px; color: #ff5722; text-align: center; margin-bottom: 15px; letter-spacing: 1px; }
 
 .main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-.main-action-btn.relax { background-color: #01579b; margin-bottom: 0; padding: 10px; font-size: 11px; }
 .main-action-btn.race { background-color: #b71c1c; display: none; text-align: center; justify-content: center;}
+
+/* СТИЛІ КНОПОК ЕНЕРГІЇ (НЕЗАЛЕЖНІ ВІД КЛАСУ MAIN-ACTION-BTN) */
+.energy-btn {
+    background-color: #0d47a1;
+    color: white;
+    border: none;
+    padding: 11px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s, transform 0.1s;
+}
+.energy-btn:active { transform: scale(0.98); }
+.energy-btn.orange { background-color: #e65100; }
+.energy-btn.blue { background-color: #01579b; }
 
 #work-log, #race-log { background: #050505; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.4; margin-bottom: 15px; border: 1px solid #1a1a1a; min-height: 70px; }
 
@@ -118,7 +137,7 @@ h2 { font-size: 13px; color: #ff5722; text-align: center; margin-bottom: 15px; l
 .upgrade-list { display: flex; flex-direction: column; gap: 8px; }
 .upgrade-card { background: #181818; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; border-left: 4px solid #d84315; }
 .upgrade-card.work-item { border-left-color: #0288d1; }
-.upgrade-card button { background: #444; color: #ffcc00; border: 1px solid #ffcc00; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+.upgrade-card button { background: #444; color: #ffcc00; border: 1px solid #ffcc00; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 .upgrade-card.owned { border-left-color: #4caf50; }
 .upgrade-card.owned button { background: #222; color: #555; border-color: #222; cursor: not-allowed; }
 
