@@ -4,13 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>SimRacer Manager PRO</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    
+    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ CSS БЕЗ КЕШУ -->
+    <script>
+        const cacheBuster = Date.now(); // Герує унікальне число, наприклад 1717200000000
+        
+        // Створюємо лінк на CSS на льоту
+        const styleLink = document.createElement('link');
+        styleLink.rel = 'stylesheet';
+        styleLink.href = 'style.css?v=' + cacheBuster;
+        document.head.appendChild(styleLink);
+    </script>
+    
+    <!-- Підключаємо Telegram Web Apps API -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
     <div id="game-container">
         
+        <!-- ГЛОБАЛЬНИЙ ХЕДЕР МЕНЕДЖЕРА -->
         <div class="global-header">
             <div>💵 <span id="global-money">1000</span>₴</div>
             <div>⚡️ <span id="global-energy">100</span>%</div>
@@ -21,6 +34,7 @@
             🏆 Поточна Ліга: <span id="current-league-name">DRS (Digital Racing Series)</span>
         </div>
 
+        <!-- ================= ЕКРАН 1: ОФІС / МЕНЕДЖМЕНТ ================= -->
         <div id="screen-work" class="game-screen active">
             <h2>🖥 СТРАТЕГІЯ ТА ФІНАНСИ</h2>
             <div id="work-log">Ти починаєш свій шлях у сімрейсингу. Працюй на зміні в саппорті, щоб фінансувати перші внески на перегони, або шукай спонсорів.</div>
@@ -36,6 +50,7 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 2: ГАРАЖ ТА ЛІЦЕНЗІЇ ================= -->
         <div id="screen-garage" class="game-screen">
             <h2>🛠 ШОП & ТЕХНІЧНИЙ РЕГЛАМЕНТ</h2>
             <p style="font-size: 12px; color: #aaa; text-align: center; margin-top: -15px;">Купуй девайси, щоб отримати допуск до вищих ліг.</p>
@@ -56,6 +71,7 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 3: ГОНОЧНИЙ ВІКЕНД ================= -->
         <div id="screen-race" class="game-screen">
             <h2>🏎 ГОНОЧНИЙ ТРЕК И ТЕЛЕМЕТРІЯ</h2>
             <div id="league-requirements" style="font-size:11px; color:#ffcc00; text-align:center; margin-bottom:10px;">
@@ -78,12 +94,14 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН ФІНАЛУ ================= -->
         <div id="screen-final" class="game-screen">
             <h2 id="final-title"></h2>
             <p id="final-desc"></p>
             <button class="main-action-btn" onclick="resetGame()" style="text-align:center; justify-content:center;">🔁 Почати нову кар'єру</button>
         </div>
 
+        <!-- ТАБ-БАР (НИЖНЯ НАВІГАЦІЯ) -->
         <div class="tab-bar" id="global-tabs">
             <div class="tab-button active" onclick="switchTab('work')">🖥 Офіс</div>
             <div class="tab-button" onclick="switchTab('garage')">🛠 Гараж</div>
@@ -92,6 +110,11 @@
 
     </div>
 
-    <script src="script.js?v=3"></script>
+    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ SCRIPT БЕЗ КЕШУ -->
+    <script>
+        const scriptScript = document.createElement('script');
+        scriptScript.src = 'script.js?v=' + cacheBuster;
+        document.body.appendChild(scriptScript);
+    </script>
 </body>
 </html>
