@@ -1,6 +1,6 @@
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #080808;
+    background-color: #060606;
     color: #e0e0e0;
     margin: 0;
     padding: 10px;
@@ -13,7 +13,7 @@ body {
 }
 
 #game-container {
-    background-color: #121212;
+    background-color: #111111;
     border-radius: 16px;
     width: 100%;
     max-width: 400px;
@@ -23,27 +23,37 @@ body {
     flex-direction: column;
     position: relative;
     overflow: hidden;
-    border: 1px solid #252525;
+    border: 1px solid #222;
 }
 
 .global-header {
     display: flex;
     justify-content: space-around;
-    background-color: #1a1a1a;
+    background-color: #181818;
     padding: 12px;
     font-weight: bold;
     font-size: 14px;
-    border-bottom: 2px solid #222;
+    border-bottom: 1px solid #252525;
 }
 
 .championship-banner {
-    background: linear-gradient(90deg, #d84315, #ff5722);
+    background: linear-gradient(90deg, #b71c1c, #e65100);
     color: white;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     text-align: center;
-    padding: 6px;
+    padding: 5px;
     letter-spacing: 0.5px;
+}
+
+.time-banner-rpg {
+    background-color: #222;
+    color: #ffcc00;
+    font-size: 11px;
+    text-align: center;
+    padding: 4px;
+    font-weight: bold;
+    border-bottom: 1px solid #333;
 }
 
 .game-screen {
@@ -58,7 +68,7 @@ body {
 .game-screen.active { display: flex; }
 
 h2 {
-    font-size: 14px;
+    font-size: 13px;
     color: #ff5722;
     text-align: center;
     margin-bottom: 15px;
@@ -78,7 +88,6 @@ h2 {
     display: flex;
     justify-content: space-between;
 }
-.main-action-btn:active { transform: scale(0.99); }
 .main-action-btn.relax { background-color: #01579b; }
 .main-action-btn.race { background-color: #b71c1c; display: none; text-align: center; justify-content: center;}
 
@@ -88,40 +97,74 @@ h2 {
     border-radius: 8px;
     font-size: 12px;
     line-height: 1.4;
-    flex-grow: 1;
     margin-bottom: 15px;
     border: 1px solid #1a1a1a;
-    overflow-y: auto;
-    max-height: 180px;
+    min-height: 70px;
+}
+
+.quest-choice-btn {
+    flex: 1;
+    background: #e65100;
+    border: none;
+    color: white;
+    padding: 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.stats-upgrade-list { display: flex; flex-direction: column; gap: 10px; }
+.stat-up-card {
+    background: #181818;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+.stat-up-card button {
+    background: #ff5722;
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .upgrade-list { display: flex; flex-direction: column; gap: 8px; }
 .upgrade-card {
-    background: #1a1a1a;
+    background: #181818;
     padding: 10px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 12px;
-    border-left: 4px solid #333;
+    font-size: 11px;
+    border-left: 4px solid #d84315;
+}
+/* Сині бордери для робочої техніки */
+.upgrade-card.work-item {
+    border-left-color: #0288d1;
 }
 .upgrade-card button {
-    background: #e65100;
-    color: white;
-    border: none;
-    padding: 8px 10px;
+    background: #444;
+    color: #ffcc00;
+    border: 1px solid #ffcc00;
+    padding: 6px 10px;
     border-radius: 4px;
-    font-weight: bold;
     cursor: pointer;
-    font-size: 11px;
+    font-weight: bold;
 }
 .upgrade-card.owned { border-left-color: #4caf50; }
-.upgrade-card.owned button { background: #333; cursor: not-allowed; }
+.upgrade-card.owned button { background: #222; color: #555; border-color: #222; cursor: not-allowed; }
 
-/* ТРЕК МІНІ-ГРИ */
 .track-line {
-    background-color: #1e1e1e;
+    background-color: #1a1a1a;
     border-radius: 6px;
     height: 35px;
     width: 100%;
@@ -129,46 +172,12 @@ h2 {
     margin-bottom: 15px;
     border: 1px solid #2c2c2c;
 }
+#apex-zone { background-color: #2e7d32; height: 100%; width: 35px; position: absolute; left: 50%; transform: translateX(-50%); }
+#car-runner { background-color: #ffcc00; height: 100%; width: 10px; position: absolute; left: 0; }
 
-#apex-zone {
-    background-color: #2e7d32;
-    height: 100%;
-    width: 35px; /* Базова вузька зона для DRS */
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
+.progress-bar-bg { background: #333; border-radius: 4px; height: 6px; width: 100%; overflow: hidden; }
+.progress-bar-fill { height: 100%; width: 100%; transition: width 0.3s ease; }
 
-#car-runner {
-    background-color: #ffcc00;
-    height: 100%;
-    width: 10px;
-    position: absolute;
-    left: 0;
-}
-
-.tab-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 55px;
-    background-color: #111;
-    display: flex;
-    border-top: 1px solid #222;
-}
-.tab-button {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-    color: #666;
-    cursor: pointer;
-}
-.tab-button.active {
-    color: white;
-    background-color: #161616;
-    border-top: 3px solid #ff5722;
-}
+.tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 55px; background-color: #0d0d0d; display: flex; border-top: 1px solid #1f1f1f; }
+.tab-button { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; }
+.tab-button.active { color: white; background-color: #141414; border-top: 3px solid #ff5722; }
