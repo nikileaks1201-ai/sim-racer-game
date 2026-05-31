@@ -22,16 +22,22 @@
         <!-- ================= ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА (СТАРТ) ================= -->
         <div id="screen-creation" class="game-screen active" style="margin-bottom: 0;">
             <h1 style="color:#ff5722; font-size:16px;">👤 СТВОРЕННЯ НОВОГО ГОНЩИКА</h1>
-            <p style="font-size:11px; text-align:center; color:#888; margin-top:-10px;">Налаштуй свій профайл перед початком кар'єри</p>
+            <p style="font-size:11px; text-align:center; color:#888; margin-top:-10px;">Налаштуй умови свого старту</p>
             
             <div class="creation-form">
                 <label>Ім'я / Нікнейм:</label>
                 <input type="text" id="creation-name" value="Mykyta" placeholder="Введіть нік...">
 
-                <label>Стать:</label>
+                <label>Стать (Вплив на старт):</label>
                 <select id="creation-gender">
-                    <option value="Хлопець">Чоловіча (Хлопець)</option>
-                    <option value="Дівчина">Жіноча (Дівчина)</option>
+                    <option value="Хлопець">Хлопець (Старт: 1000₴)</option>
+                    <option value="Дівчина">Дівчина (Старт: 1500₴, бонус Керуючої)</option>
+                </select>
+
+                <label>Житлові умови (Вплив на витрати):</label>
+                <select id="creation-housing">
+                    <option value="parents">Жити з батьками (Оренда: 0₴, але -20% XP)</option>
+                    <option value="rent">Орендувати квартиру (Оренда: 400₴, Фокус: +20% XP)</option>
                 </select>
 
                 <label>Стиль / Зовнішність:</label>
@@ -50,15 +56,15 @@
                         <b>💻 Java-Гік</b><br><small>Старт з +2 Інженерії. Стрес у гонках +20%.</small>
                     </div>
                     <div class="talent-card" onclick="selectTalent(2, this)">
-                        <b>🔋 Заряджений Monster'ом</b><br><small>Макс. Енергія 130%. Оренда житла: 500₴.</small>
+                        <b>🔋 Заряджений Monster'ом</b><br><small>Макс. Енергія 130%. Оренда збільшена.</small>
                     </div>
                 </div>
 
-                <button class="main-action-btn" onclick="startGameWithCharacter()" style="background:#ff5722; justify-content:center; margin-top:15px;">🚀 Запустити Симуляцію Життя</button>
+                <button class="main-action-btn" onclick="startGameWithCharacter()" style="background:#ff5722; justify-content:center; margin-top:10px;">🚀 Запустити Симуляцію Життя</button>
             </div>
         </div>
 
-        <!-- ГЛОБАЛЬНИЙ ХЕДЕР ІГРОВОГО ПРОЦЕСУ (За замовчуванням прихований) -->
+        <!-- ГЛОБАЛЬНИЙ ХЕДЕР ІГРОВОГО ПРОЦЕСУ -->
         <div id="main-game-header" style="display:none;">
             <div class="global-header">
                 <div>💵 <span id="global-money">1000</span>₴</div>
@@ -71,18 +77,35 @@
             </div>
             
             <div class="time-banner-rpg">
-                👴 Вік: <span id="racer-age">18</span> років (Пенсія в 40) | 📅 День: <span id="game-day">1</span> | ⏰ <span id="game-hour">09</span>:00
+                📅 <span id="game-weekday">Понеділок</span> (<span id="game-day-type">Будній</span>) | 👴 Вік: <span id="racer-age">18</span> років
+            </div>
+            <div class="time-banner-rpg" style="background:#222; color:#ffcc00; border-top:none; font-size:10px; padding:2px;">
+                ⏰ Година зміни: <span id="game-hour">09</span>:00 (Кінець о 18:00) | День: <span id="game-day">1</span>
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 1: ОФІС / КВЕСТИ ================= -->
+        <!-- ================= ЕКРАН 1: ОФІС / КВЕСТЫ ================= -->
         <div id="screen-work" class="game-screen">
-            <h2>🖥 РАБОЧА ЗМІНА ТА СТРАТЕГІЯ</h2>
-            <div id="work-log">Робочий день розпочався. Кожна дія займає 1 годину. О 18:00 відбудеться списання коштів за оренду житла! Балансуй час розумно.</div>
+            <h2>🖥 СТРАТЕГІЯ, РОБОТА ТА СПОНСОРИ</h2>
+            <div id="work-weekend-notice" style="display:none; background:#b71c1c; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
+                🛑 ВИХІДНИЙ ДЕНЬ! Офіс підтримки зачинено. Час для гоночного вікенду!
+            </div>
+            <div id="work-log">Робочий день розпочався. Кожна дія займає 1 годину. О 18:00 відбудеться списання коштів за життя!</div>
             
-            <button class="main-action-btn" onclick="workAnHour()">🖥 Працювати годину в саппорті (+1 год, +15 XP)</button>
-            <button class="main-action-btn relax" onclick="goToVarus()">🛒 Забіг у Varus (-120₴, +1 год)</button>
+            <div id="work-actions-block">
+                <button class="main-action-btn" onclick="workAnHour()">🖥 Працювати годину в саппорті (+1 год, +15 XP)</button>
+                <button class="main-action-btn relax" onclick="goToVarus()">🛒 Забіг у Varus (-120₴, +1 god)</button>
+            </div>
             
+            <!-- БЛОК СПОНСОРІВ -->
+            <h3 style="font-size:12px; color:#ff5722; margin-top:15px; text-transform:uppercase;">🤝 КОНТРАКТ ЗІ СПОНСОРОМ:</h3>
+            <div id="sponsor-card" style="background:#181818; padding:10px; border-radius:6px; font-size:12px; text-align:center; border:1px solid #333;">
+                <span id="sponsor-name">Немає спонсора</span><br>
+                <small id="sponsor-effect">Виплати: 0₴ / хід</small><br>
+                <button onclick="signSponsor()" id="btn-sponsor" style="margin-top:8px; background:#ff5722; border:none; color:white; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Підписати контракт</button>
+            </div>
+            
+            <!-- ЗОНА КВЕСТІВ -->
             <div id="quest-zone" style="display:none; background:#291a00; border:1px solid #ff9800; padding:12px; border-radius:8px; margin-top:15px;">
                 <b style="color:#ff9800;" id="quest-title">🔥 СЮЖЕТНИЙ КВЕСТ</b>
                 <p id="quest-desc" style="font-size:12px; margin:5px 0 12px 0;"></p>
@@ -96,13 +119,14 @@
         <!-- ================= ЕКРАН 2: ПРОФІЛЬ ГОНЩИКА ================= -->
         <div id="screen-racer" class="game-screen">
             <h2>👤 ДОСЬЄ ПІЛОТА ТА ХАРАКТЕРИСТИКИ</h2>
-            <div id="racer-bio-card" style="background:#1c1c1c; padding:10px; border-radius:8px; font-size:12px; margin-bottom:15px; border-left:3px solid #ff5722;">
-                <b>Ім'я:</b> <span id="bio-name">Mykyta</span> (<span id="bio-gender">Хлопець</span>)<br>
+            <div id="racer-bio-card" style="background:#1c1c1c; padding:10px; border-radius:8px; font-size:12px; margin-bottom:12px; border-left:3px solid #ff5722; line-height:1.5;">
+                <b>Ім'я:</b> <span id="bio-name">-</span> (<span id="bio-gender">-</span>)<br>
+                <b>Умови:</b> <span id="bio-housing">-</span><br>
                 <b>Стиль:</b> <span id="bio-style">-</span><br>
                 <b>Талант:</b> <span id="bio-talent">-</span>
             </div>
 
-            <div style="text-align:center; margin-bottom:15px; color:#ffcc00; font-weight:bold; font-size:13px;">
+            <div style="text-align:center; margin-bottom:12px; color:#ffcc00; font-weight:bold; font-size:13px;">
                 Вільні очки навичок: <span id="skill-points">0</span>
             </div>
             
@@ -157,23 +181,32 @@
         <!-- ================= ЕКРАН 4: ГОНКА ================= -->
         <div id="screen-race" class="game-screen">
             <h2>🏎 ГОНОЧНИЙ ВІКЕНД ТА ТЕЛЕМЕТРІЯ</h2>
-            <div id="league-requirements" style="font-size:11px; color:#ffcc00; text-align:center; margin-bottom:10px;">
-                Внесок: <span id="race-fee">0</span>₴ | Кіл за етап: <span id="target-laps">3</span> (+1 год)
+            <div id="race-week-notice" style="background:#1b5e20; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
+                🏁 СЬОГОДНІ ДЕНЬ ГОНОК! Викладись на повну, покажи найкращий результат!
+            </div>
+            <div id="race-weekday-blocker" style="display:none; background:#222; padding:20px; border-radius:8px; text-align:center; font-size:13px; color:#aaa; line-height:1.5;">
+                🔒 <b>Вхід заблоковано.</b><br>Зараз будній день. Наразі йдуть офіційні робочі зміни в саппорті. Гоночні заїзди ліги проходять виключно по <b>Суботах та Неділях</b>! Готуй залізо.
             </div>
             
-            <div class="track-line">
-                <div id="apex-zone"></div>
-                <div id="car-runner"></div>
-            </div>
+            <div id="race-active-zone">
+                <div id="league-requirements" style="font-size:11px; color:#ffcc00; text-align:center; margin-bottom:10px;">
+                    Внесок: <span id="race-fee">0</span>₴ | Кіл за етап: <span id="target-laps">3</span> (+1 год)
+                </div>
+                
+                <div class="track-line">
+                    <div id="apex-zone"></div>
+                    <div id="car-runner"></div>
+                </div>
 
-            <button id="hit-apex-btn" class="main-action-btn race" onclick="hitApex()">🔥 СТАТИ НА АПЕКС (ТАП!)</button>
-            <button id="start-race-btn" class="main-action-btn" onclick="startRaceWeekend()" style="background:#e65100; text-align:center; justify-content:center;">🟢 Сплатити внесок та виїхати на трек</button>
-            
-            <div id="race-log">Заявіться на гоночний вікенд ліги.</div>
-            
-            <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:10px; font-size:13px; color:#ffcc00;">
-                <div>Позиція: <span id="race-pos">P20</span></div>
-                <div>Кола: <span id="race-laps">0</span> / <span id="max-laps-display">3</span></div>
+                <button id="hit-apex-btn" class="main-action-btn race" onclick="hitApex()">🔥 СТАТИ НА АПЕКС (ТАП!)</button>
+                <button id="start-race-btn" class="main-action-btn" onclick="startRaceWeekend()" style="background:#e65100; text-align:center; justify-content:center; width:100%;">🟢 Сплатити внесок та виїхати на трек</button>
+                
+                <div id="race-log">Заявіться на гоночний вікенд ліги.</div>
+                
+                <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:10px; font-size:13px; color:#ffcc00;">
+                    <div>Позиція: <span id="race-pos">P20</span></div>
+                    <div>Кола: <span id="race-laps">0</span> / <span id="max-laps-display">3</span></div>
+                </div>
             </div>
         </div>
 
@@ -184,7 +217,7 @@
             <button class="main-action-btn" onclick="resetGame()" style="text-align:center; justify-content:center;">🔁 Почати нову кар'єру</button>
         </div>
 
-        <!-- ТАБ-БАР (За замовчуванням прихований до створення персонажа) -->
+        <!-- ТАБ-БАР -->
         <div class="tab-bar" id="global-tabs" style="display:none;">
             <div class="tab-button active" onclick="switchTab('work')">🖥 Офіс</div>
             <div class="tab-button" onclick="switchTab('racer')">👤 Гонщик</div>
