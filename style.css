@@ -1,6 +1,6 @@
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #0c0c0c;
+    background-color: #080808;
     color: #e0e0e0;
     margin: 0;
     padding: 10px;
@@ -13,7 +13,7 @@ body {
 }
 
 #game-container {
-    background-color: #161616;
+    background-color: #121212;
     border-radius: 16px;
     width: 100%;
     max-width: 400px;
@@ -23,152 +23,152 @@ body {
     flex-direction: column;
     position: relative;
     overflow: hidden;
-    border: 1px solid #222;
+    border: 1px solid #252525;
 }
 
-/* ГЛОБАЛЬНИЙ ХЕДЕР */
 .global-header {
     display: flex;
     justify-content: space-around;
-    background-color: #202020;
+    background-color: #1a1a1a;
     padding: 12px;
     font-weight: bold;
     font-size: 14px;
-    border-bottom: 2px solid #282828;
+    border-bottom: 2px solid #222;
 }
 
-/* СИСТЕМНІ ЕКРАНИ */
+.championship-banner {
+    background: linear-gradient(90deg, #d84315, #ff5722);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    padding: 6px;
+    letter-spacing: 0.5px;
+}
+
 .game-screen {
-    display: none; /* За замовчуванням ховаємо */
+    display: none;
     flex-direction: column;
     padding: 15px;
     flex-grow: 1;
     overflow-y: auto;
-    margin-bottom: 60px; /* Місце під таб-бар */
+    margin-bottom: 60px;
 }
 
-.game-screen.active {
-    display: flex; /* Показуємо тільки активний екран */
-}
+.game-screen.active { display: flex; }
 
 h2 {
-    font-size: 15px;
+    font-size: 14px;
     color: #ff5722;
     text-align: center;
-    margin-bottom: 20px;
-    text-transform: uppercase;
+    margin-bottom: 15px;
     letter-spacing: 1px;
 }
 
-/* КНОПКИ ДІЙ */
 .main-action-btn {
-    background-color: #2e7d32;
+    background-color: #1b5e20;
     color: white;
     border: none;
     padding: 14px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     cursor: pointer;
     margin-bottom: 10px;
-    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    justify-content: space-between;
 }
-.main-action-btn:active { transform: scale(0.98); }
-.main-action-btn.relax { background-color: #0288d1; }
-.main-action-btn.race { background-color: #d84315; width: 100%; }
+.main-action-btn:active { transform: scale(0.99); }
+.main-action-btn.relax { background-color: #01579b; }
+.main-action-btn.race { background-color: #b71c1c; display: none; text-align: center; justify-content: center;}
 
 #work-log, #race-log {
-    background: #090909;
-    padding: 15px;
+    background: #050505;
+    padding: 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.4;
     flex-grow: 1;
     margin-bottom: 15px;
-    border: 1px solid #1c1c1c;
+    border: 1px solid #1a1a1a;
+    overflow-y: auto;
+    max-height: 180px;
 }
 
-/* ВКЛАДКА ГАРАЖУ */
-.upgrade-list { display: flex; flex-direction: column; gap: 10px; }
+.upgrade-list { display: flex; flex-direction: column; gap: 8px; }
 .upgrade-card {
-    background: #202020;
-    padding: 12px;
+    background: #1a1a1a;
+    padding: 10px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 13px;
+    font-size: 12px;
+    border-left: 4px solid #333;
 }
 .upgrade-card button {
     background: #e65100;
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 8px 10px;
     border-radius: 4px;
     font-weight: bold;
     cursor: pointer;
     font-size: 11px;
 }
-.upgrade-card.owned { border-left: 4px solid #4caf50; }
-.upgrade-card.owned button { background: #444; cursor: not-allowed; }
+.upgrade-card.owned { border-left-color: #4caf50; }
+.upgrade-card.owned button { background: #333; cursor: not-allowed; }
 
-/* ================= ІНТЕРАКТИВНА ШКАЛА ГОНКИ ================= */
+/* ТРЕК МІНІ-ГРИ */
 .track-line {
-    background-color: #222;
+    background-color: #1e1e1e;
     border-radius: 6px;
-    height: 30px;
+    height: 35px;
     width: 100%;
     position: relative;
-    margin-bottom: 20px;
-    border: 1px solid #333;
+    margin-bottom: 15px;
+    border: 1px solid #2c2c2c;
 }
 
-/* Зелений апекс по центру */
 #apex-zone {
-    background-color: #4caf50;
+    background-color: #2e7d32;
     height: 100%;
-    width: 40px; /* Базова ширина (буде рости від прокачки керма!) */
+    width: 35px; /* Базова вузька зона для DRS */
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
-/* Бігунок-машина, що рухається */
 #car-runner {
     background-color: #ffcc00;
     height: 100%;
-    width: 12px;
-    border-radius: 3px;
+    width: 10px;
     position: absolute;
     left: 0;
-    box-shadow: 0 0 8px #ffcc00;
 }
 
-/* НИЖНЄ МЕНЮ НАВІГАЦІЇ */
 .tab-bar {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 55px;
-    background-color: #1a1a1a;
+    background-color: #111;
     display: flex;
-    border-top: 2px solid #252525;
+    border-top: 1px solid #222;
 }
 .tab-button {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
-    color: #777;
+    color: #666;
     cursor: pointer;
-    transition: color 0.2s, background 0.2s;
 }
 .tab-button.active {
     color: white;
-    background-color: #222;
+    background-color: #161616;
     border-top: 3px solid #ff5722;
 }
