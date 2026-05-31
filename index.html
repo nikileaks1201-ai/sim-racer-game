@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Сімрейсер: PRO Симулятор</title>
-    
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -15,41 +13,67 @@
         <h1>🏎 СІМРЕЙСЕР: ХРОНІКИ САППОРТУ 👨‍💻</h1>
         
         <div class="stats-grid">
-            <div class="stat-card" id="energy-card">⚡️ Енергія<br><span id="energy-val">100</span>%</div>
-            <div class="stat-card" id="stress-card">🧠 Стрес<br><span id="stress-val">0</span>%</div>
-            <div class="stat-card" id="money-card">💵 Баланс<br><span id="money-val">1000</span>₴</div>
+            <!-- Прогрес-бар Енергії -->
+            <div class="stat-row">
+                <div class="stat-header">
+                    <span>⚡️ Енергія</span>
+                    <span><span id="energy-val">100</span>%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="energy-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- Прогрес-бар Стресу -->
+            <div class="stat-row">
+                <div class="stat-header">
+                    <span>🧠 Рівень Стресу</span>
+                    <span><span id="stress-val">0</span>%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="stress-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- Баланс грошей -->
+            <div class="stat-row" style="text-align: center; font-size: 15px;">
+                💵 Гаманець: <span id="money-val" style="color: #ffcc00;">1000</span>₴
+            </div>
         </div>
 
         <div class="time-banner">⏰ Година зміни: <span id="time-val">09</span>:00</div>
 
-        <div id="log-window">Зміна розпочалась. Керуюча онлайн. Наплив клієнтів середній. Що будемо робити цю годину?</div>
+        <div id="log-window">Зміна розпочалась. Керуюча в мережі. Наплив користувачів у казіку помірний. Що вибереш на цю годину?</div>
         
+        <!-- Магазин апгрейдів -->
         <div id="shop-modal">
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <b style="color:#03a9f4">🛒 Магазин апгрейдів:</b>
-                <button onclick="toggleShop()" style="background:none; border:none; color:white; cursor:pointer;">❌</button>
+                <b style="color:#03a9f4">🛒 Магазин тюнінгу та софту:</b>
+                <button onclick="toggleShop()" style="background:none; border:none; color:white; font-weight:bold; cursor:pointer;">❌</button>
             </div>
             <div class="shop-item">
-                <span>🤖 Скрипт-автомат (Робота бере менше енергії)</span>
+                <span>🤖 ZennoPoster макрос (Робота бере менше сил)</span>
                 <button class="shop-buy-btn" onclick="buyItem('script', 400)">400₴</button>
             </div>
             <div class="shop-item">
-                <span>📚 Курс Java (Керуюча хвалить, -20% стресу)</span>
+                <span>📚 Курс Java від Сеньйора (-25% стресу)</span>
                 <button class="shop-buy-btn" onclick="buyItem('java', 300)">300₴</button>
             </div>
             <div class="shop-item">
-                <span>🏎 Педалі Moza CRP (+40% до шансу виграти)</span>
+                <span>🏎 Педалі Moza CRP (+45% до шансу гонки)</span>
                 <button class="shop-buy-btn" onclick="buyItem('moza', 600)">600₴</button>
             </div>
         </div>
 
+        <!-- Кнопки управління -->
         <div id="game-controls" class="btn-group">
-            <button class="action-btn" onclick="takeStep('work')"><span>🖥 Закривати чати підтримки</span> <small>+₴, +🧠</small></button>
+            <button class="action-btn" onclick="takeStep('work')"><span>🖥 Лупити чати на зміні</span> <small>+₴, +🧠</small></button>
             <button class="action-btn" onclick="takeStep('varus')"><span>🛒 Перекусон у Varus (-120₴)</span> <small>+⚡️, -🧠</small></button>
-            <button class="action-btn" onclick="takeStep('race')"><span>🏁 Катнути практику в ACC</span> <small>-⚡️, -🧠</small></button>
+            <button class="action-btn" onclick="takeStep('race')"><span>🏁 Катнути хотлап у Спа</span> <small>-⚡️, -🧠</small></button>
             <button class="action-btn shop" onclick="toggleShop()"><span>🛒 Відкрити Магазин Апгрейдів</span></button>
         </div>
 
+        <!-- Фінал -->
         <div id="final-screen">
             <h2 id="final-title"></h2>
             <p id="final-desc"></p>
