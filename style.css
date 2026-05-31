@@ -12,6 +12,38 @@ body {
     box-sizing: border-box;
 }
 
+/* 🎬 СТИЛІ ДЛЯ ЗАСТАВКИ (SPLASH SCREEN) */
+#splash-screen {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    text-align: center;
+}
+.splash-logo {
+    font-size: 24px;
+    color: #ff5722;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(255, 87, 34, 0.6);
+    margin: 0 0 5px 0;
+}
+.splash-sub {
+    font-size: 10px;
+    color: #666;
+    font-family: monospace;
+    margin-bottom: 20px;
+}
+.splash-loader-bg {
+    width: 200px; height: 4px; background: #222; border-radius: 2px; margin: 0 auto; overflow: hidden;
+}
+#splash-loader-fill {
+    width: 0%; height: 100%; background: #ff5722; border-radius: 2px;
+    box-shadow: 0 0 8px #ff5722;
+}
+
 #game-container {
     background-color: #111111;
     border-radius: 16px;
@@ -26,17 +58,16 @@ body {
     border: 1px solid #222;
 }
 
-/* ФОРМА СТВОРЕННЯ ПЕРСОНАЖА */
 .creation-form {
     display: flex;
     flex-direction: column;
     gap: 8px;
     background: #161616;
-    padding: 15px;
+    padding: 12px;
     border-radius: 10px;
     border: 1px solid #252525;
 }
-.creation-form label { font-size: 11px; font-weight: bold; color: #ff5722; text-transform: uppercase; }
+.creation-form label { font-size: 10px; font-weight: bold; color: #ff5722; text-transform: uppercase; }
 .creation-form input, .creation-form select {
     background: #222; border: 1px solid #333; color: white; padding: 10px; border-radius: 6px; font-size: 13px;
 }
@@ -72,8 +103,8 @@ body {
 
 h2 { font-size: 13px; color: #ff5722; text-align: center; margin-bottom: 15px; letter-spacing: 1px; }
 
-.main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: space-between; }
-.main-action-btn.relax { background-color: #01579b; }
+.main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.main-action-btn.relax { background-color: #01579b; margin-bottom: 0; padding: 10px; font-size: 11px; }
 .main-action-btn.race { background-color: #b71c1c; display: none; text-align: center; justify-content: center;}
 
 #work-log, #race-log { background: #050505; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.4; margin-bottom: 15px; border: 1px solid #1a1a1a; min-height: 70px; }
