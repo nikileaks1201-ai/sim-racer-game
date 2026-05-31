@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>SimRacer RPG Manager Ultimate</title>
     
-    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ CSS БЕЗ КЕШУ -->
     <script>
         const cacheBuster = Date.now();
         const styleLink = document.createElement('link');
@@ -17,7 +16,6 @@
 </head>
 <body>
 
-    <!-- ================= 🎬 ЗАСТАВКА НА ПОЧАТКУ ГРИ (SPLASH SCREEN) ================= -->
     <div id="splash-screen">
         <div class="splash-content">
             <h1 class="splash-logo">🏁 SIMRACER TYCOON</h1>
@@ -25,12 +23,12 @@
             <div class="splash-loader-bg">
                 <div id="splash-loader-fill"></div>
             </div>
+            <div class="game-version-display">v0.4-beta</div>
         </div>
     </div>
 
     <div id="game-container" style="display:none;">
         
-        <!-- ================= 👤 ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА ================= -->
         <div id="screen-creation" class="game-screen">
             <h1 style="color:#ff5722; font-size:16px; margin: 0 0 10px 0;">👤 СТВОРЕННЯ НОВОГО ГОНЩИКА</h1>
             <p style="font-size:11px; text-align:center; color:#888; margin-top:-10px;">Налаштуй умови свого старту</p>
@@ -75,7 +73,6 @@
             </div>
         </div>
 
-        <!-- ГЛОБАЛЬНИЙ ХЕДЕР ІГРОВОГО ПРОЦЕСУ -->
         <div id="main-game-header" style="display:none;">
             <div class="global-header">
                 <div>💵 <span id="global-money">1000</span>₴</div>
@@ -95,7 +92,6 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 1: ОФІС / СУПЕРМАРКЕТ ================= -->
         <div id="screen-work" class="game-screen">
             <h2>🖥 ЖИТТЄВА СТРАТЕГІЯ ТА ФІНАНСИ</h2>
             <div id="work-weekend-notice" style="display:none; background:#1e3d59; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
@@ -103,20 +99,17 @@
             </div>
             <div id="work-log">Зміна розпочалась. Кожна дія займає час. Наприкінці дня списуються кошти за життя.</div>
             
-            <!-- Блок дій Роботи (ховається на вихідних) -->
             <div id="work-actions-block">
                 <button class="main-action-btn" onclick="workAnHour()">🖥 Працювати годину в саппорті (+1 год, +15 XP)</button>
             </div>
 
-            <!-- БЛОК ВІДНОВЛЕННЯ ЕНЕРГІЇ ТА РЕЛАКСУ (ДОСТУПНИЙ ЗАВЖДИ) -->
-            <h3 style="font-size:12px; color:#0288d1; margin-top:10px; text-transform:uppercase;">🔋 Відновлення сил та відпочинок:</h3>
+            <h3 style="font-size:12px; color:#0288d1; margin-top:12px; text-transform:uppercase;">🔋 Відновлення сил та відпочинок:</h3>
             <div class="relax-group" style="display:flex; flex-direction:column; gap:6px;">
-                <button class="main-action-btn relax" onclick="relaxAction('sleep')">💤 Дріманути вдома (Безкоштовно, +30⚡️, -5🧠, +2 год)</button>
-                <button class="main-action-btn relax" onclick="relaxAction('varus')">🛒 Збігати у Varus (-100₴, +35⚡️, -10🧠, +1 год)</button>
-                <button class="main-action-btn relax" onclick="relaxAction('glovo')">🛵 Замовити Glovo (-180₴, +50⚡️, -20🧠, +1 год)</button>
+                <button class="energy-btn" onclick="relaxAction('sleep')">💤 Дріманути вдома (Безкоштовно, +30⚡️, -5🧠, +2 год)</button>
+                <button class="energy-btn orange" onclick="relaxAction('varus')">🛒 Збігати у Varus (-100₴, +35⚡️, -10🧠, +1 год)</button>
+                <button class="energy-btn blue" onclick="relaxAction('glovo')">🛵 Замовити Glovo (-180₴, +50⚡️, -20🧠, +1 год)</button>
             </div>
             
-            <!-- БЛОК СПОНСОРІВ -->
             <h3 style="font-size:12px; color:#ff5722; margin-top:15px; text-transform:uppercase;">🤝 КОНТРАКТ ЗІ СПОНСОРОМ:</h3>
             <div id="sponsor-card" style="background:#181818; padding:10px; border-radius:6px; font-size:12px; text-align:center; border:1px solid #333;">
                 <span id="sponsor-name">Немає спонсора</span><br>
@@ -124,7 +117,6 @@
                 <button onclick="signSponsor()" id="btn-sponsor" style="margin-top:8px; background:#ff5722; border:none; color:white; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Підписати контракт</button>
             </div>
             
-            <!-- ЗОНА КВЕСТІВ -->
             <div id="quest-zone" style="display:none; background:#291a00; border:1px solid #ff9800; padding:12px; border-radius:8px; margin-top:15px;">
                 <b style="color:#ff9800;" id="quest-title">🔥 СЮЖЕТНИЙ КВЕСТ</b>
                 <p id="quest-desc" style="font-size:12px; margin:5px 0 12px 0;"></p>
@@ -135,7 +127,6 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 2: ПРОФІЛЬ ГОНЩИКА ================= -->
         <div id="screen-racer" class="game-screen">
             <h2>👤 ДОСЬЄ ПІЛОТА ТА ХАРАКТЕРИСТИКИ</h2>
             <div id="racer-bio-card" style="background:#1c1c1c; padding:10px; border-radius:8px; font-size:12px; margin-bottom:12px; border-left:3px solid #ff5722; line-height:1.5;">
@@ -165,7 +156,6 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 3: ГАРАЖ ТА МАГАЗИН ДЕВАЙСІВ ================= -->
         <div id="screen-garage" class="game-screen">
             <h2>🛠 ДЕВАЙСИ ДЛЯ РОБОТИ ТА СІМРЕЙСИНГУ</h2>
             <div style="background:#222; padding:8px; border-radius:8px; margin-bottom:12px; text-align:center; font-size:12px;">
@@ -197,7 +187,6 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 4: ГОНКА ================= -->
         <div id="screen-race" class="game-screen">
             <h2>🏎 ГОНОЧНИЙ ВІКЕНД ТА ТЕЛЕМЕТРІЯ</h2>
             <div id="race-week-notice" style="background:#1b5e20; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
@@ -229,14 +218,12 @@
             </div>
         </div>
 
-        <!-- ЕКРАН ФІНАЛУ -->
         <div id="screen-final" class="game-screen">
             <h2 id="final-title"></h2>
             <p id="final-desc"></p>
             <button class="main-action-btn" onclick="resetGame()" style="text-align:center; justify-content:center;">🔁 Почати нову кар'єру</button>
         </div>
 
-        <!-- ТАБ-БАР -->
         <div class="tab-bar" id="global-tabs" style="display:none;">
             <div class="tab-button active" onclick="switchTab('work')">🖥 Офіс</div>
             <div class="tab-button" onclick="switchTab('racer')">👤 Гонщик</div>
@@ -246,7 +233,6 @@
 
     </div>
 
-    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ SCRIPT БЕЗ КЕШУ -->
     <script>
         const scriptScript = document.createElement('script');
         scriptScript.src = 'script.js?v=' + cacheBuster;
