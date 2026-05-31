@@ -17,11 +17,22 @@
 </head>
 <body>
 
-    <div id="game-container">
+    <!-- ================= 🎬 ЗАСТАВКА НА ПОЧАТКУ ГРИ (SPLASH SCREEN) ================= -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1 class="splash-logo">🏁 SIMRACER TYCOON</h1>
+            <p class="splash-sub">CONNECTING TO RIG / CASINO SUPPORT SERVER...</p>
+            <div class="splash-loader-bg">
+                <div id="splash-loader-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-container" style="display:none;">
         
-        <!-- ================= ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА (СТАРТ) ================= -->
-        <div id="screen-creation" class="game-screen active" style="margin-bottom: 0;">
-            <h1 style="color:#ff5722; font-size:16px;">👤 СТВОРЕННЯ НОВОГО ГОНЩИКА</h1>
+        <!-- ================= 👤 ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА ================= -->
+        <div id="screen-creation" class="game-screen">
+            <h1 style="color:#ff5722; font-size:16px; margin: 0 0 10px 0;">👤 СТВОРЕННЯ НОВОГО ГОНЩИКА</h1>
             <p style="font-size:11px; text-align:center; color:#888; margin-top:-10px;">Налаштуй умови свого старту</p>
             
             <div class="creation-form">
@@ -50,7 +61,7 @@
                 <label style="color:#ffcc00;">🔮 Вроджений Талант (Головний Перк):</label>
                 <div class="talent-options">
                     <div class="talent-card active" onclick="selectTalent(0, this)">
-                        <b>🏎️ Хотлапер</b><br><small>Швидкість бігунка -10%, але -15% XP в офісі.</small>
+                        <b>🏎️ Хотлапер</b><br><small>Швидкість бігунка -10%, та -15% XP в офісі.</small>
                     </div>
                     <div class="talent-card" onclick="selectTalent(1, this)">
                         <b>💻 Java-Гік</b><br><small>Старт з +2 Інженерії. Стрес у гонках +20%.</small>
@@ -84,17 +95,25 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 1: ОФІС / КВЕСТЫ ================= -->
+        <!-- ================= ЕКРАН 1: ОФІС / СУПЕРМАРКЕТ ================= -->
         <div id="screen-work" class="game-screen">
-            <h2>🖥 СТРАТЕГІЯ, РОБОТА ТА СПОНСОРИ</h2>
-            <div id="work-weekend-notice" style="display:none; background:#b71c1c; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
-                🛑 ВИХІДНИЙ ДЕНЬ! Офіс підтримки зачинено. Час для гоночного вікенду!
+            <h2>🖥 ЖИТТЄВА СТРАТЕГІЯ ТА ФІНАНСИ</h2>
+            <div id="work-weekend-notice" style="display:none; background:#1e3d59; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
+                ℹ️ Офіс підтримки зачинено на вихідні. Робота недоступна. Обслуговуй залізо та готуйся до гонки!
             </div>
-            <div id="work-log">Робочий день розпочався. Кожна дія займає 1 годину. О 18:00 відбудеться списання коштів за життя!</div>
+            <div id="work-log">Зміна розпочалась. Кожна дія займає час. Наприкінці дня списуються кошти за життя.</div>
             
+            <!-- Блок дій Роботи (ховається на вихідних) -->
             <div id="work-actions-block">
                 <button class="main-action-btn" onclick="workAnHour()">🖥 Працювати годину в саппорті (+1 год, +15 XP)</button>
-                <button class="main-action-btn relax" onclick="goToVarus()">🛒 Забіг у Varus (-120₴, +1 god)</button>
+            </div>
+
+            <!-- БЛОК ВІДНОВЛЕННЯ ЕНЕРГІЇ ТА РЕЛАКСУ (ДОСТУПНИЙ ЗАВЖДИ) -->
+            <h3 style="font-size:12px; color:#0288d1; margin-top:10px; text-transform:uppercase;">🔋 Відновлення сил та відпочинок:</h3>
+            <div class="relax-group" style="display:flex; flex-direction:column; gap:6px;">
+                <button class="main-action-btn relax" onclick="relaxAction('sleep')">💤 Дріманути вдома (Безкоштовно, +30⚡️, -5🧠, +2 год)</button>
+                <button class="main-action-btn relax" onclick="relaxAction('varus')">🛒 Збігати у Varus (-100₴, +35⚡️, -10🧠, +1 год)</button>
+                <button class="main-action-btn relax" onclick="relaxAction('glovo')">🛵 Замовити Glovo (-180₴, +50⚡️, -20🧠, +1 год)</button>
             </div>
             
             <!-- БЛОК СПОНСОРІВ -->
@@ -157,23 +176,23 @@
             <div class="upgrade-list">
                 <div class="upgrade-card work-item" id="upg-keyboard">
                     <div><b>⌨️ Механічна Клавіатура</b><br><small id="keyboard-desc">Робота бере на 25% менше стресу</small></div>
-                    <button onclick="buyUpgrade('keyboard', 600)" id="btn-keyboard">600₴</button>
+                    <button onclick="buyUpgrade('keyboard', 800)" id="btn-keyboard">800₴</button>
                 </div>
                 <div class="upgrade-card work-item" id="upg-ups">
                     <div><b>🔋 Джерело безперебійного живлення (ДБЖ)</b><br><small id="ups-desc">Захист від крашу серверів та вимкнень світла</small></div>
-                    <button onclick="buyUpgrade('ups', 1800)" id="btn-ups">1800₴</button>
+                    <button onclick="buyUpgrade('ups', 2400)" id="btn-ups">2400₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-wheel">
-                    <div><b>🏎 База Moza R9 DD</b><br><small id="wheel-desc">Розширює зону апексу. Обов'язково для КМАМК!</small></div>
-                    <button onclick="buyUpgrade('wheel', 2200)" id="btn-wheel">2200₴</button>
+                    <div><b>🏎 База Moza R9 DD</b><br><small id="wheel-desc">Розширює зону апексу на треку. Обов'язково для КМАМК!</small></div>
+                    <button onclick="buyUpgrade('wheel', 3800)" id="btn-wheel">3800₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-pedals">
                     <div><b>🦶 Педалі Moza CRP (Load Cell)</b><br><small id="pedals-desc">Захист від промахів. Обов'язково для Formula 3!</small></div>
-                    <button onclick="buyUpgrade('pedals', 3500)" id="btn-pedals">3500₴</button>
+                    <button onclick="buyUpgrade('pedals', 5500)" id="btn-pedals">5500₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-monitor">
                     <div><b>🖥 Кокпіт + Тримонітор 32'</b><br><small id="monitor-desc">Дає х2 до зарплати та допуск у F2 / F1</small></div>
-                    <button onclick="buyUpgrade('monitor', 6000)" id="btn-monitor">6000₴</button>
+                    <button onclick="buyUpgrade('monitor', 9000)" id="btn-monitor">9000₴</button>
                 </div>
             </div>
         </div>
