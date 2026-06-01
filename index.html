@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SimRacer Tycoon Manager v0.7.3</title>
+    <title>SimRacer Tycoon Manager v0.7.4</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -18,12 +18,12 @@
 </head>
 <body>
 
-    <!-- 🎬 ЗАСТАВКА -->
+    <!-- 🎬 ЗАСТАВКА (Ідеальне центрування через стилі) -->
     <div id="splash-screen">
         <div class="splash-content">
             <h1 class="splash-logo">🏁 SIMRACER TYCOON</h1>
             <p class="splash-sub">HIGH LOAD MANAGEMENT SIMULATOR</p>
-            <div class="game-version-display">v0.7.3-stable_release</div>
+            <div class="game-version-display">v0.7.4-stable_release</div>
             <button id="splash-start-btn" onclick="closeSplashScreen()">🚀 ЗАПУСТИТИ ГРУ</button>
         </div>
     </div>
@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <!-- ГОЛОВНИЙ КОНТЕЙНЕР (ПЕРЕПИСАНО СТИЛІ СТАРТУ) -->
+    <!-- ГОЛОВНИЙ КОНТЕЙНЕР -->
     <div id="game-container" style="display: none; width: 100%; max-width: 480px; margin: 0 auto; height: 100vh; flex-direction: column; background: #0a0a0a; color: #fff; font-family: 'Rajdhani', sans-serif;">
         
         <!-- ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА -->
@@ -73,32 +73,38 @@
             <div class="creation-form">
                 <label>Нікнейм / Ім'я:</label>
                 <input type="text" id="creation-name" value="Mykyta">
+                
                 <label>Стать:</label>
                 <select id="creation-gender">
                     <option value="Хлопець">Хлопець (Старт: 1000₴)</option>
                     <option value="Дівчина">Дівчина (Старт: 1500₴)</option>
                 </select>
+                
                 <label>Житлові умови:</label>
                 <select id="creation-housing">
-                    <option value="parents">З батьками (Оренда: 0₴ | -20% XP)</option>
-                    <option value="rent">Оренда квартири (Оренда: 400₴ | +20% XP)</option>
+                    <option value="parents">З батьками (Оренда: 20₴ | -20% XP)</option>
+                    <option value="rent">Оренда квартири (Оренда: 80₴ | +20% XP)</option>
                 </select>
-                <label>Стиль одягу:</label>
+                
+                <label>Стиль одягу (Пасивні бонуси):</label>
                 <select id="creation-style">
-                    <option value="🛹 Стріт-рейсер">Стріт-рейсер у худі</option>
-                    <option value="🎮 Кіберспортсмен">Кіберспортсмен у джерсі</option>
-                    <option value="🏎️ Про-пілот">Про-пілот у комбінезоні</option>
+                    <option value="🛹 Стріт-рейсер">🛹 Стріт-рейсер (+10% до Спонсорів | +5% стрес)</option>
+                    <option value="🎮 Кіберспортсмен">🎮 Кіберспортсмен (-15% Енергії в гонках)</option>
+                    <option value="🏎️ Про-пілот">🏎️ Про-пілот (+20% до XP в гонках)</option>
                 </select>
-                <label>💻 Платформа:</label>
+                
+                <label>💻 Головна Платформа:</label>
                 <select id="creation-platform">
                     <option value="pc">PC Simracer (+1 Інженерія)</option>
-                    <option value="console">Console Racer (+500₴, -1 Інженерія)</option>
+                    <option value="console">Console Racer (+500₴ | -1 Інженерія)</option>
                 </select>
+                
                 <label>📡 Інтернет-провайдер:</label>
                 <select id="creation-isp">
-                    <option value="cellular">Мобільний (-200₴, ризик розривів)</option>
-                    <option value="fiber">Оптоволокно (-200₴, стабільний)</option>
+                    <option value="fiber">Оптоволокно (-200₴ | Стабільний зв'язок)</option>
+                    <option value="cellular">Мобільний 4G (Безкоштовно | Ризик лагів)</option>
                 </select>
+                
                 <label style="color:#ffcc00;">🔮 Головний талант:</label>
                 <div class="talent-options">
                     <div class="talent-card active" id="talent-card-0" onclick="selectTalent(0)">
@@ -200,9 +206,9 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 3: ГАРАЖ ТА МАГАЗИН ================= -->
+        <!-- ================= ЕКРАН 3: ТЕХНО-МАГАЗИН (КОЛИШНІЙ ГАРАЖ) ================= -->
         <div id="screen-garage" class="game-screen">
-            <h2>🛠️ ГАРАЖ ТА СІМРЕЙСЕРСЬКИЙ СЕТАП</h2>
+            <h2>🖥️ ТЕХНО-МАГАЗИН ТА МОДЕРНІЗАЦІЯ</h2>
             <div style="background:#222; padding:8px; border-radius:8px; margin-bottom:12px; text-align:center; font-size:12px;">
                 ⚙️ Стан бази Moza: <span id="wheel-condition">100</span>%
                 <button onclick="repairWheel()" style="margin-left:10px; background:#4caf50; border:none; color:white; padding:3px 8px; border-radius:4px;">🔧 Ремонт</button>
@@ -211,6 +217,10 @@
                 <div class="upgrade-card work-item" id="upg-keyboard">
                     <div><b>⌨️ Механічна Клавіатура Varmilo</b><br><small>Зменшує падіння стабільності на роботі</small></div>
                     <button onclick="buyUpgrade('keyboard', 800)" id="btn-keyboard">800₴</button>
+                </div>
+                <div class="upgrade-card" id="upg-chair">
+                    <div><b>💺 Крісло Recaro Racing</b><br><small>Знижує накопичення стресу в офісі/гонках на 10%</small></div>
+                    <button onclick="buyUpgrade('chair', 2000)" id="btn-chair">2000₴</button>
                 </div>
                 <div class="upgrade-card work-item" id="upg-ups">
                     <div><b>🔋 ДБЖ Volt Polska 1000E</b><br><small>Імунітет до відключень світла в квестах</small></div>
@@ -223,6 +233,10 @@
                 <div class="upgrade-card" id="upg-pedals">
                     <div><b>🦶 Педалі Moza CRP (Load Cell)</b><br><small>Знижує ризик розвороту на треку в дощ</small></div>
                     <button onclick="buyUpgrade('pedals', 5500)" id="btn-pedals">5500₴</button>
+                </div>
+                <div class="upgrade-card" id="upg-wheel16">
+                    <div><b>🔥 База Moza R16 DD (16 Nm)</b><br><small>Ультимативна база для Pro-змагань</small></div>
+                    <button onclick="buyUpgrade('wheel16', 7500)" id="btn-wheel16">7500₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-monitor">
                     <div><b>🖥️ Тримоніторний Кокпіт 32'</b><br><small>Відкриває доступ до Pro-ліг F2 / F1</small></div>
@@ -301,7 +315,7 @@
         <div class="tab-bar" id="global-tabs" style="display:none;">
             <div class="tab-button active" onclick="switchTab('work')">🖥 Офіс</div>
             <div class="tab-button" onclick="switchTab('racer')">👤 Профіль</div>
-            <div class="tab-button" onclick="switchTab('garage')">🛠 Гараж</div>
+            <div class="tab-button" onclick="switchTab('garage')">🖥 Магазин</div>
             <div class="tab-button" onclick="switchTab('sponsors')">🤝 Спонсори</div>
             <div class="tab-button" onclick="switchTab('race')">🏎 Гонка</div>
         </div>
