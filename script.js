@@ -2,13 +2,21 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
 
-// --- 🔊 СИСТЕМА ЗВУКІВ (WEB AUDIO API — ПРАЦЮЄ БЕЗ ФАЙЛІВ!) ---
+// --- 🔊 СИСТЕМА ЗВУКІВ (WEB AUDIO API — ПРАЦЮЄ БЕЗ ФАЙЛІВ) ---
 let isSoundEnabled = true;
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
 
 function playClickSound(type = 'click') {
     if (!isSoundEnabled) return;
     try {
+        initAudio();
+        if (!audioCtx) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
@@ -33,10 +41,18 @@ function playClickSound(type = 'click') {
 function closeSplashScreen() {
     playClickSound('success');
     document.getElementById('splash-screen').style.display = 'none';
-    document.getElementById('game-container').style.display = 'flex';
     
-    // Спробувати завантажити збереження
-    loadGameData();
+    // НАДІЙНИЙ ЗАПУСК КОНТЕЙНЕРА ГРИ
+    const container = document.getElementById('game-container');
+    if (container) container.style.style = "display: flex;"; // дубльований фікс
+    container.style.display = 'flex';
+    
+    // Спробувати завантажити збереження. Якщо там помилка — відкриється створення
+    const loaded = loadGameData();
+    if (!loaded) {
+        const creation = document.getElementById('screen-creation');
+        if (creation) creation.classList.add('active');
+    }
 }
 
 // --- СТАН ГРИ ---
@@ -116,7 +132,7 @@ const QUESTS = [
     }
 ];
 
-// --- 📁 СИСТЕМА ЗБЕРЕЖЕНЬ (LOCALSTORAGE) ---
+// --- 📁 ФІКС СИСТЕМИ ЗБЕРЕЖЕНЬ ВІД ЗЛАМУ ---
 function saveGameData() {
     const saveData = {
         racerName, racerGender, racerHousing, racerStyle, selectedTalentIdx,
@@ -125,15 +141,23 @@ function saveGameData() {
     };
     localStorage.setItem('simracer_tycoon_save', JSON.stringify(saveData));
     playClickSound('success');
-    alert("💽 Гру успішно збережено в хмару девайсу!");
+    alert("💽 Гру успішно збережено!");
     toggleMenuModal();
 }
 
 function loadGameData() {
     const raw = localStorage.getItem('simracer_tycoon_save');
-    if (!raw) return;
+    if (!raw) return false;
     try {
         const data = JSON.parse(raw);
+        
+        // Перевірка на цілісність даних нової структури
+        if (!data.stats || typeof data.currentMinute === 'undefined') {
+            console.log("Old version save format detected. Wiping corrupt storage.");
+            localStorage.removeItem('simracer_tycoon_save');
+            return false;
+        }
+
         racerName = data.racerName; racerGender = data.racerGender; racerHousing = data.racerHousing;
         racerStyle = data.racerStyle; selectedTalentIdx = data.selectedTalentIdx;
         money = data.money; energy = data.energy; maxEnergy = data.maxEnergy; stress = data.stress;
@@ -142,7 +166,7 @@ function loadGameData() {
         stats = data.stats; wheelCondition = data.wheelCondition; upgrades = data.upgrades;
         currentLeagueIdx = data.currentLeagueIdx;
 
-        // Оновити інтерфейс девайсів
+        // Оновлення девайсів
         Object.keys(upgrades).forEach(key => {
             if (upgrades[key]) {
                 const btn = document.getElementById(`btn-${key}`);
@@ -152,7 +176,6 @@ function loadGameData() {
             }
         });
 
-        // Пропустити екран створення
         document.getElementById('screen-creation').classList.remove('active');
         document.getElementById('main-game-header').style.display = 'block';
         document.getElementById('global-tabs').style.display = 'flex';
@@ -161,13 +184,18 @@ function loadGameData() {
         initPassiveEnergyRegen();
         switchTab('work');
         updateUI();
-    } catch(e) { console.log("Save load error", e); }
+        return true;
+    } catch(e) { 
+        console.log("Corrupt save clear", e);
+        localStorage.removeItem('simracer_tycoon_save');
+        return false;
+    }
 }
 
 function toggleMenuModal() {
     playClickSound();
     const modal = document.getElementById('game-menu-modal');
-    modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+    if (modal) modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
 }
 
 function toggleSound() {
@@ -176,12 +204,11 @@ function toggleSound() {
     playClickSound();
 }
 
-// Пасивна АФК регенерація
 function initPassiveEnergyRegen() {
     const lastTime = localStorage.getItem('simracer_tycoon_last_time');
     if (lastTime) {
         const diff = Date.now() - parseInt(lastTime);
-        const gained = Math.floor(diff / 120000); // +1 за 2 хв
+        const gained = Math.floor(diff / 120000); 
         if (gained > 0) energy = Math.min(maxEnergy, energy + gained);
     }
     setInterval(() => {
@@ -255,16 +282,13 @@ function switchTab(tabName) {
     }
 }
 
-// --- ⏳ ТАЙКУН-ДВИГУН (ПАСИВНИЙ ЧАС РОБОТИ) ---
 function toggleWorkShift() {
     playClickSound();
     const btn = document.getElementById('tycoon-work-btn');
     
     if (isWorkShiftActive) {
-        // Зупинити зміну
         stopWorkShift();
     } else {
-        // Стартувати зміну
         if (energy < 15) { alert("Немає сил для старту зміни!"); return; }
         let dayIdx = (currentDay - 1) % 7;
         if (dayIdx === 5 || dayIdx === 6) { alert("Сьогодні вихідний! Офіс зачинено."); return; }
@@ -280,7 +304,6 @@ function toggleWorkShift() {
                 currentMinute = 0;
                 currentHour += 1;
                 
-                // Нарахування щогодини
                 let salary = (upgrades.monitor ? 25 : 12) + (stats.eng * 2);
                 let stressPenalty = upgrades.keyboard ? 1 : 3;
                 
@@ -289,12 +312,10 @@ function toggleWorkShift() {
                 stress = Math.min(100, stress + stressPenalty);
                 gainXP(2);
                 
-                // Рандомний пасивний дохід від спонсора
                 if (activeSponsor) money += activeSponsor.pay;
 
                 document.getElementById('work-log').innerHTML = `🖥 <b>Робочий процес:</b> Опрацьовано чати. Година +1. Дохід: +${salary}₴.`;
                 
-                // Генерація квестів
                 turnsSinceLastQuest++;
                 if (turnsSinceLastQuest >= 4 && currentActiveQuest === null && Math.random() < 0.4) {
                     triggerQuest();
@@ -306,7 +327,7 @@ function toggleWorkShift() {
             }
             updateUI();
             checkGameOver();
-        }, 1000); // 1 секунда реального часу = 10 хвилин у грі
+        }, 1000); 
     }
 }
 
@@ -399,7 +420,7 @@ function relaxAction(type) {
     updateUI();
 }
 
-// --- 🏁 СТРАТЕГІЧНИЙ СИМУЛЯТОР ГОНКИ (ЗАМІСТЬ ПОВЗУНКА) ---
+// --- 🏁 СТРАТЕГІЧНИЙ СИМУЛЯТОР ГОНКИ ---
 let currentTactic = 'safe';
 const SITUATIONS = [
     { text: "Затяжна швидкісна дуга Spa-Francorchamps.", push: "P1", safe: "P0", save: "P-1", sPush: 15, sSave: -5 },
@@ -437,7 +458,6 @@ function playRaceTick() {
     let sit = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
     document.getElementById('race-live-status').innerText = `🏁 КОЛО ${currentLap} / Tick ${raceTicks}`;
     
-    // Розрахунок результату тактики пілота
     let posChange = 0;
     let stressGained = 5;
     let energyCost = Math.max(2, 8 - stats.phys);
@@ -450,7 +470,7 @@ function playRaceTick() {
         posChange = sit.save === "P0" ? 0 : -1;
         stressGained = sit.sSave;
         energyCost = 1;
-    } else { // safe
+    } else { 
         posChange = sit.safe === "P1" ? 1 : 0;
         stressGained = 2;
     }
@@ -460,7 +480,7 @@ function playRaceTick() {
     energy = Math.max(0, energy - energyCost);
     wheelCondition = Math.max(0, wheelCondition - 1);
 
-    document.getElementById('race-live-log').innerHTML = `<b>Подія:</b> ${sit.text}<br>🛑 Обрано тактику: <b>${currentTactic.toUpperCase()}</b>. Позиція: P${racePosition}.`;
+    document.getElementById('race-live-log').innerHTML = `<b>Подія:</b> ${sit.text}<br>🛑 Тактика: <b>${currentTactic.toUpperCase()}</b>. Позиція: P${racePosition}.`;
     updateUI();
 
     if (raceTicks >= 4) {
@@ -471,7 +491,7 @@ function playRaceTick() {
     if (currentLap > LEAGUES[currentLeagueIdx].laps || energy <= 5 || stress >= 95) {
         endStrategicRace();
     } else {
-        raceTimer = setTimeout(playRaceTick, 3500); // Нова ситуація кожні 3.5 секунди
+        raceTimer = setTimeout(playRaceTick, 3500); 
     }
 }
 
@@ -485,10 +505,10 @@ function endStrategicRace() {
     if (racePosition <= 3 && energy > 0 && stress < 100) {
         money += league.reward;
         gainXP(60);
-        alert(`🏆 ПОДІУМ! P${racePosition}! Призові: +${league.reward}₴. Ви перейшли в наступну лігу!`);
+        alert(`🏆 ПОДІУМ! P${racePosition}! Призові: +${league.reward}₴. Ліга пройдена!`);
         if (currentLeagueIdx < LEAGUES.length - 1) currentLeagueIdx++;
     } else {
-        alert(`🏁 Фініш на P${racePosition}. Для проходу ліги потрібен ТОП-3. Підкачай характеристики пілота.`);
+        alert(`🏁 Фініш на P${racePosition}. Потрібен ТОП-3. Прокачуй пілота!`);
     }
     currentHour += 2;
     if (currentHour >= 18) endDayRoutine();
@@ -540,7 +560,6 @@ function updateUI() {
     let dayIdx = (currentDay - 1) % 7;
     document.getElementById('game-weekday').innerText = WEEKDAYS[dayIdx];
     let isWeekend = (dayIdx === 5 || dayIdx === 6);
-    document.getElementById('game-day-type').innerText = isWeekend ? "Вихідний" : "Будній";
 
     if (isWeekend) {
         document.getElementById('work-weekend-notice').style.display = "block";
@@ -572,8 +591,8 @@ function updateUI() {
 }
 
 function checkGameOver() {
-    if (stress >= 100) endGame("💀 НЕРВОВИЙ ЗРИВ", "Рівень стресу досяг межі.");
-    if (energy <= 0) endGame("💀 ФІЗИЧНИЙ КОЛАПС", "Енергія на нулі.");
+    if (stress >= 100) endGame("💀 НЕРВОВИЙ ЗРИВ", "Стрес знищив твою психіку.");
+    if (energy <= 0) endGame("💀 ФІЗИЧНИЙ КОЛАПС", "Повне виснаження.");
 }
 
 function endGame(title, desc) {
@@ -592,4 +611,5 @@ function resetGame() {
     location.reload();
 }
 
+// Початковий UI апдейт
 updateUI();
