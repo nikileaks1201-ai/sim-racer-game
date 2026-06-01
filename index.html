@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SimRacer Tycoon Manager v0.7</title>
+    <title>SimRacer Tycoon Manager v0.7.1</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
         <div class="splash-content">
             <h1 class="splash-logo">🏁 SIMRACER TYCOON</h1>
             <p class="splash-sub">NEXT-GEN HIGH LOAD MANAGEMENT SIMULATOR</p>
-            <div class="game-version-display">v0.7-core_rebuild</div>
+            <div class="game-version-display">v0.7.1-hotfix</div>
             <button id="splash-start-btn" onclick="closeSplashScreen()">🟢 ЗАПУСТИТИ СИМУЛЯЦІЮ</button>
         </div>
     </div>
@@ -120,7 +120,7 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 1: ОФІС (НОВА МІНІ-ГРА) ================= -->
+        <!-- ================= ЕКРАН 1: ОФІС ================= -->
         <div id="screen-work" class="game-screen">
             <h2>🖥️ СИМУЛЯТОР КЕРУВАННЯ ІНЦИДЕНТАМИ</h2>
             
@@ -248,7 +248,7 @@
             </div>
         </div>
 
-        <!-- ================= ЕКРАН 5: ГОНКА (АКТИВНЕ КЕРУВАННЯ) ================= -->
+        <!-- ================= ЕКРАН 5: ГОНКА ================= -->
         <div id="screen-race" class="game-screen">
             <h2>🏎️ СТРАТЕГІЧНИЙ ГОНОЧНИЙ ЕТАП</h2>
             
@@ -261,13 +261,12 @@
                     Внесок: <span id="race-fee">0</span>₴ | Дистанція: <span id="target-laps">3</span> кіл
                 </div>
 
-                <button id="start-race-btn" class="main-action-btn" onclick="startStrategicRace()" style="background:#e65100; justify-content:center; width:100%;">🟢 Сплатити внесок та виїхати на трек</button>
+                <button id="start-race-btn" class="main-action-btn" onclick="startStrategicRace()" style="background:#e65100; justify-content:center; width:100%;">🟢 Сплатити внесок та виїхати з піт-лейну</button>
                 
                 <div id="race-simulation-box" style="display:none; background:#111; padding:12px; border-radius:8px; border:1px solid #333; margin-top:10px;">
                     <div id="race-live-status" style="color:#ffcc00; font-weight:bold; font-size:14px; margin-bottom:8px; text-align:center;">Очікування зеленого...</div>
                     <div id="race-live-log" style="font-size:12px; min-height:60px; background:#000; padding:8px; border-radius:4px; margin-bottom:12px; line-height:1.4; color:#fff;">Готуй тактику.</div>
                     
-                    <!-- КНОПКИ ТЕПЕР ПОВНІСТЮ АКТИВНІ ТА ВПЛИВАЮТЬ НА ХІД ГОНКИ -->
                     <div class="tactics-grid" style="display:flex; flex-direction:column; gap:6px;">
                         <button id="tactic-btn-push" class="tactic-btn" style="border: 2px solid #444;" onclick="submitTactic('push')">🔥 Атакувати (Позиція↑ | Ризик у дощ↑)</button>
                         <button id="tactic-btn-safe" class="tactic-btn" style="border: 2px solid #ff9800;" onclick="submitTactic('safe')">🛡️ Стабільний темп (Баланс сил та швидкості)</button>
