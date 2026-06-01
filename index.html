@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SimRacer Tycoon Manager v0.6</title>
+    <title>SimRacer Tycoon Manager v0.6.1</title>
     
+    <!-- КРАСИВІ ФУТУРИСТИЧНІ ШРИФТИ -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
+    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ CSS БЕЗ КЕШУ -->
     <script>
         const cacheBuster = Date.now();
         const styleLink = document.createElement('link');
@@ -20,25 +22,35 @@
 </head>
 <body>
 
+    <!-- ================= 🎬 ЗАСТАВКА НА ПОЧАТКУ ГРИ ================= -->
     <div id="splash-screen">
         <div class="splash-content">
             <h1 class="splash-logo">🏁 SIMRACER TYCOON</h1>
             <p class="splash-sub">CASINO SUPPORT ENGINE & SIMRACING MANAGER</p>
-            <div class="game-version-display">v0.6-tycoon_evolution</div>
+            <div class="game-version-display">v0.6.1-hotfix</div>
             <button id="splash-start-btn" onclick="closeSplashScreen()">🟢 ВВІЙТИ В СИМУЛЯЦІЮ</button>
         </div>
     </div>
 
+    <!-- ⚙️ МЕНЮ НАЛАШТУВАНЬ ТА ЗБЕРЕЖЕНЬ -->
     <div id="game-menu-modal" class="modal-overlay" style="display:none;">
         <div class="modal-window">
             <h3>⚙️ МЕНЮ НАЛАШТУВАНЬ</h3>
-            <button class="menu-modal-btn green" onclick="saveGameData()">💽 Зберегти прогрес</button>
+            
+            <!-- ПУНКТ ЗБЕРЕЖЕНИХ ІГОР (НОВИЙ) -->
+            <div id="menu-save-info-block" style="background:#222; padding:8px; border-radius:6px; font-size:11px; margin-bottom:10px; text-align:left; border:1px solid #444; color:#aaa;">
+                <b>📁 ЗБЕРЕЖЕНА КАР'ЄРА:</b><br>
+                <span id="menu-save-details">Збережень не виявлено</span>
+            </div>
+
+            <button class="menu-modal-btn green" onclick="saveGameData()">💽 Зберегти поточний прогрес</button>
             <button class="menu-modal-btn blue" onclick="toggleSound()">🔊 Звук: <span id="sound-status-text">Увімкнено</span></button>
-            <button class="menu-modal-btn orange" onclick="resetGame()">🔄 Почати кар'єру заново</button>
+            <button class="menu-modal-btn orange" onclick="resetGame()">🔄 Почати заново (Видалити сейв)</button>
             <button class="menu-modal-btn close" onclick="toggleMenuModal()">❌ Закрити меню</button>
         </div>
     </div>
 
+    <!-- 📰 ПОП-АП СВІТОВИХ НОВИН -->
     <div id="news-modal" class="modal-overlay" style="display:none;">
         <div class="modal-window" style="border-color: #ffcc00;">
             <h3 style="color:#ffcc00; font-family:'Orbitron', sans-serif;">📰 СВІЖІ НОВИНИ</h3>
@@ -47,6 +59,7 @@
         </div>
     </div>
 
+    <!-- 🚨 ЦЕНТРАЛЬНЕ МОДАЛЬНЕ ВІКНО СЮЖЕТНИХ КВЕСТІВ -->
     <div id="quest-modal" class="modal-overlay" style="display:none;">
         <div class="modal-window" style="border-color: #ff9800; max-width: 340px;">
             <b style="color:#ff9800; font-family:'Orbitron', sans-serif; font-size:14px;" id="quest-title">🔥 СЮЖЕТНИЙ КВЕСТ</b>
@@ -58,8 +71,10 @@
         </div>
     </div>
 
+    <!-- ГОЛОВНИЙ КОНТЕЙНЕР ГРИ -->
     <div id="game-container" style="display:none;">
         
+        <!-- ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА -->
         <div id="screen-creation" class="game-screen">
             <h1 style="color:#ff5722; font-size:18px; margin: 0 0 10px 0; text-align:center;">👤 РЕЄСТРАЦІЯ ПІЛОТА</h1>
             <div class="creation-form">
@@ -94,12 +109,13 @@
             </div>
         </div>
 
+        <!-- ГЛОБАЛЬНИЙ ХЕДЕР ІГРОВОГО ПРОЦЕСУ -->
         <div id="main-game-header" style="display:none;">
             <div class="global-header">
                 <div class="digital-val">💵 <span id="global-money">1000</span>₴</div>
                 <div class="digital-val">⚡️ <span id="global-energy">100</span>%</div>
                 <div class="digital-val">🧠 <span id="global-stress">0</span>%</div>
-                <button class="settings-top-btn" onclick="toggleMenuModal()">⚙️</button>
+                <button class="settings-top-btn" onclick="toggleMenuModal()">⚙️ Меню</button>
             </div>
             <div class="championship-banner">
                 🏆 <span id="current-league-name">Dark Race Simclub</span> | Лвл: <span id="racer-level">1</span> (<span id="racer-xp">0</span>/100)
@@ -112,6 +128,7 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 1: ОФІС ================= -->
         <div id="screen-work" class="game-screen">
             <h2>🖥 РОЗРОБКА ТА ЗАКРИТТЯ ЗМІНИ</h2>
             
@@ -119,12 +136,14 @@
                 ℹ️ Офіс зачинено. Наразі вихідні. Виступай на гоночних етапах ліги!
             </div>
 
+            <!-- БЛОК ЗАПУСКУ ПРОЕКТУ -->
             <div id="project-init-zone">
-                <p style="font-size:12px; color:#aaa; margin-top:0;">Обери складність робочого проекту для виконання на поточній зміні саппорту:</p>
-                <button class="main-action-btn status-btn-green" onclick="startNewProject('tickets')">🚀 Створити проект: Закриття черги чатів (Легко)</button>
-                <button class="main-action-btn status-btn-green" style="background:#0288d1!important;" onclick="startNewProject('vip_audit')">🔥 Створити проект: VIP-Аудит хайроллерів (Важко)</button>
+                <p style="font-size:12px; color:#aaa; margin-top:0; text-align:center;">Обери складність робочого проекту для поточної зміни:</p>
+                <button class="main-action-btn status-btn-green" onclick="startNewProject('tickets')" style="width:100%;">🚀 Проект: Закриття черги чатів (Легко)</button>
+                <button class="main-action-btn status-btn-green" style="background:#0288d1!important; width:100%;" onclick="startNewProject('vip_audit')">🔥 Проект: VIP-Аудит хайроллерів (Важко)</button>
             </div>
 
+            <!-- ЕКРАН РОЗРОБКИ ПРОЕКТУ -->
             <div id="project-development-zone" style="display:none; background:#161616; padding:12px; border-radius:10px; border:1px solid #333;">
                 <h3 style="margin-top:0; color:#ff5722;" id="dev-project-title">Розробка проекту...</h3>
                 
@@ -139,14 +158,16 @@
                 </div>
 
                 <div id="slider-phase-control">
-                    <label id="slider-label-name" style="font-size:12px; font-weight:bold; color:#ffcc00; display:block; margin-bottom:4px;">Етап 1: Швидкість ответов</label>
+                    <label id="slider-label-name" style="font-size:12px; font-weight:bold; color:#ffcc00; display:block; margin-bottom:4px;">Етап 1: Швидкість</label>
                     <input type="range" id="tycoon-phase-slider" min="10" max="90" value="50" style="width:100%; margin-bottom:12px;">
                     <button class="menu-modal-btn green" onclick="nextProjectPhase()">Далі (Зафіксувати етап)</button>
                 </div>
             </div>
 
+            <!-- ЗВИТНИЙ ЛОГ -->
             <div id="work-log" style="margin-top:12px;">Очікування старту проекту зміни.</div>
 
+            <!-- БЛОК РЕЛАКСУ -->
             <h3 style="font-size:12px; color:#0288d1; margin-top:15px; text-transform:uppercase;">🔋 Перекусон та відновлення сил:</h3>
             <div class="relax-group">
                 <button class="energy-btn" onclick="relaxAction('sleep')">💤 Домашній сон (Безкоштовно, +30⚡️, -10🧠, +2 год)</button>
@@ -155,6 +176,7 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 2: ПРОФІЛЬ ГОНЩИКА ================= -->
         <div id="screen-racer" class="game-screen">
             <h2>👤 ДОСЬЄ ТА ПРОКАЧКА</h2>
             <div id="racer-bio-card" style="background:#1c1c1c; padding:10px; border-radius:8px; font-size:12px; margin-bottom:12px; border-left:3px solid #ff5722;">
@@ -179,6 +201,7 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 3: ГАРАЖ ТА МАГАЗИН ================= -->
         <div id="screen-garage" class="game-screen">
             <h2>🛠 СІМРЕЙСЕРСЬКИЙ СЕTАП</h2>
             <div style="background:#222; padding:8px; border-radius:8px; margin-bottom:12px; text-align:center; font-size:12px;">
@@ -209,6 +232,7 @@
             </div>
         </div>
 
+        <!-- ================= ВКЛАДКА 4: УКРАЇНСЬКІ СПОНСОРИ ================= -->
         <div id="screen-sponsors" class="game-screen">
             <h2>🤝 КОНТРАКТИ З УКРАЇНСЬКИМИ БРЕНДАМИ</h2>
             <div id="active-sponsor-status" style="background:#1b5e20; padding:10px; border-radius:8px; font-size:13px; text-align:center; margin-bottom:12px; font-weight:bold;">
@@ -235,6 +259,7 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 5: ГОНКА ================= -->
         <div id="screen-race" class="game-screen">
             <h2>🏎 СТРАТЕГІЧНИЙ ГОНОЧНИЙ ЕТАП</h2>
             
@@ -247,7 +272,7 @@
                     Внесок: <span id="race-fee">0</span>₴ | Дистанція етапу: <span id="target-laps">3</span> кіл
                 </div>
 
-                <button id="start-race-btn" class="main-action-btn" onclick="startStrategicRace()" style="background:#e65100; justify-content:center;">🟢 Сплатити внесок та виїхати з піт-лейну</button>
+                <button id="start-race-btn" class="main-action-btn" onclick="startStrategicRace()" style="background:#e65100; justify-content:center; width:100%;">🟢 Сплатити внесок та виїхати з піт-лейну</button>
                 
                 <div id="race-simulation-box" style="display:none; background:#111; padding:12px; border-radius:8px; border:1px solid #333; margin-top:10px;">
                     <div id="race-live-status" style="color:#ffcc00; font-weight:bold; font-size:14px; margin-bottom:8px; text-align:center;">Очікування зеленого...</div>
@@ -267,12 +292,14 @@
             </div>
         </div>
 
+        <!-- ЕКРАН ФІНАЛУ -->
         <div id="screen-final" class="game-screen">
             <h2 id="final-title"></h2>
             <p id="final-desc"></p>
             <button class="main-action-btn" onclick="resetGame()" style="justify-content:center;">🔁 Нова кар'єра</button>
         </div>
 
+        <!-- ТАБ-БАР -->
         <div class="tab-bar" id="global-tabs" style="display:none;">
             <div class="tab-button active" onclick="switchTab('work')">🖥 Офіс</div>
             <div class="tab-button" onclick="switchTab('racer')">👤 Профіль</div>
@@ -283,6 +310,7 @@
 
     </div>
 
+    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ SCRIPT БЕЗ КЕШУ -->
     <script>
         const scriptScript = document.createElement('script');
         scriptScript.src = 'script.js?v=' + cacheBuster;
