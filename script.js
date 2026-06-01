@@ -27,12 +27,11 @@ function playClickSound(type = 'click') {
 let racerName = "Mykyta"; 
 let racerGender = "Хлопець"; 
 let racerHousing = "rent"; 
-let racerStyle = "";
-let racerPlatform = "pc";        // 💻 Нова змінна: платформа
-let racerISP = "cellular";       // 📡 Нова змінна: провайдер інтернету
+let racerStyle = "🛹 Стріт-рейсер";
+let racerPlatform = "pc";        
+let racerISP = "cellular";       
 let selectedTalentIdx = 0;
 
-// Масив талантів (СТРОГО 2 таланти!)
 const TALENT_NAMES = ["Природжений Хотлапер", "Java-Гік"];
 const TALENT_DESCRIPTIONS = [
     "Кращий темп на треку, але важче в офісі.",
@@ -144,9 +143,14 @@ function startDailyIncident() {
         
         // 📡 ISP ефект: мобільний провайдер має шанс зниження стабільності
         if (racerISP === "cellular" && Math.random() < 0.15) {
-            stabilityDrop += 5; // Додатковий штраф
+            stabilityDrop += 5; 
         }
         
+        // 🛹 Стріт-рейсерський стиль одягу додає пасивного стресу
+        if (racerStyle === "🛹 Стріт-рейсер") {
+            stress = Math.min(100, stress + 0.5);
+        }
+
         incidentStability = Math.max(0, Math.min(100, incidentStability - Math.floor(stabilityDrop)));
         
         if (Math.random() < 0.7) {
@@ -192,6 +196,7 @@ function finishDailyIncident() {
 
     let baseSalary = currentIncidentType === "audit" ? 450 : 250;
     let earned = Math.floor(baseSalary * (incidentStability / 100)); if (earned < 30) earned = 30; 
+    
     money += earned; gainXP(incidentStability > 50 ? 30 : 10);
     stress = Math.min(100, stress + Math.floor(20 - stats.ment));
     document.getElementById('work-log').innerHTML = `🏁 <b>Зміну завершено!</b> Стабільність: ${incidentStability}%. ЗП: +${earned}₴`;
@@ -262,9 +267,9 @@ function loadGameData() {
         racerName = data.racerName; 
         racerGender = data.racerGender; 
         racerHousing = data.racerHousing; 
-        racerStyle = data.racerStyle;
-        racerPlatform = data.racerPlatform || "pc";      // 💻 Завантаження платформи
-        racerISP = data.racerISP || "cellular";          // 📡 Завантаження провайдера
+        racerStyle = data.racerStyle || "🛹 Стріт-рейсер";
+        racerPlatform = data.racerPlatform || "pc";      
+        racerISP = data.racerISP || "cellular";          
         selectedTalentIdx = data.selectedTalentIdx; 
         money = data.money; 
         energy = data.energy;
@@ -297,13 +302,11 @@ function loadGameData() {
 
 function toggleMenuModal() { playClickSound(); const modal = document.getElementById('game-menu-modal'); if (modal) modal.style.display = modal.style.display === 'none' ? 'flex' : 'none'; }
 
-// ✅ ТАЛАНТИ - СТРОГО 2 таланти (0 та 1)
 function selectTalent(idx) {
     if (idx !== 0 && idx !== 1) {
         console.warn(`❌ Невірний індекс таланту: ${idx}. Допустимі: 0 або 1`);
         return;
     }
-    
     playClickSound();
     selectedTalentIdx = idx;
     
@@ -331,29 +334,30 @@ function startGameWithCharacter() {
     racerName = document.getElementById('creation-name').value.trim() || "Mykyta";
     racerGender = document.getElementById('creation-gender').value;
     racerHousing = document.getElementById('creation-housing').value;
-    racerStyle = document.getElementById('creation-style').value;
-    racerPlatform = document.getElementById('creation-platform').value;  // 💻 Платформа
-    racerISP = document.getElementById('creation-isp').value;            // 📡 Провайдер
     
-    // selectedTalentIdx уже встановлено функцією selectTalent()
+    // БЕЗПЕЧНЕ ЗЧИТУВАННЯ СТИЛЮ ОДЯГУ (ЗАХИСТ ВІД NULL КРАШУ)
+    const styleElem = document.getElementById('creation-style');
+    racerStyle = styleElem ? styleElem.value : "🛹 Стріт-рейсер";
+    
+    racerPlatform = document.getElementById('creation-platform').value;  
+    racerISP = document.getElementById('creation-isp').value;            
+    
     money = (racerGender === "Дівчина") ? 1500 : 1000;
     
     // 💻 ПЛАТФОРМА: PC Simracer
     if (racerPlatform === "pc") {
-        stats.eng += 1; // +1 Інженерія
+        stats.eng += 1; 
     } 
     // 🎮 ПЛАТФОРМА: Console Racer
     else if (racerPlatform === "console") {
-        money += 500;  // +500₴ бонус
-        stats.eng = Math.max(0, stats.eng - 1); // -1 Інженерія, але не нижче 0
+        money += 500;  
+        stats.eng = Math.max(0, stats.eng - 1); 
     }
     
     // 📡 ISP: Fiber Optic
     if (racerISP === "fiber") {
-        money -= 200; // Витрата 200₴ на оптоволокно
-        // Імунітет до розривів буде обробляний в startDailyIncident()
+        money -= 200; 
     }
-    // 📱 ISP: Cellular - вже включений механізм ризику в startDailyIncident()
     
     // Бонус для Java-Гіка (талант 1)
     if (selectedTalentIdx === 1) stats.eng += 2;
@@ -389,15 +393,21 @@ function switchTab(tabName) {
     }
 }
 
+// 💵 ЗБАЛАНСОВАНА ОРЕНДА ЖИТЛА (80₴ ТА 20₴ ЗАМІСТЬ 400₴)
 function endDayRoutine() {
     currentHour = 9; currentMinute = 0; currentDay += 1;
-    let dailyCost = racerHousing === "rent" ? 400 : 100; money -= dailyCost;
-    alert(`⏰ День завершено! Борг за житло: -${dailyCost}₴.`);
+    let dailyCost = racerHousing === "rent" ? 80 : 20; 
+    money -= dailyCost;
+    
+    alert(`⏰ День завершено! Розрахунок за житло: -${dailyCost}₴.`);
     generateDailyBriefing(); checkQuestTrigger();
     if (money < 0) endGame("💀 БАНКРУТСТВО", "Ти заліз у борги.");
 }
 
 function gainXP(amount) {
+    // Ефект одягу: Про-пілот дає +20% до досвіду
+    if (racerStyle === "🏎️ Про-пілот") amount = Math.floor(amount * 1.2);
+    
     if (racerHousing === "parents") amount = Math.floor(amount * 0.8);
     if (racerHousing === "rent") amount = Math.floor(amount * 1.2);
     xp += amount; if (xp >= 100) { xp -= 100; level += 1; skillPoints += 2; playClickSound('success'); }
@@ -411,7 +421,14 @@ function relaxAction(type) {
     if (type === 'sleep') { energy = Math.min(maxEnergy, energy + 30); stress = Math.max(0, stress - 10); currentHour += 2; }
     else if (type === 'varus') { if (money < 100) return; money -= 100; energy = Math.min(maxEnergy, energy + 35); stress = Math.max(0, stress - 15); currentHour += 1; }
     else if (type === 'glovo') { if (money < 180) return; money -= 180; energy = Math.min(maxEnergy, energy + 55); stress = Math.max(0, stress - 25); currentHour += 1; }
-    if (activeSponsorIdx !== null) { money += SPONSORS[activeSponsorIdx].pay * (type === 'sleep' ? 2 : 1); } // сон = 2 год, тому x2
+    
+    // Ефект одягу: Стріт-рейсер дає +10% до виплат спонсора
+    let sponsorBonus = 1.0;
+    if (racerStyle === "🛹 Стріт-рейсер") sponsorBonus = 1.1;
+
+    if (activeSponsorIdx !== null) { 
+        money += Math.floor(SPONSORS[activeSponsorIdx].pay * (type === 'sleep' ? 2 : 1) * sponsorBonus); 
+    } 
     if (currentHour >= 18) endDayRoutine();
     updateUI();
 }
@@ -450,11 +467,15 @@ function playRaceTick() {
     let outcome = sit[currentTactic]; let posChange = 0;
     if (outcome === 'win') posChange = Math.floor(Math.random() * 3) + 2;
     else if (outcome === 'lose') posChange = -2;
+    
     if (currentTactic === 'push' && selectedTalentIdx === 0) posChange += 1;
     if (upgrades.pedals && outcome === 'lose') posChange = -1;
 
+    // Ефект одягу: Кіберспортсмен економить 15% енергії у гонках
+    let energyCost = (racerStyle === "🎮 Кіберспортсмен") ? 3 : 4;
+
     racePosition = Math.max(1, Math.min(20, racePosition - posChange));
-    stress = Math.max(0, Math.min(100, stress + 6 - stats.ment)); energy = Math.max(0, energy - 4);
+    stress = Math.max(0, Math.min(100, stress + 6 - stats.ment)); energy = Math.max(0, energy - energyCost);
     document.getElementById('race-live-log').innerHTML = `<b>Ситуація:</b> ${sit.text}<br>Тактика: <b>${currentTactic.toUpperCase()}</b>. Позиція: P${racePosition}`;
     if (activeSponsorIdx !== null) money += SPONSORS[activeSponsorIdx].pay;
     updateUI();
@@ -475,7 +496,7 @@ function endStrategicRace() {
                 currentLeagueIdx++; 
                 alert("🎖️ Новий рівень ліги відкритий!");
             } else {
-                alert(`🔒 Наступна ліга потребує: ${nextLeague.req}. Купи в гаражі!`);
+                alert(`🔒 Наступна ліга потребує: ${nextLeague.req}. Купи в магазині!`);
             }
         }
     }
