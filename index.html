@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SimRacer RPG Manager Ultimate</title>
+    <title>SimRacer Tycoon Manager</title>
     
+    <!-- КРАСИВІ ФУТУРИСТИЧНІ ШРИФТИ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ CSS БЕЗ КЕШУ -->
     <script>
         const cacheBuster = Date.now();
         const styleLink = document.createElement('link');
@@ -16,96 +22,122 @@
 </head>
 <body>
 
-    <div id="game-container">
+    <!-- ================= 🎬 ЗАСТАВКА НА ПОЧАТКУ ГРИ (SPLASH SCREEN) ================= -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1 class="splash-logo">🏁 SIMRACER TYCOON</h1>
+            <p class="splash-sub">CASINO SUPPORT ENGINE & SIMRACING MANAGER</p>
+            <div class="game-version-display">v0.5-tycoon</div>
+            <button id="splash-start-btn" onclick="closeSplashScreen()">🟢 ВВІЙТИ В СИМУЛЯЦІЮ</button>
+        </div>
+    </div>
+
+    <!-- МЕНЮ НАЛАШТУВАНЬ (МОДАЛЬНЕ ВІКНО) -->
+    <div id="game-menu-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-window">
+            <h3>⚙️ МЕНЮ НАЛАШТУВАНЬ</h3>
+            <button class="menu-modal-btn green" onclick="saveGameData()">💽 Зберегти прогрес</button>
+            <button class="menu-modal-btn blue" onclick="toggleSound()">🔊 Звук: <span id="sound-status-text">Увімкнено</span></button>
+            <button class="menu-modal-btn orange" onclick="resetGame()">🔄 Почати кар'єру заново</button>
+            <button class="menu-modal-btn close" onclick="toggleMenuModal()">❌ Закрити меню</button>
+        </div>
+    </div>
+
+    <div id="game-container" style="display:none;">
         
-        <div id="screen-creation" class="game-screen active">
-            <h1 style="color:#ff5722; font-size:16px; margin: 0 0 10px 0;">👤 СТВОРЕННЯ НОВОГО ГОНЩИКА</h1>
-            <p style="font-size:11px; text-align:center; color:#888; margin-top:-10px;">Налаштуй умови свого старту</p>
+        <!-- ================= 👤 ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА ================= -->
+        <div id="screen-creation" class="game-screen">
+            <h1 style="color:#ff5722; font-size:18px; margin: 0 0 10px 0; text-align:center;">👤 РЕЄСТРАЦІЯ ПІЛОТА</h1>
             
             <div class="creation-form">
-                <label>Ім'я / Нікнейм:</label>
-                <input type="text" id="creation-name" value="Mykyta" placeholder="Введіть нік...">
+                <label>Нікнейм / Ім'я:</label>
+                <input type="text" id="creation-name" value="Mykyta">
 
-                <label>Стать (Вплив на старт):</label>
+                <label>Стать:</label>
                 <select id="creation-gender">
                     <option value="Хлопець">Хлопець (Старт: 1000₴)</option>
-                    <option value="Дівчина">Дівчина (Старт: 1500₴, бонус Керуючої)</option>
+                    <option value="Дівчина">Дівчина (Старт: 1500₴)</option>
                 </select>
 
-                <label>Житлові умови (Вплив на витрати):</label>
+                <label>Житлові умови:</label>
                 <select id="creation-housing">
-                    <option value="parents">Жити з батьками (Оренда: 0₴, але -20% XP)</option>
-                    <option value="rent">Орендувати квартиру (Оренда: 400₴, Фокус: +20% XP)</option>
+                    <option value="parents">З батьками (Оренда: 0₴ | -20% XP)</option>
+                    <option value="rent">Оренда квартири (Оренда: 400₴ | +20% XP)</option>
                 </select>
 
-                <label>Стиль / Зовнішність:</label>
+                <label>Стиль одягу:</label>
                 <select id="creation-style">
-                    <option value="🛹 Стріт-рейсер у худі">Стріт-рейсер у худі</option>
-                    <option value="🎮 Кіберспортсмен у джерсі">Кіберспортсмен у джерсі</option>
-                    <option value="🏎️ Про-пілот у комбінезоні">Про-пілот у комбінезоні</option>
+                    <option value="🛹 Стріт-рейсер">Стріт-рейсер у худі</option>
+                    <option value="🎮 Кіберспортсмен">Кіберспортсмен у джерсі</option>
+                    <option value="🏎️ Про-пілот">Про-пілот у комбінезоні</option>
                 </select>
 
-                <label style="color:#ffcc00;">🔮 Вроджений Талант (Головний Перк):</label>
+                <label style="color:#ffcc00;">🔮 Головний талант:</label>
                 <div class="talent-options">
                     <div class="talent-card active" onclick="selectTalent(0, this)">
-                        <b>🏎️ Хотлапер</b><br><small>Швидкість бігунка -10%, та -15% XP в офісі.</small>
+                        <b>🏎️ Хотлапер</b><br><small>Кращий темп на треку, але важче в офісі.</small>
                     </div>
                     <div class="talent-card" onclick="selectTalent(1, this)">
                         <b>💻 Java-Гік</b><br><small>Старт з +2 Інженерії. Стрес у гонках +20%.</small>
                     </div>
-                    <div class="talent-card" onclick="selectTalent(2, this)">
-                        <b>🔋 Заряджений Monster'ом</b><br><small>Макс. Енергія 130%. Оренда збільшена.</small>
-                    </div>
                 </div>
 
-                <button class="main-action-btn" onclick="startGameWithCharacter()" style="background:#ff5722; justify-content:center; margin-top:10px;">🚀 Запустити Симуляцію Життя</button>
+                <button class="main-action-btn" onclick="startGameWithCharacter()" style="background:#ff5722; justify-content:center; margin-top:10px;">🏎️ Створити і почати</button>
             </div>
         </div>
 
+        <!-- ГЛОБАЛЬНИЙ ХЕДЕР ІГРОВОГО ПРОЦЕСУ -->
         <div id="main-game-header" style="display:none;">
             <div class="global-header">
-                <div>💵 <span id="global-money">1000</span>₴</div>
-                <div>⚡️ <span id="global-energy">100</span>% / <span id="max-energy-display">100</span>%</div>
-                <div>🧠 <span id="global-stress">0</span>%</div>
+                <div class="digital-val">💵 <span id="global-money">1000</span>₴</div>
+                <div class="digital-val">⚡️ <span id="global-energy">100</span>%</div>
+                <div class="digital-val">🧠 <span id="global-stress">0</span>%</div>
+                <button class="settings-top-btn" onclick="toggleMenuModal()">⚙️</button>
             </div>
 
             <div class="championship-banner">
-                🏆 <span id="current-league-name">Dark Race Simclub</span> | Рівень: <span id="racer-level">1</span> (<span id="racer-xp">0</span>/100 XP)
+                🏆 <span id="current-league-name">Dark Race Simclub</span> | Лвл: <span id="racer-level">1</span> (<span id="racer-xp">0</span>/100)
             </div>
             
             <div class="time-banner-rpg">
-                📅 <span id="game-weekday">Понеділок</span> (<span id="game-day-type">Будній</span>) | 👴 Вік: <span id="racer-age">18</span> років
+                📅 <span id="game-weekday">Понеділок</span> | День <span id="game-day">1</span> | 👴 <span id="racer-age">18</span> років
             </div>
-            <div class="time-banner-rpg" style="background:#222; color:#ffcc00; border-top:none; font-size:10px; padding:2px;">
-                ⏰ Година зміни: <span id="game-hour">09</span>:00 (Кінець о 18:00) | День: <span id="game-day">1</span>
+            <div class="time-banner-rpg" style="background:#222; color:#ffcc00; border-top:none; font-size:11px; padding:3px;">
+                ⏰ Година: <span id="game-hour">09</span>:<span id="game-minute">00</span>
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 1: ОФІС / СУПЕРМАРКЕТ ================= -->
         <div id="screen-work" class="game-screen">
-            <h2>🖥 ЖИТТЄВА СТРАТЕГІЯ ТА ФІНАНСИ</h2>
-            <div id="work-weekend-notice" style="display:none; background:#1e3d59; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
-                ℹ️ Офіс підтримки зачинено на вихідні. Робота недоступна. Обслуговуй залізо та готуйся до гонки!
-            </div>
-            <div id="work-log">Зміна розпочалась. Кожна дія займає час. Наприкінці дня списуються кошти за життя.</div>
+            <h2>🖥 АВТОМАТИЗОВАНА РОБОЧА ЗМІНА</h2>
             
-            <div id="work-actions-block">
-                <button class="main-action-btn" onclick="workAnHour()">🖥 Працювати годину в саппорті (+1 год, +15 XP)</button>
+            <div id="work-weekend-notice" style="display:none; background:#1e3d59; color:white; padding:10px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
+                ℹ️ Офіс підтримки зачинено. Наразі вихідні. Готуйся до заїздів ліги!
             </div>
 
-            <h3 style="font-size:12px; color:#0288d1; margin-top:12px; text-transform:uppercase;">🔋 Відновлення сил та відпочинок:</h3>
-            <div class="relax-group" style="display:flex; flex-direction:column; gap:6px;">
-                <button class="energy-btn" onclick="relaxAction('sleep')">💤 Дріманути вдома (Безкоштовно, +30⚡️, -5🧠, +2 год)</button>
-                <button class="energy-btn orange" onclick="relaxAction('varus')">🛒 Збігати у Varus (-100₴, +35⚡️, -10🧠, +1 god)</button>
-                <button class="energy-btn blue" onclick="relaxAction('glovo')">🛵 Замовити Glovo (-180₴, +50⚡️, -20🧠, +1 год)</button>
+            <div id="work-log">Офіс відкритий з 09:00 до 18:00. Запусти зміну, щоб час пішов пасивно в стилі Tycoon.</div>
+            
+            <!-- ПАСИВНИЙ ТАЙКУН-ДВИГУН РОБОТИ -->
+            <div id="work-actions-block">
+                <button id="tycoon-work-btn" class="main-action-btn status-btn-green" onclick="toggleWorkShift()">🟢 ЗАПУСТИТИ РОБОЧУ ЗМІНУ</button>
+            </div>
+
+            <h3 style="font-size:12px; color:#0288d1; margin-top:15px; text-transform:uppercase;">🔋 Релакс та відновлення сил:</h3>
+            <div class="relax-group">
+                <button class="energy-btn" onclick="relaxAction('sleep')">💤 Домашній сон (Безкоштовно, +30⚡️, -5🧠, +2 год)</button>
+                <button class="energy-btn orange" onclick="relaxAction('varus')">🛒 Забіг у Varus (-100₴, +35⚡️, -10🧠, +1 год)</button>
+                <button class="energy-btn blue" onclick="relaxAction('glovo')">🛵 Доставка Glovo (-180₴, +50⚡️, -20🧠, +1 год)</button>
             </div>
             
-            <h3 style="font-size:12px; color:#ff5722; margin-top:15px; text-transform:uppercase;">🤝 КОНТРАКТ ЗІ СПОНСОРОМ:</h3>
+            <!-- СПОНСОРИ -->
+            <h3 style="font-size:12px; color:#ff5722; margin-top:15px; text-transform:uppercase;">🤝 КОНТРАКТИ:</h3>
             <div id="sponsor-card" style="background:#181818; padding:10px; border-radius:6px; font-size:12px; text-align:center; border:1px solid #333;">
                 <span id="sponsor-name">Немає спонсора</span><br>
-                <small id="sponsor-effect">Виплати: 0₴ / хід</small><br>
-                <button onclick="signSponsor()" id="btn-sponsor" style="margin-top:8px; background:#ff5722; border:none; color:white; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Підписати контракт</button>
+                <small id="sponsor-effect">Виплати: 0₴</small><br>
+                <button onclick="signSponsor()" id="btn-sponsor" style="margin-top:8px; background:#ff5722; border:none; color:white; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Підписати</button>
             </div>
             
+            <!-- КВЕСТИ -->
             <div id="quest-zone" style="display:none; background:#291a00; border:1px solid #ff9800; padding:12px; border-radius:8px; margin-top:15px;">
                 <b style="color:#ff9800;" id="quest-title">🔥 СЮЖЕТНИЙ КВЕСТ</b>
                 <p id="quest-desc" style="font-size:12px; margin:5px 0 12px 0;"></p>
@@ -116,112 +148,120 @@
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 2: ПРОФІЛЬ ГОНЩИКА ================= -->
         <div id="screen-racer" class="game-screen">
-            <h2>👤 ДОСЬЄ ПІЛОТА ТА ХАРАКТЕРИСТИКИ</h2>
-            <div id="racer-bio-card" style="background:#1c1c1c; padding:10px; border-radius:8px; font-size:12px; margin-bottom:12px; border-left:3px solid #ff5722; line-height:1.5;">
-                <b>Ім'я:</b> <span id="bio-name">-</span> (<span id="bio-gender">-</span>)<br>
-                <b>Умови:</b> <span id="bio-housing">-</span><br>
-                <b>Стиль:</b> <span id="bio-style">-</span><br>
-                <b>Талант:</b> <span id="bio-talent">-</span>
+            <h2>👤 ДОСЬЄ ТА ПРОКАЧКА</h2>
+            <div id="racer-bio-card" style="background:#1c1c1c; padding:10px; border-radius:8px; font-size:12px; margin-bottom:12px; border-left:3px solid #ff5722;">
+                <b>Менеджер:</b> <span id="bio-name">-</span> (<span id="bio-gender">-</span>)<br>
+                <b>Житло:</b> <span id="bio-housing">-</span><br>
+                <b>Перк:</b> <span id="bio-talent">-</span>
             </div>
 
-            <div style="text-align:center; margin-bottom:12px; color:#ffcc00; font-weight:bold; font-size:13px;">
-                Вільні очки навичок: <span id="skill-points">0</span>
+            <div style="text-align:center; margin-bottom:12px; color:#ffcc00; font-weight:bold;">
+                Вільні очки: <span id="skill-points">0</span>
             </div>
             
             <div class="stats-upgrade-list">
                 <div class="stat-up-card">
-                    <div><b>🧠 Холоднокровність</b><br><small>Уповільнює бігунок на треку: <span id="stat-val-ment">0</span></small></div>
+                    <div><b>🧠 Холоднокровність</b><br><small>Знижує стрес у гонках: <span id="stat-val-ment">0</span></small></div>
                     <button onclick="upgradeStat('ment')">+</button>
                 </div>
                 <div class="stat-up-card">
-                    <div><b>💪 Витривалість</b><br><small>Зменшує витрату сил на колі: <span id="stat-val-phys">0</span></small></div>
+                    <div><b>💪 Витривалість</b><br><small>Зберігає енергію на треку: <span id="stat-val-phys">0</span></small></div>
                     <button onclick="upgradeStat('phys')">+</button>
                 </div>
                 <div class="stat-up-card">
-                    <div><b>💻 Інженерія</b><br><small>Бонус до зп саппорту та безкоштовний ремонт: <span id="stat-val-eng">0</span></small></div>
+                    <div><b>💻 Інженерія</b><br><small>Бонус до ЗП та обслуговування: <span id="stat-val-eng">0</span></small></div>
                     <button onclick="upgradeStat('eng')">+</button>
                 </div>
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 3: ГАРАЖ ТА МАГАЗИН ================= -->
         <div id="screen-garage" class="game-screen">
-            <h2>🛠 ДЕВАЙСИ ДЛЯ РОБОТИ ТА СІМРЕЙСИНГУ</h2>
+            <h2>🛠 СІМРЕЙСЕРСЬКИЙ СЕTАП</h2>
             <div style="background:#222; padding:8px; border-radius:8px; margin-bottom:12px; text-align:center; font-size:12px;">
                 ⚙️ Стан бази Moza: <span id="wheel-condition">100</span>%
-                <button onclick="repairWheel()" style="margin-left:10px; background:#4caf50; border:none; color:white; padding:3px 8px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:11px;">🔧 Обслужити</button>
+                <button onclick="repairWheel()" style="margin-left:10px; background:#4caf50; border:none; color:white; padding:3px 8px; border-radius:4px; cursor:pointer;">🔧 Ремонт</button>
             </div>
             
             <div class="upgrade-list">
                 <div class="upgrade-card work-item" id="upg-keyboard">
-                    <div><b>⌨️ Механічна Клавіатура</b><br><small id="keyboard-desc">Робота бере на 25% менше стресу</small></div>
+                    <div><b>⌨️ Механічна Клавіатура</b><br><small>Менше стресу на змінах</small></div>
                     <button onclick="buyUpgrade('keyboard', 800)" id="btn-keyboard">800₴</button>
                 </div>
                 <div class="upgrade-card work-item" id="upg-ups">
-                    <div><b>🔋 Джерело безперебійного живлення (ДБЖ)</b><br><small id="ups-desc">Захист від крашу серверів та вимкнень світла</small></div>
+                    <div><b>🔋 Джерело ДБЖ</b><br><small>Захист від вимкнень світла</small></div>
                     <button onclick="buyUpgrade('ups', 2400)" id="btn-ups">2400₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-wheel">
-                    <div><b>🏎 База Moza R9 DD</b><br><small id="wheel-desc">Розширює зону апексу на треку. Обов'язково для КМАМК!</small></div>
+                    <div><b>🏎 База Moza R9 DD</b><br><small>Відкриває лігу КМАМК</small></div>
                     <button onclick="buyUpgrade('wheel', 3800)" id="btn-wheel">3800₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-pedals">
-                    <div><b>🦶 Педалі Moza CRP (Load Cell)</b><br><small id="pedals-desc">Захист від промахів. Обов'язково для Formula 3!</small></div>
+                    <div><b>🦶 Педалі CRP (Load Cell)</b><br><small>Захист від промахів</small></div>
                     <button onclick="buyUpgrade('pedals', 5500)" id="btn-pedals">5500₴</button>
                 </div>
                 <div class="upgrade-card" id="upg-monitor">
-                    <div><b>🖥 Кокпіт + Тримонітор 32'</b><br><small id="monitor-desc">Дає х2 до зарплати та допуск у F2 / F1</small></div>
+                    <div><b>🖥 Тримоніторний Кокпіт</b><br><small>Допуск у Вищі професійні ліги</small></div>
                     <button onclick="buyUpgrade('monitor', 9000)" id="btn-monitor">9000₴</button>
                 </div>
             </div>
         </div>
 
+        <!-- ================= ЕКРАН 4: ГОНКА (СТРАТЕГІЧНИЙ СИМУЛЯТОР) ================= -->
         <div id="screen-race" class="game-screen">
-            <h2>🏎 ГОНОЧНИЙ ВІКЕНД ТА ТЕЛЕМЕТРІЯ</h2>
-            <div id="race-week-notice" style="background:#1b5e20; color:white; padding:8px; border-radius:6px; text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px;">
-                🏁 СЬОГОДНІ ДЕНЬ ГОНОК! Викладись на повну, покажи найкращий результат!
-            </div>
-            <div id="race-weekday-blocker" style="display:none; background:#222; padding:20px; border-radius:8px; text-align:center; font-size:13px; color:#aaa; line-height:1.5;">
-                🔒 <b>Вхід заблоковано.</b><br>Зараз будній день. Наразі йдуть офіційні робочі зміни в саппорті. Гоночні заїзди ліги проходять виключно по <b>Суботах та Неділях</b>! Готуй залізо.
+            <h2>🏎 СТРАТЕГІЧНИЙ ГОНОЧНИЙ ЕТАП</h2>
+            
+            <div id="race-weekday-blocker" style="background:#222; padding:20px; border-radius:8px; text-align:center; font-size:13px; color:#aaa;">
+                🔒 Гонки проходять виключно по <b>Суботах та Неділях</b>! Наразі йдуть будні, працюй в офісі та збирай на Moza.
             </div>
             
-            <div id="race-active-zone">
-                <div id="league-requirements" style="font-size:11px; color:#ffcc00; text-align:center; margin-bottom:10px;">
-                    Внесок: <span id="race-fee">0</span>₴ | Кіл за етап: <span id="target-laps">3</span> (+1 год)
-                </div>
-                
-                <div class="track-line">
-                    <div id="apex-zone"></div>
-                    <div id="car-runner"></div>
+            <div id="race-active-zone" style="display:none;">
+                <div id="league-requirements" style="font-size:12px; color:#ffcc00; text-align:center; margin-bottom:10px;">
+                    Внесок: <span id="race-fee">0</span>₴ | Дистанція етапу: <span id="target-laps">3</span> кіл
                 </div>
 
-                <button id="hit-apex-btn" class="main-action-btn race" onclick="hitApex()">🔥 СТАТИ НА АПЕКС (ТАП!)</button>
-                <button id="start-race-btn" class="main-action-btn" onclick="startRaceWeekend()" style="background:#e65100; text-align:center; justify-content:center; width:100%;">🟢 Сплатити внесок та виїхати на трек</button>
+                <button id="start-race-btn" class="main-action-btn" onclick="startStrategicRace()" style="background:#e65100; justify-content:center;">🟢 Сплатити внесок та виїхати з піт-лейну</button>
                 
-                <div id="race-log">Заявіться на гоночний вікенд ліги.</div>
-                
-                <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:10px; font-size:13px; color:#ffcc00;">
-                    <div>Позиція: <span id="race-pos">P20</span></div>
-                    <div>Кола: <span id="race-laps">0</span> / <span id="max-laps-display">3</span></div>
+                <!-- НОВИЙ СТРАТЕГІЧНИЙ ІНТЕРФЕЙС ГОНКИ -->
+                <div id="race-simulation-box" style="display:none; background:#111; padding:12px; border-radius:8px; border:1px solid #333; margin-top:10px;">
+                    <div id="race-live-status" style="color:#ffcc00; font-weight:bold; font-size:14px; margin-bottom:8px; text-align:center;">Очікування зеленого прапора...</div>
+                    <div id="race-live-log" style="font-size:12px; min-height:60px; background:#000; padding:8px; border-radius:4px; margin-bottom:12px; line-height:1.4;">Прогрів шин. Готуйся обирати тактику.</div>
+                    
+                    <!-- ДИНАМІЧНІ КНОПКИ ТАКТИКИ -->
+                    <div class="tactics-grid" style="display:flex; flex-direction:column; gap:6px;">
+                        <button class="tactic-btn active-red" onclick="submitTactic('push')">🔥 Атакувати (Ризик, Позиція↑, Стрес↑)</button>
+                        <button class="tactic-btn active-blue" onclick="submitTactic('safe')">🛡 Стабільний темп (Баланс, Енергія=)</button>
+                        <button class="tactic-btn active-green" onclick="submitTactic('save')">📉 Економити ресурс (Позиція↓, Стрес↓↓)</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:15px; font-size:14px; color:#ffcc00; font-family:'Orbitron', sans-serif;">
+                    <div>Місце: <span id="race-pos">P20</span></div>
+                    <div>Коло: <span id="race-laps">0</span> / <span id="max-laps-display">3</span></div>
                 </div>
             </div>
         </div>
 
+        <!-- ЕКРАН ФІНАЛУ -->
         <div id="screen-final" class="game-screen">
             <h2 id="final-title"></h2>
             <p id="final-desc"></p>
-            <button class="main-action-btn" onclick="resetGame()" style="text-align:center; justify-content:center;">🔁 Почати нову кар'єру</button>
+            <button class="main-action-btn" onclick="resetGame()" style="justify-content:center;">🔁 Нова кар'єра</button>
         </div>
 
+        <!-- ТАБ-БАР -->
         <div class="tab-bar" id="global-tabs" style="display:none;">
             <div class="tab-button active" onclick="switchTab('work')">🖥 Офіс</div>
-            <div class="tab-button" onclick="switchTab('racer')">👤 Гонщик</div>
+            <div class="tab-button" onclick="switchTab('racer')">👤 Профіль</div>
             <div class="tab-button" onclick="switchTab('garage')">🛠 Гараж</div>
             <div class="tab-button" onclick="switchTab('race')">🏎 Гонка</div>
         </div>
 
     </div>
 
+    <!-- ДИНАМІЧНЕ ПІДКЛЮЧЕННЯ SCRIPT БЕЗ КЕШУ -->
     <script>
         const scriptScript = document.createElement('script');
         scriptScript.src = 'script.js?v=' + cacheBuster;
