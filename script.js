@@ -27,15 +27,17 @@ function closeSplashScreen() {
     playClickSound('success');
     document.getElementById('splash-screen').style.display = 'none';
     
-    // ФІКС ЧОРНОГО ЕКРАНА: Прибрано помилковий .style.style
+    // ГАРАНТОВАНИЙ СТАРТ КОНТЕЙНЕРА В БУДЬ-ЯКОМУ ВИПАДКУ
     const container = document.getElementById('game-container');
     if (container) container.style.display = 'flex';
     
     updateSaveMenuDisplay();
     generateDailyBriefing();
     
+    // Спроба завантаження. Якщо сейв битий — автоматично увімкнеться екран створення
     const loaded = loadGameData();
     if (!loaded) {
+        localStorage.clear(); // Вичищаємо битий старий кеш, щоб не блокував кнопки
         const creation = document.getElementById('screen-creation');
         if (creation) creation.classList.add('active');
     }
@@ -288,10 +290,18 @@ function saveGameData() {
     playClickSound('success'); alert("💽 Гру збережено!"); updateSaveMenuDisplay(); toggleMenuModal();
 }
 
+// НАДІЙНИЙ ПЕРЕХОПЛЮВАЧ ПОМИЛОК LOCALSTORAGE
 function loadGameData() {
-    const raw = localStorage.getItem('simracer_tycoon_save'); if (!raw) return false;
     try {
+        const raw = localStorage.getItem('simracer_tycoon_save'); 
+        if (!raw) return false;
+        
         const data = JSON.parse(raw);
+        // Захисна перевірка на наявність обов'язкових полів нової версії
+        if (!data || typeof data.activeSponsorIdx === 'undefined' || !data.stats) {
+            return false; 
+        }
+
         racerName = data.racerName; racerGender = data.racerGender; racerHousing = data.racerHousing;
         racerStyle = data.racerStyle; selectedTalentIdx = data.selectedTalentIdx; money = data.money;
         energy = data.energy; maxEnergy = data.maxEnergy; stress = data.stress; currentDay = data.currentDay;
@@ -310,7 +320,10 @@ function loadGameData() {
         document.getElementById('main-game-header').style.display = 'block';
         document.getElementById('global-tabs').style.display = 'flex';
         applyBioToUI(); initPassiveEnergyRegen(); switchTab('work'); updateUI(); return true;
-    } catch(e) { return false; }
+    } catch(e) { 
+        console.log("Error loading save. Storage will be wiped safely.");
+        return false; 
+    }
 }
 
 function toggleMenuModal() { playClickSound(); const modal = document.getElementById('game-menu-modal'); if (modal) modal.style.display = modal.style.display === 'none' ? 'flex' : 'none'; }
