@@ -28,8 +28,14 @@ function closeSplashScreen() {
     playClickSound('success');
     document.getElementById('splash-screen').style.display = 'none';
     document.getElementById('game-container').style.display = 'flex';
+    
+    // Оновити блок збережених ігор у меню на старті
+    updateSaveMenuDisplay();
+
     const loaded = loadGameData();
-    if (!loaded) document.getElementById('screen-creation').classList.add('active');
+    if (!loaded) {
+        document.getElementById('screen-creation').classList.add('active');
+    }
 }
 
 // --- СТАН ГРИ ---
@@ -47,7 +53,7 @@ const LEAGUES = [
 ];
 let currentLeagueIdx = 0;
 
-// --- 🤝 СИСТЕМА УКРАЇНСЬКИХ СПОНСОРІВ ---
+// --- СПОНСОРИ ---
 const SPONSORS = [
     { name: "Мережа АТБ 🛒", pay: 5, reqLeague: 0, reqUpg: "none" },
     { name: "Мультимаркет Аврора 🛍️", pay: 15, reqLeague: 1, reqUpg: "none" },
@@ -56,11 +62,11 @@ const SPONSORS = [
 ];
 let activeSponsorIdx = null;
 
-// --- 💻 ДВИГУН РОЗРОБКИ ПРОЕКТІВ (GAME DEV TYCOON STYLE) ---
+// --- ДВИГУН РОЗРОБКИ ПРОЕКТІВ ---
 let isProjectActive = false;
-let projectType = 'tickets'; // tickets або vip_audit
+let projectType = 'tickets'; 
 let projectProgress = 0;
-let projectPhase = 1; // 1, 2, 3
+let projectPhase = 1; 
 let projectInterval = null;
 let pointsSpeed = 0; let pointsQuality = 0; let pointsBugs = 0;
 const PHASE_NAMES = {
@@ -68,22 +74,24 @@ const PHASE_NAMES = {
     vip_audit: ["Етап 1: Перевірка логів та сесій", "Етап 2: Аналіз конверсії депозитів", "Етап 3: Фінальний звіт Керуючій"]
 };
 
-// --- 📰 ВЕЛИКА БАЗА ГОНОЧНИХ ТА СВІТОВИХ НОВИН ---
+// --- БАЗА НОВИН ---
 const NEWS_POOL = [
     "⚡ ДРАБІВ НА ЗВ'ЯЗКУ: Через бурю на Черкащині зафіксовані локальні вимкнення світла. Сімрейсери без ДБЖ під загрозою!",
     "🏎️ DARK RACE SIMCLUB: Співтовариство DRS оголосило про запуск 3-го сезону чемпіонату на трасі Spa! Очікується шалена боротьба.",
     "📦 НОВА ПОШТА ТЕСТУЄ ДОСТАВКУ ДРОНАМИ: Нова партія баз Moza R9 успішно доставлена першим замовникам безпосередньо на балкони.",
     "🐈 MONOBANK РЕКОМЕНДУЄ: Кетбек за купівлю автомобільних педалей з Load Cell цього місяця становить рекордні 10%.",
-    "🛒 АТБ ВЛАШТОВУЄ АКЦІЮ: Енергетики Monster Energy за купонами тепер відпускаються зі знижкою 25%. Черги до кас зростають.",
-    "🤯 ДЕФІЦИТ НА РИНКУ: Бази Moza R16 та R21 повністю розкуплені в Україні. На OLX б/в варіанти продають за потрійну ціну."
+    "🛒 АТБ ВЛАШТОВУЄ АКЦІЮ: Енергетики Monster Energy за купонами тепер відпускаються зі знижкою 25%. Черги до кас зростають."
 ];
 
 function triggerRandomNews() {
     if (!isProjectActive && !isRaceActive) {
         const msg = NEWS_POOL[Math.floor(Math.random() * NEWS_POOL.length)];
-        document.getElementById('news-text').innerText = msg;
-        document.getElementById('news-modal').style.display = 'flex';
-        playClickSound('success');
+        const textElem = document.getElementById('news-text');
+        if (textElem) {
+            textElem.innerText = msg;
+            document.getElementById('news-modal').style.display = 'flex';
+            playClickSound('success');
+        }
     }
 }
 function closeNewsModal() { playClickSound(); document.getElementById('news-modal').style.display = 'none'; }
@@ -104,14 +112,12 @@ function startNewProject(type) {
     
     updateSliderPhaseUI();
 
-    // Пасивний цикл розробки
     projectInterval = setInterval(() => {
         projectProgress += 5;
         currentMinute += 10;
         if (currentMinute >= 60) { currentMinute = 0; currentHour++; }
 
-        // Математика генерації очок залежно від повзунка
-        let sliderVal = parseInt(document.getElementById('tycoon-phase-slider').value); // 10 - 90
+        let sliderVal = parseInt(document.getElementById('tycoon-phase-slider').value); 
         energy = Math.max(0, energy - 1);
         stress = Math.min(100, stress + (upgrades.keyboard ? 0.5 : 1));
 
@@ -127,7 +133,6 @@ function startNewProject(type) {
             if (Math.random() < 0.15) pointsBugs++;
         }
 
-        // Візуалізація
         document.getElementById('points-speed').innerText = pointsSpeed;
         document.getElementById('points-quality').innerText = pointsQuality;
         document.getElementById('points-bugs').innerText = pointsBugs;
@@ -138,7 +143,7 @@ function startNewProject(type) {
         }
         updateUI();
         checkGameOver();
-    }, 1000); // 1 сек = 10 хв у грі
+    }, 1000); 
 }
 
 function updateSliderPhaseUI() {
@@ -162,25 +167,36 @@ function finishProjectDevelopment() {
     document.getElementById('project-init-zone').style.display = 'block';
     document.getElementById('project-development-zone').style.display = 'none';
 
-    // Розрахунок винагороди (Game Dev Tycoon оцінка)
     let finalRating = Math.max(1, Math.min(10, Math.floor((pointsSpeed + pointsQuality) / 5) - pointsBugs));
     let basePayout = projectType === 'tickets' ? 200 : 550;
     let rewardMoney = Math.floor(basePayout * (finalRating / 5)) + (stats.eng * 30);
-    if (rewardMoney < 50) rewardMoney = 50; // Мінімалка
+    if (rewardMoney < 50) rewardMoney = 50; 
 
     money += rewardMoney;
     gainXP(projectType === 'tickets' ? 25 : 60);
 
-    document.getElementById('work-log').innerHTML = `🏁 <b>Проект завершено!</b><br>📊 Оцінка Керуючої: <b>${finalRating}/10</b>.<br>💵 Нараховано за розробку: <b>+${rewardMoney}₴</b>. Було виправлено багів: ${pointsBugs}.`;
+    document.getElementById('work-log').innerHTML = `🏁 <b>Проект завершено!</b><br>📊 Оцінка Керуючої: <b>${finalRating}/10</b>.<br>💵 Нараховано за розробку: <b>+${rewardMoney}₴</b>.`;
     
     if (currentHour >= 18) endDayRoutine();
     
-    // 40% шанс виходу сюжетного квесту по центру екрану
     if (Math.random() < 0.4) triggerCentralQuest();
     updateUI();
 }
 
-// --- 🚨 СИСТЕМА МОДАЛЬНИХ ЦЕНТРАЛЬНИХ КВЕСТІВ ---
+// --- СЮЖЕТНІ КВЕСТЫ ---
+const QUESTS = [
+    {
+        title: "🛸 ПРОПОЗИЦІЯ ХАКЕРІВ",
+        desc: "Конкуренти пропонують злити базу гравців твого казино за гроші.",
+        b1: "Злити (+1000₴, Ризик)",
+        b2: "Здати в СБ (+10 Холоднокровності)",
+        action: (choice) => {
+            if (choice === 1) { money += 1000; if (Math.random() < 0.5) { stress = 90; return "💀 Базу злито, але СБ накрило твій ПК! Стрес 90%."; } return "💰 База пішла, гроші на карті."; }
+            else { stats.ment += 10; return "🛡 СБ оцінило вірність. Холоднокровність +10."; }
+        }
+    }
+];
+
 function triggerCentralQuest() {
     currentActiveQuest = QUESTS[Math.floor(Math.random() * QUESTS.length)];
     document.getElementById('quest-title').innerText = currentActiveQuest.title;
@@ -200,15 +216,29 @@ function chooseQuest(choice) {
     updateUI();
 }
 
-// --- 🤝 УКРАЇНСЬКІ СПОНСОРІВ ---
+// --- УКРАЇНСЬКІ СПОНСОРИ ---
 function signUkrainianSponsor(idx) {
     let sp = SPONSORS[idx];
     if (currentLeagueIdx < sp.reqLeague) { alert("Твоя поточна гоночна ліга занадто низька!"); return; }
-    if (sp.reqUpg !== "none" && !upgrades[sp.reqUpg]) { alert(`Для контракту потрібен девайс з гаражу: ${sp.reqUpg}`); return; }
+    if (sp.reqUpg !== "none" && !upgrades[sp.reqUpg]) { alert(`Для контракту потрібен девайс: ${sp.reqUpg}`); return; }
 
     playClickSound('success');
     activeSponsorIdx = idx;
     updateUI();
+}
+
+// --- ОНОВЛЕННЯ ЗБЕРЕЖЕНЬ ---
+function updateSaveMenuDisplay() {
+    const raw = localStorage.getItem('simracer_tycoon_save');
+    const display = document.getElementById('menu-save-details');
+    if (raw && display) {
+        try {
+            const data = JSON.parse(raw);
+            display.innerHTML = `👤 Нік: <b>${data.racerName}</b> | 🏆 Ліга: <b>${data.currentLeagueIdx + 1}</b><br>💵 Гроші: <b>${data.money}₴</b> | Лвл: <b>${data.level}</b>`;
+        } catch(e) { display.innerText = "Помилка файлу збереження"; }
+    } else if (display) {
+        display.innerText = "Збережених ігор на пристрої немає";
+    }
 }
 
 function saveGameData() {
@@ -218,13 +248,18 @@ function saveGameData() {
         level, xp, skillPoints, stats, wheelCondition, upgrades, currentLeagueIdx, activeSponsorIdx
     };
     localStorage.setItem('simracer_tycoon_save', JSON.stringify(saveData));
-    playClickSound('success'); alert("💽 Прогрес збережено!"); toggleMenuModal();
+    playClickSound('success'); 
+    alert("💽 Прогрес успішно зафіксовано на пристрої!");
+    updateSaveMenuDisplay();
+    toggleMenuModal();
 }
 
 function loadGameData() {
     const raw = localStorage.getItem('simracer_tycoon_save'); if (!raw) return false;
     try {
         const data = JSON.parse(raw);
+        if (typeof data.activeSponsorIdx === 'undefined') return false; // Захист від старих багів
+
         racerName = data.racerName; racerGender = data.racerGender; racerHousing = data.racerHousing;
         racerStyle = data.racerStyle; selectedTalentIdx = data.selectedTalentIdx; money = data.money;
         energy = data.energy; maxEnergy = data.maxEnergy; stress = data.stress; currentDay = data.currentDay;
@@ -257,7 +292,6 @@ function initPassiveEnergyRegen() {
     }
     setInterval(() => {
         if (!isProjectActive && energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 1); updateUI(); }
-        // 5% Шанс виходу поп-ап новини кожні 2 хвилини реального часу
         if (Math.random() < 0.05) triggerRandomNews();
         localStorage.setItem('simracer_tycoon_last_time', Date.now().toString());
     }, 120000);
@@ -274,14 +308,20 @@ function startGameWithCharacter() {
     initPassiveEnergyRegen(); switchTab('work'); updateUI();
 }
 
+// ФІКС ПЕРЕМИКАННЯ ВКЛАДОК (ПОВНІСТЮ РОЗБЛОКОВАНО)
 function switchTab(tabName) {
-    if (isProjectActive || isRaceActive) { alert("Не можна перемикати вкладки під час активного процесу!"); return; }
     playClickSound();
     document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    document.getElementById(`screen-${tabName}`).classList.add('active');
+    
+    const targetScreen = document.getElementById(`screen-${tabName}`);
+    if (targetScreen) targetScreen.classList.add('active');
+    
     const tabs = ['work', 'racer', 'garage', 'sponsors', 'race'];
-    document.getElementById('global-tabs').children[tabs.indexOf(tabName)].classList.add('active');
+    const idx = tabs.indexOf(tabName);
+    if (idx !== -1 && document.getElementById('global-tabs').children[idx]) {
+        document.getElementById('global-tabs').children[idx].classList.add('active');
+    }
 
     let dayOfWeekIdx = (currentDay - 1) % 7; let isWeekend = (dayOfWeekIdx === 5 || dayOfWeekIdx === 6);
     if (tabName === 'race') {
@@ -308,13 +348,12 @@ function gainXP(amount) {
 function upgradeStat(stat) { if (skillPoints > 0) { playClickSound('success'); skillPoints -= 1; stats[stat] += 1; updateUI(); } }
 
 function relaxAction(type) {
-    if (isProjectActive) { alert("Ти не можеш відпочивати під час розробки проекту!"); return; }
+    if (isProjectActive) { alert("Ти не можеш відпочивати під час проекту!"); return; }
     playClickSound();
     if (type === 'sleep') { energy = Math.min(maxEnergy, energy + 30); stress = Math.max(0, stress - 10); currentHour += 2; }
     else if (type === 'varus') { if (money < 100) return; money -= 100; energy = Math.min(maxEnergy, energy + 35); stress = Math.max(0, stress - 15); currentHour += 1; }
     else if (type === 'glovo') { if (money < 180) return; money -= 180; energy = Math.min(maxEnergy, energy + 55); stress = Math.max(0, stress - 25); currentHour += 1; }
     
-    // Пасивний дохід спонсора нараховується під час відпочинку (за пройдений час)
     if (activeSponsorIdx !== null) {
         let passHours = type === 'sleep' ? 2 : 1;
         money += SPONSORS[activeSponsorIdx].pay * passHours;
@@ -324,7 +363,7 @@ function relaxAction(type) {
     updateUI();
 }
 
-// --- 🏁 СТРАТЕГІЧНИЙ СИМУЛЯТОР ГОНКИ ---
+// --- ГОНКА ---
 let currentTactic = 'safe';
 let raceTimer = null;
 const SITUATIONS = [
@@ -362,7 +401,6 @@ function playRaceTick() {
 
     document.getElementById('race-live-log').innerHTML = `<b>Подія:</b> ${sit.text}<br>🛑 Тактика: <b>${currentTactic.toUpperCase()}</b>. Позиція: P${racePosition}.`;
     
-    // Спонсор платить під час гоночного заїзду теж!
     if (activeSponsorIdx !== null) money += SPONSORS[activeSponsorIdx].pay;
 
     updateUI();
@@ -430,12 +468,10 @@ function updateUI() {
     document.getElementById('race-laps').innerText = currentLap;
     document.getElementById('race-pos').innerText = "P" + racePosition;
 
-    // Спонсорський UI рендер
     if (activeSponsorIdx !== null) {
         document.getElementById('active-sponsor-status').innerText = `🤝 Поточний контракт: ${SPONSORS[activeSponsorIdx].name} (+${SPONSORS[activeSponsorIdx].pay}₴/год)`;
     }
 
-    // Динамічний рендер лінійки спонсорів на вкладці
     SPONSORS.forEach((s, idx) => {
         const btn = document.getElementById(`btn-spon-${['atb', 'avrora', 'np', 'mono'][idx]}`);
         if (btn) {
