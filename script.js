@@ -23,9 +23,15 @@ function playClickSound(type = 'click') {
     } catch (e) {}
 }
 
-// ГЛОБАЛЬНІ ЗМІННІ ГРАВЦЯ
-let racerName = "Mykyta"; let racerGender = "Хлопець"; let racerHousing = "rent"; let racerStyle = "";
-let selectedTalentIdx = 0; 
+// --- 👤 ГЛОБАЛЬНІ ЗМІННІ ГРАВЦЯ ---
+let racerName = "Mykyta"; 
+let racerGender = "Хлопець"; 
+let racerHousing = "rent"; 
+let racerStyle = "";
+let racerPlatform = "pc";        // 💻 Нова змінна: платформа
+let racerISP = "cellular";       // 📡 Нова змінна: провайдер інтернету
+let selectedTalentIdx = 0;
+
 // Масив талантів (СТРОГО 2 таланти!)
 const TALENT_NAMES = ["Природжений Хотлапер", "Java-Гік"];
 const TALENT_DESCRIPTIONS = [
@@ -33,12 +39,24 @@ const TALENT_DESCRIPTIONS = [
     "Старт з +2 Інженерії. Стрес у гонках +20%."
 ];
 
-let money = 1000; let energy = 100; let maxEnergy = 100; let stress = 0;
-let currentDay = 1; let currentHour = 9; let currentMinute = 0; let racerAge = 18;
+let money = 1000; 
+let energy = 100; 
+let maxEnergy = 100; 
+let stress = 0;
+let currentDay = 1; 
+let currentHour = 9; 
+let currentMinute = 0; 
+let racerAge = 18;
 const WEEKDAYS = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"];
-let level = 1; let xp = 0; let skillPoints = 0; let stats = { ment: 0, phys: 0, eng: 0 };
-let wheelCondition = 100; let upgrades = { keyboard: false, ups: false, wheel: false, pedals: false, monitor: false };
-let isRaceActive = false; let currentLap = 1; let racePosition = 20;
+let level = 1; 
+let xp = 0; 
+let skillPoints = 0; 
+let stats = { ment: 0, phys: 0, eng: 0 };
+let wheelCondition = 100; 
+let upgrades = { keyboard: false, ups: false, wheel: false, pedals: false, monitor: false };
+let isRaceActive = false; 
+let currentLap = 1; 
+let racePosition = 20;
 
 const LEAGUES = [
     { name: "Dark Race Simclub", fee: 0, laps: 3, speed: 4, reward: 500, req: "none" },
@@ -57,11 +75,15 @@ let activeSponsorIdx = null;
 let currentActiveQuest = null;
 
 // --- 💼 СИМУЛЯТОР ІНЦИДЕНТІВ ---
-let isIncidentActive = false; let incidentStability = 100; let incidentProgress = 0; let incidentInterval = null; let currentIncidentType = "";
+let isIncidentActive = false; 
+let incidentStability = 100; 
+let incidentProgress = 0; 
+let incidentInterval = null; 
+let currentIncidentType = "";
 const INCIDENT_TASKS = [
     { title: "Краш процесингу Monobank 💳", type: "shluz", desc: "Впали сервери оплати. Гравці казино лютують, депозити не проходять." },
     { title: "Атака ботів конкурентів 🛸", type: "ddos", desc: "Сервери чатів підтримки закидує спамом. Потрібно закрити шлюз." },
-    { title: "Раптовий повний аудит Керуючої 👑", type: "audit", desc: "Логи піднято. Керуюча шукає баги та косяки в тональності чатів." }
+    { title: "Раптовий повний аудит Керуючої 👑", type: "audit", desc: "Логи піднято. Керуюча шукає баги та косяки в тональності." }
 ];
 const LOG_MESSAGES = {
     shluz: ["[ERR] Connection timeout with Mono API!", "[SYS] Balance sync lost!", "[WARN] 452 players stuck in processing!"],
@@ -105,7 +127,9 @@ function startDailyIncident() {
     if (energy < 20) { alert("Немає сил для робочої зміни!"); return; }
 
     playClickSound();
-    isIncidentActive = true; incidentStability = 100; incidentProgress = 0;
+    isIncidentActive = true; 
+    incidentStability = 100; 
+    incidentProgress = 0;
     document.getElementById('project-init-zone').style.display = 'none';
     document.getElementById('project-development-zone').style.display = 'block';
 
@@ -116,6 +140,12 @@ function startDailyIncident() {
 
         let stabilityDrop = Math.max(2, 6 - stats.eng); 
         if (upgrades.keyboard) stabilityDrop *= 0.7;
+        
+        // 📡 ISP ефект: мобільний провайдер має шанс зниження стабільності
+        if (racerISP === "cellular" && Math.random() < 0.15) {
+            stabilityDrop += 5; // Додатковий штраф
+        }
+        
         incidentStability = Math.max(0, Math.min(100, incidentStability - Math.floor(stabilityDrop)));
         
         if (Math.random() < 0.7) {
@@ -175,7 +205,7 @@ const QUESTS = [
         b1: "Злити базу (+1200₴, Ризик)",
         b2: "Здати в СБ (+15 Холоднокровності)",
         action: (choice) => {
-            if (choice === 1) { money += 1200; if (Math.random() < 0.5) { stress = 90; return "💀 СБ виявило витік! Стрес 90%."; } return "💰 Успішно. Гроші залишилися таємницею."; }
+            if (choice === 1) { money += 1200; if (Math.random() < 0.5) { stress = 90; return "💀 СБ виявило витік! Стрес 90%."; } return "💰 Успішно. Гроші залишилися з тобою."; }
             else { stats.ment += 15; return "🛡️ СБ ліквідувало хакерів. Холоднокровність виросли!"; }
         }
     }
@@ -210,13 +240,13 @@ function signUkrainianSponsor(idx) {
 function updateSaveMenuDisplay() {
     const raw = localStorage.getItem('simracer_tycoon_save'); const display = document.getElementById('menu-save-details');
     if (raw && display) {
-        try { const data = JSON.parse(raw); display.innerHTML = `👤 Нік: <b>${data.racerName}</b> | 💵 Баланс: <b>${data.money}₴</b>`; } catch(e) { display.innerText = "Помилка завантаження сейву"; }
+        try { const data = JSON.parse(raw); display.innerHTML = `👤 Нік: <b>${data.racerName}</b> | 💵 Баланс: <b>${data.money}₴</b>`; } catch(e) { display.innerText = "Помилка при завантаженні"; }
     } else if (display) { display.innerText = "Збережень немає"; }
 }
 
 function saveGameData() {
     const saveData = { 
-        racerName, racerGender, racerHousing, racerStyle, selectedTalentIdx, 
+        racerName, racerGender, racerHousing, racerStyle, racerPlatform, racerISP, selectedTalentIdx, 
         money, energy, maxEnergy, stress, currentDay, currentHour, currentMinute, racerAge, 
         level, xp, skillPoints, stats, upgrades, wheelCondition, activeSponsorIdx, currentLeagueIdx
     };
@@ -228,11 +258,27 @@ function loadGameData() {
     try {
         const raw = localStorage.getItem('simracer_tycoon_save'); if (!raw) return false;
         const data = JSON.parse(raw); if (!data || typeof data.activeSponsorIdx === 'undefined') return false; 
-        racerName = data.racerName; racerGender = data.racerGender; racerHousing = data.racerHousing; racerStyle = data.racerStyle; 
-        selectedTalentIdx = data.selectedTalentIdx; money = data.money; energy = data.energy; stress = data.stress; 
-        currentDay = data.currentDay; currentHour = data.currentHour; currentMinute = data.currentMinute; racerAge = data.racerAge;
-        level = data.level; xp = data.xp; skillPoints = data.skillPoints; stats = data.stats;
-        upgrades = data.upgrades; wheelCondition = data.wheelCondition; activeSponsorIdx = data.activeSponsorIdx; 
+        racerName = data.racerName; 
+        racerGender = data.racerGender; 
+        racerHousing = data.racerHousing; 
+        racerStyle = data.racerStyle;
+        racerPlatform = data.racerPlatform || "pc";      // 💻 Завантаження платформи
+        racerISP = data.racerISP || "cellular";          // 📡 Завантаження провайдера
+        selectedTalentIdx = data.selectedTalentIdx; 
+        money = data.money; 
+        energy = data.energy; 
+        stress = data.stress; 
+        currentDay = data.currentDay; 
+        currentHour = data.currentHour; 
+        currentMinute = data.currentMinute; 
+        racerAge = data.racerAge;
+        level = data.level; 
+        xp = data.xp; 
+        skillPoints = data.skillPoints; 
+        stats = data.stats;
+        upgrades = data.upgrades; 
+        wheelCondition = data.wheelCondition; 
+        activeSponsorIdx = data.activeSponsorIdx; 
         currentLeagueIdx = data.currentLeagueIdx;
         
         Object.keys(upgrades).forEach(key => {
@@ -251,7 +297,6 @@ function toggleMenuModal() { playClickSound(); const modal = document.getElement
 
 // ✅ ТАЛАНТИ - СТРОГО 2 таланти (0 та 1)
 function selectTalent(idx) {
-    // Валідація: лише індекси 0 або 1
     if (idx !== 0 && idx !== 1) {
         console.warn(`❌ Невірний індекс таланту: ${idx}. Допустимі: 0 або 1`);
         return;
@@ -260,13 +305,11 @@ function selectTalent(idx) {
     playClickSound();
     selectedTalentIdx = idx;
     
-    // Видаляємо active клас з обох карток
     const card0 = document.getElementById('talent-card-0');
     const card1 = document.getElementById('talent-card-1');
     if (card0) card0.classList.remove('active');
     if (card1) card1.classList.remove('active');
     
-    // Додаємо active клас вибраній картці
     const selectedCard = document.getElementById(`talent-card-${idx}`);
     if (selectedCard) selectedCard.classList.add('active');
 }
@@ -287,12 +330,31 @@ function startGameWithCharacter() {
     racerGender = document.getElementById('creation-gender').value;
     racerHousing = document.getElementById('creation-housing').value;
     racerStyle = document.getElementById('creation-style').value;
+    racerPlatform = document.getElementById('creation-platform').value;  // 💻 Платформа
+    racerISP = document.getElementById('creation-isp').value;            // 📡 Провайдер
     
     // selectedTalentIdx уже встановлено функцією selectTalent()
-    money = (racerGender === "Дівчина") ? 1500 : 1000; 
+    money = (racerGender === "Дівчина") ? 1500 : 1000;
+    
+    // 💻 ПЛАТФОРМА: PC Simracer
+    if (racerPlatform === "pc") {
+        stats.eng += 1; // +1 Інженерія
+    } 
+    // 🎮 ПЛАТФОРМА: Console Racer
+    else if (racerPlatform === "console") {
+        money += 500;  // +500₴ бонус
+        stats.eng -= 1; // -1 Інженерія
+    }
+    
+    // 📡 ISP: Fiber Optic
+    if (racerISP === "fiber") {
+        money -= 200; // Витрата 200₴ на оптоволокно
+        // Імунітет до розривів буде обробляний в startDailyIncident()
+    }
+    // 📱 ISP: Cellular - вже включений механізм ризику в startDailyIncident()
     
     // Бонус для Java-Гіка (талант 1)
-    if (selectedTalentIdx === 1) stats.eng = 2;
+    if (selectedTalentIdx === 1) stats.eng += 2;
     
     applyBioToUI();
     document.getElementById('screen-creation').classList.remove('active');
