@@ -19,12 +19,12 @@
 <body>
 
     <!-- 🎬 ЗАСТАВКА -->
-    <div id="splash-screen" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; z-index: 99999; justify-content: center; align-items: center; flex-direction: column;">
-        <div class="splash-content" style="text-align: center;">
-            <h1 class="splash-logo" style="font-family: 'Orbitron', sans-serif; color: #ff5722; margin-bottom: 5px;">🏁 SIMRACER TYCOON</h1>
-            <p class="splash-sub" style="font-family: 'Rajdhani', sans-serif; color: #888; font-size: 14px; margin-top: 0;">HIGH LOAD MANAGEMENT SIMULATOR</p>
-            <div class="game-version-display" style="color: #555; font-size: 11px; margin-bottom: 20px;">v0.7.3-stable_release</div>
-            <button id="splash-start-btn" class="main-action-btn" style="background: #4caf50; color: white; border: none; padding: 12px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; font-family: 'Orbitron', sans-serif;" onclick="closeSplashScreen()">🟢 ЗАПУСТИТИ СИМУЛЯЦІЮ</button>
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1 class="splash-logo">🏁 SIMRACER TYCOON</h1>
+            <p class="splash-sub">HIGH LOAD MANAGEMENT SIMULATOR</p>
+            <div class="game-version-display">v0.7.3-stable_release</div>
+            <button id="splash-start-btn" onclick="closeSplashScreen()">🚀 ЗАПУСТИТИ ГРУ</button>
         </div>
     </div>
 
@@ -65,7 +65,7 @@
     </div>
 
     <!-- ГОЛОВНИЙ КОНТЕЙНЕР (ПЕРЕПИСАНО СТИЛІ СТАРТУ) -->
-    <div id="game-container" style="display: none; width: 100%; max-width: 480px; margin: 0 auto; height: 100vh; flex-direction: column; background: #0a0a0a; color: #fff; font-family: 'Rajdhani', sans-serif; overflow: hidden; position: relative;">
+    <div id="game-container" style="display: none; width: 100%; max-width: 480px; margin: 0 auto; height: 100vh; flex-direction: column; background: #0a0a0a; color: #fff; font-family: 'Rajdhani', sans-serif;">
         
         <!-- ЕКРАН СТВОРЕННЯ ПЕРСОНАЖА -->
         <div id="screen-creation" class="game-screen">
@@ -98,7 +98,7 @@
                         <b>💻 Java-Гік</b><br><small>Старт з +2 Інженерії. Стрес у гонках +20%.</small>
                     </div>
                 </div>
-                <button class="main-action-btn" onclick="startGameWithCharacter()" style="background:#ff5722; justify-content:center; margin-top:10px; width: 100%;">🏎️ Створити і почати</button>
+                <button class="main-action-btn" onclick="startGameWithCharacter()" style="background:#ff5722; justify-content:center; margin-top:10px; width: 100%;">🏎️ Створити персонажа</button>
             </div>
         </div>
 
@@ -144,7 +144,7 @@
                     <div style="color:#4caf50;">Прогрес дня: <span id="incident-progress">0</span>%</div>
                 </div>
 
-                <div id="incident-log-box" style="background:#000; color:#00ff00; font-family:monospace; font-size:11px; padding:8px; height:80px; overflow-y:auto; border-radius:4px; margin-bottom:10px; border:1px solid #222; line-height:1.3;">
+                <div id="incident-log-box" style="background:#000; color:#00ff00; font-family:monospace; font-size:11px; padding:8px; height:80px; overflow-y:auto; border-radius:4px; margin-bottom:10px;">
                     [SYS] Ініціалізація серверів підтримки...
                 </div>
 
@@ -260,16 +260,16 @@
                     Внесок: <span id="race-fee">0</span>₴ | Дистанція: <span id="target-laps">3</span> кіл
                 </div>
 
-                <button id="start-race-btn" class="main-action-btn" onclick="startStrategicRace()" style="background:#e65100; justify-content:center; width:100%;">🟢 Сплатити внесок та виїхати з піт-лейну</button>
+                <button id="start-race-btn" class="main-action-btn" onclick="startStrategicRace()" style="background:#e65100; justify-content:center; width:100%;">🟢 Сплатити внесок</button>
                 
                 <div id="race-simulation-box" style="display:none; background:#111; padding:12px; border-radius:8px; border:1px solid #333; margin-top:10px;">
                     <div id="race-live-status" style="color:#ffcc00; font-weight:bold; font-size:14px; margin-bottom:8px; text-align:center;">Очікування зеленого...</div>
-                    <div id="race-live-log" style="font-size:12px; min-height:60px; background:#000; padding:8px; border-radius:4px; margin-bottom:12px; line-height:1.4; color:#fff;">Готуй тактику.</div>
+                    <div id="race-live-log" style="font-size:12px; min-height:60px; background:#000; padding:8px; border-radius:4px; margin-bottom:12px; line-height:1.4; color:#fff;">Готуйся до старту!</div>
                     
                     <div class="tactics-grid" style="display:flex; flex-direction:column; gap:6px;">
-                        <button id="tactic-btn-push" class="tactic-btn" style="border: 2px solid #444;" onclick="submitTactic('push')">🔥 Атакувати (Позиція↑ | Ризик у дощ↑)</button>
-                        <button id="tactic-btn-safe" class="tactic-btn" style="border: 2px solid #ff9800;" onclick="submitTactic('safe')">🛡️ Стабільний темп (Баланс сил та швидкості)</button>
-                        <button id="tactic-btn-save" class="tactic-btn" style="border: 2px solid #444;" onclick="submitTactic('save')">📉 Економити ресурс / шини (Позиція↓ | Енергія=)</button>
+                        <button id="tactic-btn-push" class="tactic-btn" style="border: 2px solid #444;" onclick="submitTactic('push')">🔥 Атакувати (Позиція↑ | Ризик висок)</button>
+                        <button id="tactic-btn-safe" class="tactic-btn" style="border: 2px solid #ff9800;" onclick="submitTactic('safe')">🛡️ Стабільний темп (Баланс сил)</button>
+                        <button id="tactic-btn-save" class="tactic-btn" style="border: 2px solid #444;" onclick="submitTactic('save')">📉 Економити ресурс / шини (Позиція↓)</button>
                     </div>
                 </div>
 
