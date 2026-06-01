@@ -29,14 +29,10 @@ let racerGender = "Хлопець";
 let racerHousing = "rent"; 
 let racerStyle = "🛹 Стріт-рейсер";
 let racerPlatform = "pc";        
-let racerISP = "cellular";       
+let racerISP = "fiber";       
 let selectedTalentIdx = 0;
 
 const TALENT_NAMES = ["Природжений Хотлапер", "Java-Гік"];
-const TALENT_DESCRIPTIONS = [
-    "Кращий темп на треку, але важче в офісі.",
-    "Старт з +2 Інженерії. Стрес у гонках +20%."
-];
 
 let money = 1000; 
 let energy = 100; 
@@ -52,7 +48,7 @@ let xp = 0;
 let skillPoints = 0; 
 let stats = { ment: 0, phys: 0, eng: 0 };
 let wheelCondition = 100; 
-let upgrades = { keyboard: false, ups: false, wheel: false, pedals: false, monitor: false };
+let upgrades = { keyboard: false, chair: false, ups: false, wheel: false, pedals: false, wheel16: false, monitor: false };
 let isRaceActive = false; 
 let currentLap = 1; 
 let racePosition = 20;
@@ -141,18 +137,21 @@ function startDailyIncident() {
         let stabilityDrop = Math.max(2, 6 - stats.eng); 
         if (upgrades.keyboard) stabilityDrop *= 0.7;
         
-        // 📡 ISP ефект: мобільний провайдер має шанс зниження стабільності
+        // 📡 ISP: Мобільний інтернет час від часу лагає і сильніше просаджує стабільність офісу
         if (racerISP === "cellular" && Math.random() < 0.15) {
-            stabilityDrop += 5; 
+            stabilityDrop += 4; 
         }
         
-        // 🛹 Стріт-рейсерський стиль одягу додає пасивного стресу
-        if (racerStyle === "🛹 Стріт-рейсер") {
-            stress = Math.min(100, stress + 0.5);
-        }
+        // 🛹 Одяг: Стріт-рейсер дає +5% пасивного стресу
+        let stressGain = 1.0;
+        if (racerStyle === "🛹 Стріт-рейсер") stressGain = 1.05;
+
+        // 💺 Апгрейд: Крісло Recaro гасить 10% стресу
+        if (upgrades.chair) stressGain *= 0.9;
 
         incidentStability = Math.max(0, Math.min(100, incidentStability - Math.floor(stabilityDrop)));
-        
+        stress = Math.min(100, stress + (0.5 * stressGain));
+
         if (Math.random() < 0.7) {
             let list = LOG_MESSAGES[currentIncidentType];
             let msg = list[Math.floor(Math.random() * list.length)];
@@ -195,10 +194,14 @@ function finishDailyIncident() {
     document.getElementById('project-development-zone').style.display = 'none';
 
     let baseSalary = currentIncidentType === "audit" ? 450 : 250;
-    let earned = Math.floor(baseSalary * (incidentStability / 100)); if (earned < 30) earned = 30; 
+    let earned = Math.floor(baseSalary * (incidentStability / 100)); if (earned < 50) earned = 50; 
     
     money += earned; gainXP(incidentStability > 50 ? 30 : 10);
-    stress = Math.min(100, stress + Math.floor(20 - stats.ment));
+    
+    let endStress = Math.floor(15 - stats.ment);
+    if (upgrades.chair) endStress = Math.floor(endStress * 0.9);
+    stress = Math.min(100, stress + Math.max(2, endStress));
+
     document.getElementById('work-log').innerHTML = `🏁 <b>Зміну завершено!</b> Стабільність: ${incidentStability}%. ЗП: +${earned}₴`;
     endDayRoutine(); updateUI();
 }
@@ -211,8 +214,8 @@ const QUESTS = [
         b1: "Злити базу (+1200₴, Ризик)",
         b2: "Здати в СБ (+15 Холоднокровності)",
         action: (choice) => {
-            if (choice === 1) { money += 1200; if (Math.random() < 0.5) { stress = 90; return "💀 СБ виявило витік! Стрес 90%."; } return "💰 Успішно. Гроші залишилися з тобою."; }
-            else { stats.ment += 15; return "🛡️ СБ ліквідувало хакерів. Холоднокровність виросли!"; }
+            if (choice === 1) { money += 1200; if (Math.random() < 0.5) { stress = 90; return "💀 СБ виявило витік! Стрес 90%."; } return "💰 Успішно. Гроші перераховані на крипту."; }
+            else { stats.ment += 15; return "🛡️ СБ ліквідувало хакерів. Холоднокровність зросла!"; }
         }
     }
 ];
@@ -246,7 +249,7 @@ function signUkrainianSponsor(idx) {
 function updateSaveMenuDisplay() {
     const raw = localStorage.getItem('simracer_tycoon_save'); const display = document.getElementById('menu-save-details');
     if (raw && display) {
-        try { const data = JSON.parse(raw); display.innerHTML = `👤 Нік: <b>${data.racerName}</b> | 💵 Баланс: <b>${data.money}₴</b>`; } catch(e) { display.innerText = "Помилка при завантаженні"; }
+        try { const data = JSON.parse(raw); display.innerHTML = `👤 Нік: <b>${data.racerName}</b> | 💵 Баланс: <b>${data.money}₴</b>`; } catch(e) { display.innerText = "Помилка файлу"; }
     } else if (display) { display.innerText = "Збережень немає"; }
 }
 
@@ -267,9 +270,9 @@ function loadGameData() {
         racerName = data.racerName; 
         racerGender = data.racerGender; 
         racerHousing = data.racerHousing; 
-        racerStyle = data.racerStyle || "🛹 Стріт-рейсер";
+        racerStyle = data.racerStyle || "🏢 Без форми";
         racerPlatform = data.racerPlatform || "pc";      
-        racerISP = data.racerISP || "cellular";          
+        racerISP = data.racerISP || "fiber";          
         selectedTalentIdx = data.selectedTalentIdx; 
         money = data.money; 
         energy = data.energy;
@@ -297,26 +300,18 @@ function loadGameData() {
         document.getElementById('main-game-header').style.display = 'block';
         document.getElementById('global-tabs').style.display = 'flex';
         applyBioToUI(); initPassiveEnergyRegen(); switchTab('work'); updateUI(); return true;
-    } catch(e) { console.error("Load error:", e); return false; }
+    } catch(e) { return false; }
 }
 
 function toggleMenuModal() { playClickSound(); const modal = document.getElementById('game-menu-modal'); if (modal) modal.style.display = modal.style.display === 'none' ? 'flex' : 'none'; }
 
 function selectTalent(idx) {
-    if (idx !== 0 && idx !== 1) {
-        console.warn(`❌ Невірний індекс таланту: ${idx}. Допустимі: 0 або 1`);
-        return;
-    }
+    if (idx !== 0 && idx !== 1) return;
     playClickSound();
     selectedTalentIdx = idx;
-    
-    const card0 = document.getElementById('talent-card-0');
-    const card1 = document.getElementById('talent-card-1');
-    if (card0) card0.classList.remove('active');
-    if (card1) card1.classList.remove('active');
-    
-    const selectedCard = document.getElementById(`talent-card-${idx}`);
-    if (selectedCard) selectedCard.classList.add('active');
+    document.getElementById('talent-card-0').classList.remove('active');
+    document.getElementById('talent-card-1').classList.remove('active');
+    document.getElementById(`talent-card-${idx}`).classList.add('active');
 }
 
 function toggleSound() { isSoundEnabled = !isSoundEnabled; document.getElementById('sound-status-text').innerText = isSoundEnabled ? "Увімкнено" : "Вимкнено"; playClickSound(); }
@@ -326,7 +321,7 @@ function applyBioToUI() {
     document.getElementById('bio-name').innerText = racerName; 
     document.getElementById('bio-gender').innerText = racerGender; 
     document.getElementById('bio-talent').innerText = TALENT_NAMES[selectedTalentIdx];
-    document.getElementById('bio-housing').innerText = racerHousing === "rent" ? "Оренда" : "З батьками";
+    document.getElementById('bio-housing').innerText = racerHousing === "rent" ? "Оренда квартири" : "З батьками";
 }
 
 function startGameWithCharacter() {
@@ -334,32 +329,16 @@ function startGameWithCharacter() {
     racerName = document.getElementById('creation-name').value.trim() || "Mykyta";
     racerGender = document.getElementById('creation-gender').value;
     racerHousing = document.getElementById('creation-housing').value;
-    
-    // БЕЗПЕЧНЕ ЗЧИТУВАННЯ СТИЛЮ ОДЯГУ (ЗАХИСТ ВІД NULL КРАШУ)
-    const styleElem = document.getElementById('creation-style');
-    racerStyle = styleElem ? styleElem.value : "🛹 Стріт-рейсер";
-    
+    racerStyle = document.getElementById('creation-style').value;
     racerPlatform = document.getElementById('creation-platform').value;  
     racerISP = document.getElementById('creation-isp').value;            
     
     money = (racerGender === "Дівчина") ? 1500 : 1000;
     
-    // 💻 ПЛАТФОРМА: PC Simracer
-    if (racerPlatform === "pc") {
-        stats.eng += 1; 
-    } 
-    // 🎮 ПЛАТФОРМА: Console Racer
-    else if (racerPlatform === "console") {
-        money += 500;  
-        stats.eng = Math.max(0, stats.eng - 1); 
-    }
+    if (racerPlatform === "pc") stats.eng += 1; 
+    else if (racerPlatform === "console") { money += 500; stats.eng = Math.max(0, stats.eng - 1); }
     
-    // 📡 ISP: Fiber Optic
-    if (racerISP === "fiber") {
-        money -= 200; 
-    }
-    
-    // Бонус для Java-Гіка (талант 1)
+    if (racerISP === "fiber") money -= 200; 
     if (selectedTalentIdx === 1) stats.eng += 2;
     
     applyBioToUI();
@@ -393,7 +372,7 @@ function switchTab(tabName) {
     }
 }
 
-// 💵 ЗБАЛАНСОВАНА ОРЕНДА ЖИТЛА (80₴ ТА 20₴ ЗАМІСТЬ 400₴)
+// 💵 ЕКОНОМІЧНЕ БАЛАНСУВАННЯ (80₴ КВАРТИРА / 20₴ БАТЬКИ)
 function endDayRoutine() {
     currentHour = 9; currentMinute = 0; currentDay += 1;
     let dailyCost = racerHousing === "rent" ? 80 : 20; 
@@ -401,11 +380,11 @@ function endDayRoutine() {
     
     alert(`⏰ День завершено! Розрахунок за житло: -${dailyCost}₴.`);
     generateDailyBriefing(); checkQuestTrigger();
-    if (money < 0) endGame("💀 БАНКРУТСТВО", "Ти заліз у борги.");
+    if (money < 0) endGame("💀 БАНКРУТСТВО", "Ти заліз у борги перед житлово-комунальним сервісом.");
 }
 
 function gainXP(amount) {
-    // Ефект одягу: Про-пілот дає +20% до досвіду
+    // 🏎️ Одяг: Про-пілот дає бонус до досвіду
     if (racerStyle === "🏎️ Про-пілот") amount = Math.floor(amount * 1.2);
     
     if (racerHousing === "parents") amount = Math.floor(amount * 0.8);
@@ -422,13 +401,12 @@ function relaxAction(type) {
     else if (type === 'varus') { if (money < 100) return; money -= 100; energy = Math.min(maxEnergy, energy + 35); stress = Math.max(0, stress - 15); currentHour += 1; }
     else if (type === 'glovo') { if (money < 180) return; money -= 180; energy = Math.min(maxEnergy, energy + 55); stress = Math.max(0, stress - 25); currentHour += 1; }
     
-    // Ефект одягу: Стріт-рейсер дає +10% до виплат спонсора
-    let sponsorBonus = 1.0;
-    if (racerStyle === "🛹 Стріт-рейсер") sponsorBonus = 1.1;
+    // 🛹 Одяг: Стріт-рейсер дає +10% до спонсорських виплат
+    let styleBonus = (racerStyle === "🛹 Стріт-рейсер") ? 1.10 : 1.0;
 
     if (activeSponsorIdx !== null) { 
-        money += Math.floor(SPONSORS[activeSponsorIdx].pay * (type === 'sleep' ? 2 : 1) * sponsorBonus); 
-    } 
+        money += Math.floor(SPONSORS[activeSponsorIdx].pay * (type === 'sleep' ? 2 : 1) * styleBonus); 
+    }
     if (currentHour >= 18) endDayRoutine();
     updateUI();
 }
@@ -443,7 +421,11 @@ const RACE_SITUATIONS = [
 
 function startStrategicRace() {
     let league = LEAGUES[currentLeagueIdx];
-    if (league.req !== "none" && !upgrades[league.req]) { alert(`Необхідно девайс: ${league.req}`); return; }
+    
+    // Перевірка ультимативної бази Moza R16 для вищих змагань
+    if (league.req === "wheel" && !upgrades.wheel && !upgrades.wheel16) { alert("Необхідно кермо Moza R9 або R16!"); return; }
+    if (league.req !== "none" && league.req !== "wheel" && !upgrades[league.req]) { alert(`Необхідно девайс: ${league.req}`); return; }
+    
     if (money < league.fee) { alert("Мало грошей!"); return; }
     money -= league.fee; isRaceActive = true; currentLap = 1; racePosition = 20; raceTicks = 0; currentTactic = 'safe';
     updateUI();
@@ -471,11 +453,17 @@ function playRaceTick() {
     if (currentTactic === 'push' && selectedTalentIdx === 0) posChange += 1;
     if (upgrades.pedals && outcome === 'lose') posChange = -1;
 
-    // Ефект одягу: Кіберспортсмен економить 15% енергії у гонках
-    let energyCost = (racerStyle === "🎮 Кіберспортсмен") ? 3 : 4;
+    // 🎮 Одяг: Кіберспортсмен економить 15% сил в гонках
+    let baseEnergyCost = (racerStyle === "🎮 Кіберспортсмен") ? 3.4 : 4.0;
 
     racePosition = Math.max(1, Math.min(20, racePosition - posChange));
-    stress = Math.max(0, Math.min(100, stress + 6 - stats.ment)); energy = Math.max(0, energy - energyCost);
+    
+    let stressFactor = (selectedTalentIdx === 1) ? 1.2 : 1.0; 
+    if (upgrades.chair) stressFactor *= 0.9;
+
+    stress = Math.max(0, Math.min(100, stress + (6 - stats.ment) * stressFactor)); 
+    energy = Math.max(0, energy - Math.floor(baseEnergyCost));
+    
     document.getElementById('race-live-log').innerHTML = `<b>Ситуація:</b> ${sit.text}<br>Тактика: <b>${currentTactic.toUpperCase()}</b>. Позиція: P${racePosition}`;
     if (activeSponsorIdx !== null) money += SPONSORS[activeSponsorIdx].pay;
     updateUI();
@@ -492,7 +480,7 @@ function endStrategicRace() {
         money += league.reward; gainXP(70); alert(`🏆 ПОДІУМ! P${racePosition}! +${league.reward}₴`); 
         if (currentLeagueIdx < LEAGUES.length - 1) { 
             const nextLeague = LEAGUES[currentLeagueIdx + 1];
-            if (nextLeague.req === "none" || upgrades[nextLeague.req]) {
+            if (nextLeague.req === "none" || upgrades[nextLeague.req] || (nextLeague.req === "wheel" && upgrades.wheel16)) {
                 currentLeagueIdx++; 
                 alert("🎖️ Новий рівень ліги відкритий!");
             } else {
@@ -516,7 +504,7 @@ function buyUpgrade(type, price) {
 function updateUI() {
     document.getElementById('global-money').innerText = money;
     document.getElementById('global-energy').innerText = energy;
-    document.getElementById('global-stress').innerText = stress;
+    document.getElementById('global-stress').innerText = Math.floor(stress);
     document.getElementById('racer-level').innerText = level;
     document.getElementById('racer-xp').innerText = xp;
     document.getElementById('skill-points').innerText = skillPoints;
@@ -551,7 +539,7 @@ function updateUI() {
         const btn = document.getElementById(`btn-spon-${['atb', 'avrora', 'np', 'mono'][idx]}`);
         if (btn) {
             if (activeSponsorIdx === idx) { btn.innerText = "АКТИВНИЙ"; btn.style.background = "#2e7d32"; }
-            else if (currentLeagueIdx >= s.reqLeague && (s.reqUpg === "none" || upgrades[s.reqUpg])) { btn.innerText = "Підписати"; btn.style.background = "#ff5722"; }
+            else if (currentLeagueIdx >= s.reqLeague && (s.reqUpg === "none" || upgrades[s.reqUpg] || (s.reqUpg === "wheel" && upgrades.wheel16))) { btn.innerText = "Підписати"; btn.style.background = "#ff5722"; }
             else { btn.innerText = "Заблоковано"; btn.style.background = "#444"; }
         }
     });
