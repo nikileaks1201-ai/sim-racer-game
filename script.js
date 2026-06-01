@@ -23,9 +23,16 @@ function playClickSound(type = 'click') {
     } catch (e) {}
 }
 
-// ГЛОБАЛЬНІ МІННІ ГРИ
+// ГЛОБАЛЬНІ ЗМІННІ ГРАВЦЯ
 let racerName = "Mykyta"; let racerGender = "Хлопець"; let racerHousing = "rent"; let racerStyle = "";
-let selectedTalentIdx = 0; const TALENT_NAMES = ["Природжений Хотлапер", "Java-Гік"];
+let selectedTalentIdx = 0; 
+// Масив талантів (СТРОГО 2 таланти!)
+const TALENT_NAMES = ["Природжений Хотлапер", "Java-Гік"];
+const TALENT_DESCRIPTIONS = [
+    "Кращий темп на треку, але важче в офісі.",
+    "Старт з +2 Інженерії. Стрес у гонках +20%."
+];
+
 let money = 1000; let energy = 100; let maxEnergy = 100; let stress = 0;
 let currentDay = 1; let currentHour = 9; let currentMinute = 0; let racerAge = 18;
 const WEEKDAYS = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"];
@@ -62,23 +69,20 @@ const LOG_MESSAGES = {
     audit: ["[AUDIT] Checking user chats...", "[SYS] Bad tonality flag detected!", "[WARN] Verification mismatch found!"]
 };
 
-// ХІД ІНІЦІАЛІЗАЦІЇ ПРИ НАТИСКАННІ КНОПКИ НА ЗАСТАВЦІ
+// ХІД ІНІЦІАЛІЗАЦІЇ
 function closeSplashScreen() {
     playClickSound('success');
     document.getElementById('splash-screen').style.display = 'none';
     
-    // 1. Спершу робимо видимим ігровий контейнер
     const container = document.getElementById('game-container');
     if (container) container.style.display = 'flex';
     
     updateSaveMenuDisplay();
     generateDailyBriefing();
     
-    // 2. Лише тепер перевіряємо сейви
     const loaded = loadGameData();
     if (!loaded) {
         localStorage.clear();
-        // Якщо сейвів нема, вмикаємо реєстрацію
         document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
         const creation = document.getElementById('screen-creation');
         if (creation) creation.classList.add('active');
@@ -188,6 +192,7 @@ function checkQuestTrigger() {
         playClickSound('success');
     }
 }
+
 function chooseQuest(choice) {
     if (!currentActiveQuest) return;
     playClickSound('success'); let res = currentActiveQuest.action(choice);
@@ -243,14 +248,32 @@ function loadGameData() {
 }
 
 function toggleMenuModal() { playClickSound(); const modal = document.getElementById('game-menu-modal'); if (modal) modal.style.display = modal.style.display === 'none' ? 'flex' : 'none'; }
+
+// ✅ ТАЛАНТИ - СТРОГО 2 таланти (0 та 1)
 function selectTalent(idx) {
-    playClickSound(); selectedTalentIdx = idx;
-    document.getElementById('talent-card-0').classList.remove('active');
-    document.getElementById('talent-card-1').classList.remove('active');
-    document.getElementById(`talent-card-${idx}`).classList.add('active');
+    // Валідація: лише індекси 0 або 1
+    if (idx !== 0 && idx !== 1) {
+        console.warn(`❌ Невірний індекс таланту: ${idx}. Допустимі: 0 або 1`);
+        return;
+    }
+    
+    playClickSound();
+    selectedTalentIdx = idx;
+    
+    // Видаляємо active клас з обох карток
+    const card0 = document.getElementById('talent-card-0');
+    const card1 = document.getElementById('talent-card-1');
+    if (card0) card0.classList.remove('active');
+    if (card1) card1.classList.remove('active');
+    
+    // Додаємо active клас вибраній картці
+    const selectedCard = document.getElementById(`talent-card-${idx}`);
+    if (selectedCard) selectedCard.classList.add('active');
 }
+
 function toggleSound() { isSoundEnabled = !isSoundEnabled; document.getElementById('sound-status-text').innerText = isSoundEnabled ? "Увімкнено" : "Вимкнено"; playClickSound(); }
 function initPassiveEnergyRegen() { setInterval(() => { if (!isIncidentActive && energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 1); updateUI(); } }, 120000); }
+
 function applyBioToUI() { 
     document.getElementById('bio-name').innerText = racerName; 
     document.getElementById('bio-gender').innerText = racerGender; 
@@ -264,7 +287,12 @@ function startGameWithCharacter() {
     racerGender = document.getElementById('creation-gender').value;
     racerHousing = document.getElementById('creation-housing').value;
     racerStyle = document.getElementById('creation-style').value;
-    money = (racerGender === "Дівчина") ? 1500 : 1000; if (selectedTalentIdx === 1) stats.eng = 2;
+    
+    // selectedTalentIdx уже встановлено функцією selectTalent()
+    money = (racerGender === "Дівчина") ? 1500 : 1000; 
+    
+    // Бонус для Java-Гіка (талант 1)
+    if (selectedTalentIdx === 1) stats.eng = 2;
     
     applyBioToUI();
     document.getElementById('screen-creation').classList.remove('active');
@@ -310,6 +338,7 @@ function gainXP(amount) {
     if (racerHousing === "rent") amount = Math.floor(amount * 1.2);
     xp += amount; if (xp >= 100) { xp -= 100; level += 1; skillPoints += 2; playClickSound('success'); }
 }
+
 function upgradeStat(stat) { if (skillPoints > 0) { playClickSound('success'); skillPoints -= 1; stats[stat] += 1; updateUI(); } }
 
 function relaxAction(type) {
@@ -330,6 +359,7 @@ const RACE_SITUATIONS = [
     { text: "Різка атака суперника Monza!", push: "win", safe: "lose", save: "lose" },
     { text: "Траєкторія покривається дощем.", push: "lose", safe: "win", save: "hold" }
 ];
+
 function startStrategicRace() {
     let league = LEAGUES[currentLeagueIdx];
     if (league.req !== "none" && !upgrades[league.req]) { alert(`Необхідно девайс: ${league.req}`); return; }
@@ -339,6 +369,7 @@ function startStrategicRace() {
     document.getElementById('race-simulation-box').style.display = 'block';
     submitTactic('safe'); playRaceTick();
 }
+
 function submitTactic(tactic) {
     playClickSound(); currentTactic = tactic;
     document.getElementById('tactic-btn-push').style.borderColor = "#444";
@@ -346,6 +377,7 @@ function submitTactic(tactic) {
     document.getElementById('tactic-btn-save').style.borderColor = "#444";
     document.getElementById(`tactic-btn-${tactic}`).style.borderColor = "#ff9800";
 }
+
 function playRaceTick() {
     if (!isRaceActive) return; raceTicks++;
     let sit = RACE_SITUATIONS[Math.floor(Math.random() * RACE_SITUATIONS.length)];
@@ -365,6 +397,7 @@ function playRaceTick() {
     if (currentLap > LEAGUES[currentLeagueIdx].laps || energy <= 5 || stress >= 95) endStrategicRace();
     else raceTimer = setTimeout(playRaceTick, 4000);
 }
+
 function endStrategicRace() {
     isRaceActive = false; clearTimeout(raceTimer);
     document.getElementById('start-race-btn').style.display = 'block'; document.getElementById('race-simulation-box').style.display = 'none';
