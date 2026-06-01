@@ -1,61 +1,36 @@
+/* Додаткові стилі до попереднього файлу style.css */
 body {
     font-family: 'Rajdhani', Arial, sans-serif;
-    background-color: #060606;
-    color: #e0e0e0;
-    margin: 0;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    box-sizing: border-box;
-    font-size: 14px;
+    background-color: #060606; color: #e0e0e0; margin: 0; padding: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; box-sizing: border-box;
+}
+#game-container {
+    background-color: #111111; border-radius: 16px; width: 100%; max-width: 400px;
+    height: 100%; max-height: 660px; display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid #222;
 }
 
-/* 🎬 ЗАСТАВКА (SPLASH SCREEN) */
-#splash-screen {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-color: #090909;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    text-align: center;
+/* ЛІЧИЛЬНИКИ TYCOON ПРОЕКТУ */
+.tycoon-counters {
+    display: flex; justify-content: space-between; margin-bottom: 10px; font-family: 'Orbitron', sans-serif; font-size: 11px;
 }
-.splash-logo {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 26px;
-    color: #ff5722;
-    letter-spacing: 2px;
-    text-shadow: 0 0 15px rgba(255, 87, 34, 0.7);
-    margin: 0 0 8px 0;
-}
-.splash-sub {
-    font-size: 11px; color: #555; letter-spacing: 1px; margin-bottom: 30px;
-}
-#splash-start-btn {
-    background: linear-gradient(135deg, #ff5722, #e65100);
-    color: white; border: none; padding: 14px 28px; font-size: 14px;
-    font-weight: bold; font-family: 'Orbitron', sans-serif; border-radius: 8px;
-    cursor: pointer; box-shadow: 0 0 15px rgba(255, 87, 34, 0.4);
-}
-.game-version-display { font-size: 11px; color: #333; margin-top: 15px; font-family: monospace; }
+.count-item { padding: 6px 10px; border-radius: 4px; font-weight: bold; color: white; }
+.count-item.speed { background: #e65100; }
+.count-item.quality { background: #0288d1; }
+.count-item.bugs { background: #c62828; }
 
-/* ⚙️ МОДАЛЬНЕ МЕНЮ НАЛАШТУВАНЬ */
+/* КОРЕКТНЕ СЕНТРОВАНЕ МОДАЛЬНЕ ВІКНО */
 .modal-overlay {
     position: fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.85); z-index: 1000;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 10000;
     display: flex; align-items: center; justify-content: center;
 }
 .modal-window {
-    background: #141414; border: 1px solid #333; border-radius: 12px;
+    background: #141414; border: 2px solid #333; border-radius: 12px;
     padding: 20px; width: 85%; max-width: 320px; text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
 }
-.modal-window h3 { font-family: 'Orbitron', sans-serif; color: #ff5722; font-size: 14px; margin-top: 0; }
 .menu-modal-btn {
-    width: 100%; padding: 12px; margin: 6px 0; border: none; border-radius: 6px;
+    width: 100%; padding: 11px; margin: 5px 0; border: none; border-radius: 6px;
     font-weight: bold; font-family: 'Rajdhani', sans-serif; font-size: 13px; cursor: pointer; color: white;
 }
 .menu-modal-btn.green { background: #2e7d32; }
@@ -63,68 +38,40 @@ body {
 .menu-modal-btn.orange { background: #d84315; }
 .menu-modal-btn.close { background: #444; }
 
-#game-container {
-    background-color: #111111; border-radius: 16px; width: 100%; max-width: 400px;
-    height: 100%; max-height: 660px; display: flex; flex-direction: column;
-    position: relative; overflow: hidden; border: 1px solid #222;
-}
-
-.global-header {
-    display: flex; justify-content: space-around; align-items: center;
-    background-color: #161616; padding: 10px; border-bottom: 1px solid #252525;
-}
-.digital-val { font-family: 'Orbitron', sans-serif; font-size: 13px; color: #fff; }
-.settings-top-btn { background: #2a2a2a; border: none; color: white; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 14px; }
-
+.global-header { display: flex; justify-content: space-around; align-items: center; background-color: #161616; padding: 10px; border-bottom: 1px solid #252525; }
+.digital-val { font-family: 'Orbitron', sans-serif; font-size: 13px; }
+.settings-top-btn { background: #2a2a2a; border: none; color: white; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
 .championship-banner { background: linear-gradient(90deg, #b71c1c, #e65100); color: white; font-size: 11px; font-weight: bold; text-align: center; padding: 5px; font-family: 'Orbitron', sans-serif; }
 .time-banner-rpg { background-color: #1a1a1a; color: #ffcc00; font-size: 12px; text-align: center; padding: 4px; font-weight: bold; border-bottom: 1px solid #252525; }
-
 .game-screen { display: none; flex-direction: column; padding: 15px; flex-grow: 1; overflow-y: auto; margin-bottom: 60px; }
 .game-screen.active { display: flex; }
-
 h2 { font-family: 'Orbitron', sans-serif; font-size: 13px; color: #ff5722; text-align: center; margin-bottom: 12px; }
-
 .main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 13px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-family: 'Orbitron', sans-serif; }
-.status-btn-green { background-color: #2e7d32 !important; box-shadow: 0 0 10px rgba(76,175,80,0.2); }
-.status-btn-red { background-color: #c62828 !important; box-shadow: 0 0 10px rgba(198,40,40,0.4); animation: pulse-red 1s infinite alternate; }
-
-@keyframes pulse-red { from { opacity: 0.9; } to { opacity: 1; } }
-
-.tactic-btn {
-    background: #222; border: 1px solid #444; color: white; padding: 10px;
-    border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: bold;
-    cursor: pointer; text-align: left; transition: all 0.2s;
-}
-.tactic-btn.active-red:active { background: #b71c1c; border-color: #ff5722; }
-.tactic-btn.active-blue:active { background: #0d47a1; border-color: #2196f3; }
-.tactic-btn.active-green:active { background: #1b5e20; border-color: #4caf50; }
-
-.energy-btn { background-color: #0d47a1; color: white; border: none; padding: 11px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: left; margin: 3px 0; font-family: 'Rajdhani', sans-serif; }
+.energy-btn { background-color: #0d47a1; color: white; border: none; padding: 11px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: left; margin: 3px 0; font-family: 'Rajdhani', sans-serif; width: 100%; }
 .energy-btn.orange { background-color: #e65100; }
 .energy-btn.blue { background-color: #01579b; }
-
 #work-log, #race-live-log { background: #050505; padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.4; margin-bottom: 12px; border: 1px solid #1c1c1c; min-height: 60px; }
-
 .creation-form { display: flex; flex-direction: column; gap: 6px; background: #151515; padding: 12px; border-radius: 10px; }
 .creation-form label { font-size: 11px; font-weight: bold; color: #ff5722; text-transform: uppercase; }
-.creation-form input, .creation-form select { background: #222; border: 1px solid #333; color: white; padding: 8px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; }
-
+.creation-form input, .creation-form select { background: #222; border: 1px solid #333; color: white; padding: 8px; border-radius: 6px; }
 .talent-options { display: flex; flex-direction: column; gap: 6px; }
 .talent-card { background: #222; border: 1px solid #333; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; }
 .talent-card.active { border-color: #ff9800; background: #221801; }
-
 .stats-upgrade-list { display: flex; flex-direction: column; gap: 8px; }
 .stat-up-card { background: #161616; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
 .stat-up-card button { background: #ff5722; border: none; color: white; width: 30px; height: 30px; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; }
-
 .upgrade-list { display: flex; flex-direction: column; gap: 6px; }
 .upgrade-card { background: #161616; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-left: 4px solid #d84315; }
 .upgrade-card.work-item { border-left-color: #0288d1; }
 .upgrade-card button { background: #333; color: #ffcc00; border: 1px solid #ffcc00; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif; font-size: 11px; }
 .upgrade-card.owned { border-left-color: #4caf50; }
 .upgrade-card.owned button { background: #222; color: #444; border-color: #222; cursor: not-allowed; }
-
 .tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 55px; background-color: #0a0a0a; display: flex; border-top: 1px solid #222; }
-.tab-button { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #555; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+.tab-button { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; font-family: 'Orbitron', sans-serif; text-align: center; }
 .tab-button.active { color: white; background-color: #121212; border-top: 3px solid #ff5722; }
-.quest-choice-btn { flex: 1; background: #e65100; border: none; color: white; padding: 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-family: 'Rajdhani', sans-serif; }
+.quest-choice-btn { width: 100%; background: #e65100; border: none; color: white; padding: 11px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; margin: 3px 0; }
+.tactic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; text-align: left; }
+.track-line { background-color: #1a1a1a; border-radius: 6px; height: 35px; width: 100%; position: relative; margin-bottom: 15px; border: 1px solid #2c2c2c; }
+#apex-zone { background-color: #2e7d32; height: 100%; width: 35px; position: absolute; left: 50%; transform: translateX(-50%); }
+#car-runner { background-color: #ffcc00; height: 100%; width: 10px; position: absolute; left: 0; }
+.progress-bar-bg { background: #222; border-radius: 4px; height: 8px; width: 100%; overflow: hidden; border: 1px solid #333; }
