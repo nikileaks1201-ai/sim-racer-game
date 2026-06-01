@@ -1,5 +1,5 @@
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Rajdhani', Arial, sans-serif;
     background-color: #060606;
     color: #e0e0e0;
     margin: 0;
@@ -10,13 +10,14 @@ body {
     justify-content: center;
     height: 100vh;
     box-sizing: border-box;
+    font-size: 14px;
 }
 
-/* 🎬 СТИЛІ ДЛЯ ЗАСТАВКИ (SPLASH SCREEN) */
+/* 🎬 ЗАСТАВКА (SPLASH SCREEN) */
 #splash-screen {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: #0a0a0a;
+    background-color: #090909;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -24,130 +25,106 @@ body {
     text-align: center;
 }
 .splash-logo {
-    font-size: 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 26px;
     color: #ff5722;
     letter-spacing: 2px;
-    text-shadow: 0 0 15px rgba(255, 87, 34, 0.6);
-    margin: 0 0 5px 0;
+    text-shadow: 0 0 15px rgba(255, 87, 34, 0.7);
+    margin: 0 0 8px 0;
 }
 .splash-sub {
-    font-size: 10px;
-    color: #666;
-    font-family: monospace;
-    margin-bottom: 20px;
+    font-size: 11px; color: #555; letter-spacing: 1px; margin-bottom: 30px;
 }
-.splash-loader-bg {
-    width: 200px; height: 4px; background: #222; border-radius: 2px; margin: 0 auto; overflow: hidden;
+#splash-start-btn {
+    background: linear-gradient(135deg, #ff5722, #e65100);
+    color: white; border: none; padding: 14px 28px; font-size: 14px;
+    font-weight: bold; font-family: 'Orbitron', sans-serif; border-radius: 8px;
+    cursor: pointer; box-shadow: 0 0 15px rgba(255, 87, 34, 0.4);
 }
-#splash-loader-fill {
-    width: 0%; height: 100%; background: #ff5722; border-radius: 2px;
-    box-shadow: 0 0 8px #ff5722;
+.game-version-display { font-size: 11px; color: #333; margin-top: 15px; font-family: monospace; }
+
+/* ⚙️ МОДАЛЬНЕ МЕНЮ НАЛАШТУВАНЬ */
+.modal-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.85); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
 }
-.game-version-display {
-    font-size: 11px; color: #444; margin-top: 25px; font-family: monospace; font-weight: bold;
+.modal-window {
+    background: #141414; border: 1px solid #333; border-radius: 12px;
+    padding: 20px; width: 85%; max-width: 320px; text-align: center;
 }
+.modal-window h3 { font-family: 'Orbitron', sans-serif; color: #ff5722; font-size: 14px; margin-top: 0; }
+.menu-modal-btn {
+    width: 100%; padding: 12px; margin: 6px 0; border: none; border-radius: 6px;
+    font-weight: bold; font-family: 'Rajdhani', sans-serif; font-size: 13px; cursor: pointer; color: white;
+}
+.menu-modal-btn.green { background: #2e7d32; }
+.menu-modal-btn.blue { background: #0288d1; }
+.menu-modal-btn.orange { background: #d84315; }
+.menu-modal-btn.close { background: #444; }
 
 #game-container {
-    background-color: #111111;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 400px;
-    height: 100%;
-    max-height: 660px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid #222;
+    background-color: #111111; border-radius: 16px; width: 100%; max-width: 400px;
+    height: 100%; max-height: 660px; display: flex; flex-direction: column;
+    position: relative; overflow: hidden; border: 1px solid #222;
 }
-
-.creation-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background: #161616;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #252525;
-}
-.creation-form label { font-size: 10px; font-weight: bold; color: #ff5722; text-transform: uppercase; }
-.creation-form input, .creation-form select {
-    background: #222; border: 1px solid #333; color: white; padding: 10px; border-radius: 6px; font-size: 13px;
-}
-.talent-options { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
-.talent-card {
-    background: #222; border: 1px solid #333; padding: 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.2s;
-}
-.talent-card.active { border-color: #ff9800; background: #291a00; }
 
 .global-header {
-    display: flex;
-    justify-content: space-around;
-    background-color: #181818;
-    padding: 12px;
-    font-weight: bold;
-    font-size: 14px;
-    border-bottom: 1px solid #252525;
+    display: flex; justify-content: space-around; align-items: center;
+    background-color: #161616; padding: 10px; border-bottom: 1px solid #252525;
 }
+.digital-val { font-family: 'Orbitron', sans-serif; font-size: 13px; color: #fff; }
+.settings-top-btn { background: #2a2a2a; border: none; color: white; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 14px; }
 
-.championship-banner {
-    background: linear-gradient(90deg, #b71c1c, #e65100);
-    color: white;
-    font-size: 11px;
-    font-weight: bold;
-    text-align: center;
-    padding: 5px;
-}
-
-.time-banner-rpg { background-color: #1c1c1c; color: #ffcc00; font-size: 11px; text-align: center; padding: 5px; font-weight: bold; border-bottom: 1px solid #282828; }
+.championship-banner { background: linear-gradient(90deg, #b71c1c, #e65100); color: white; font-size: 11px; font-weight: bold; text-align: center; padding: 5px; font-family: 'Orbitron', sans-serif; }
+.time-banner-rpg { background-color: #1a1a1a; color: #ffcc00; font-size: 12px; text-align: center; padding: 4px; font-weight: bold; border-bottom: 1px solid #252525; }
 
 .game-screen { display: none; flex-direction: column; padding: 15px; flex-grow: 1; overflow-y: auto; margin-bottom: 60px; }
 .game-screen.active { display: flex; }
 
-h2 { font-size: 13px; color: #ff5722; text-align: center; margin-bottom: 15px; letter-spacing: 1px; }
+h2 { font-family: 'Orbitron', sans-serif; font-size: 13px; color: #ff5722; text-align: center; margin-bottom: 12px; }
 
-.main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-.main-action-btn.race { background-color: #b71c1c; display: none; text-align: center; justify-content: center;}
+.main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 13px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-family: 'Orbitron', sans-serif; }
+.status-btn-green { background-color: #2e7d32 !important; box-shadow: 0 0 10px rgba(76,175,80,0.2); }
+.status-btn-red { background-color: #c62828 !important; box-shadow: 0 0 10px rgba(198,40,40,0.4); animation: pulse-red 1s infinite alternate; }
 
-/* СТИЛІ КНОПОК ЕНЕРГІЇ (НЕЗАЛЕЖНІ ВІД КЛАСУ MAIN-ACTION-BTN) */
-.energy-btn {
-    background-color: #0d47a1;
-    color: white;
-    border: none;
-    padding: 11px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.2s, transform 0.1s;
+@keyframes pulse-red { from { opacity: 0.9; } to { opacity: 1; } }
+
+.tactic-btn {
+    background: #222; border: 1px solid #444; color: white; padding: 10px;
+    border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: bold;
+    cursor: pointer; text-align: left; transition: all 0.2s;
 }
-.energy-btn:active { transform: scale(0.98); }
+.tactic-btn.active-red:active { background: #b71c1c; border-color: #ff5722; }
+.tactic-btn.active-blue:active { background: #0d47a1; border-color: #2196f3; }
+.tactic-btn.active-green:active { background: #1b5e20; border-color: #4caf50; }
+
+.energy-btn { background-color: #0d47a1; color: white; border: none; padding: 11px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: left; margin: 3px 0; font-family: 'Rajdhani', sans-serif; }
 .energy-btn.orange { background-color: #e65100; }
 .energy-btn.blue { background-color: #01579b; }
 
-#work-log, #race-log { background: #050505; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.4; margin-bottom: 15px; border: 1px solid #1a1a1a; min-height: 70px; }
+#work-log, #race-live-log { background: #050505; padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.4; margin-bottom: 12px; border: 1px solid #1c1c1c; min-height: 60px; }
 
-.quest-choice-btn { flex: 1; background: #e65100; border: none; color: white; padding: 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+.creation-form { display: flex; flex-direction: column; gap: 6px; background: #151515; padding: 12px; border-radius: 10px; }
+.creation-form label { font-size: 11px; font-weight: bold; color: #ff5722; text-transform: uppercase; }
+.creation-form input, .creation-form select { background: #222; border: 1px solid #333; color: white; padding: 8px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; }
 
-.stats-upgrade-list { display: flex; flex-direction: column; gap: 10px; }
-.stat-up-card { background: #181818; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-.stat-up-card button { background: #ff5722; border: none; color: white; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; }
+.talent-options { display: flex; flex-direction: column; gap: 6px; }
+.talent-card { background: #222; border: 1px solid #333; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+.talent-card.active { border-color: #ff9800; background: #221801; }
 
-.upgrade-list { display: flex; flex-direction: column; gap: 8px; }
-.upgrade-card { background: #181818; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; border-left: 4px solid #d84315; }
+.stats-upgrade-list { display: flex; flex-direction: column; gap: 8px; }
+.stat-up-card { background: #161616; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
+.stat-up-card button { background: #ff5722; border: none; color: white; width: 30px; height: 30px; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; }
+
+.upgrade-list { display: flex; flex-direction: column; gap: 6px; }
+.upgrade-card { background: #161616; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-left: 4px solid #d84315; }
 .upgrade-card.work-item { border-left-color: #0288d1; }
-.upgrade-card button { background: #444; color: #ffcc00; border: 1px solid #ffcc00; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.upgrade-card button { background: #333; color: #ffcc00; border: 1px solid #ffcc00; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif; font-size: 11px; }
 .upgrade-card.owned { border-left-color: #4caf50; }
-.upgrade-card.owned button { background: #222; color: #555; border-color: #222; cursor: not-allowed; }
+.upgrade-card.owned button { background: #222; color: #444; border-color: #222; cursor: not-allowed; }
 
-.track-line { background-color: #1a1a1a; border-radius: 6px; height: 35px; width: 100%; position: relative; margin-bottom: 15px; border: 1px solid #2c2c2c; }
-#apex-zone { background-color: #2e7d32; height: 100%; width: 35px; position: absolute; left: 50%; transform: translateX(-50%); }
-#car-runner { background-color: #ffcc00; height: 100%; width: 10px; position: absolute; left: 0; }
-
-.progress-bar-bg { background: #333; border-radius: 4px; height: 6px; width: 100%; overflow: hidden; }
-.progress-bar-fill { height: 100%; width: 100%; transition: width 0.3s ease; }
-
-.tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 55px; background-color: #0d0d0d; display: flex; border-top: 1px solid #1f1f1f; }
-.tab-button { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; }
-.tab-button.active { color: white; background-color: #141414; border-top: 3px solid #ff5722; }
+.tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 55px; background-color: #0a0a0a; display: flex; border-top: 1px solid #222; }
+.tab-button { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #555; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+.tab-button.active { color: white; background-color: #121212; border-top: 3px solid #ff5722; }
+.quest-choice-btn { flex: 1; background: #e65100; border: none; color: white; padding: 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-family: 'Rajdhani', sans-serif; }
