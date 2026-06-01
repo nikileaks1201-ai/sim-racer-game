@@ -127,6 +127,7 @@ function startDailyIncident() {
     if (energy < 20) { alert("Немає сил для робочої зміни!"); return; }
 
     playClickSound();
+    if (incidentInterval) clearInterval(incidentInterval);
     isIncidentActive = true; 
     incidentStability = 100; 
     incidentProgress = 0;
@@ -266,7 +267,8 @@ function loadGameData() {
         racerISP = data.racerISP || "cellular";          // 📡 Завантаження провайдера
         selectedTalentIdx = data.selectedTalentIdx; 
         money = data.money; 
-        energy = data.energy; 
+        energy = data.energy;
+        maxEnergy = data.maxEnergy || 100;
         stress = data.stress; 
         currentDay = data.currentDay; 
         currentHour = data.currentHour; 
@@ -343,7 +345,7 @@ function startGameWithCharacter() {
     // 🎮 ПЛАТФОРМА: Console Racer
     else if (racerPlatform === "console") {
         money += 500;  // +500₴ бонус
-        stats.eng -= 1; // -1 Інженерія
+        stats.eng = Math.max(0, stats.eng - 1); // -1 Інженерія, але не нижче 0
     }
     
     // 📡 ISP: Fiber Optic
@@ -409,7 +411,7 @@ function relaxAction(type) {
     if (type === 'sleep') { energy = Math.min(maxEnergy, energy + 30); stress = Math.max(0, stress - 10); currentHour += 2; }
     else if (type === 'varus') { if (money < 100) return; money -= 100; energy = Math.min(maxEnergy, energy + 35); stress = Math.max(0, stress - 15); currentHour += 1; }
     else if (type === 'glovo') { if (money < 180) return; money -= 180; energy = Math.min(maxEnergy, energy + 55); stress = Math.max(0, stress - 25); currentHour += 1; }
-    if (activeSponsorIdx !== null) { money += SPONSORS[activeSponsorIdx].pay * (type === 'sleep' ? 2 : 1); }
+    if (activeSponsorIdx !== null) { money += SPONSORS[activeSponsorIdx].pay * (type === 'sleep' ? 2 : 1); } // сон = 2 год, тому x2
     if (currentHour >= 18) endDayRoutine();
     updateUI();
 }
@@ -427,6 +429,7 @@ function startStrategicRace() {
     if (league.req !== "none" && !upgrades[league.req]) { alert(`Необхідно девайс: ${league.req}`); return; }
     if (money < league.fee) { alert("Мало грошей!"); return; }
     money -= league.fee; isRaceActive = true; currentLap = 1; racePosition = 20; raceTicks = 0; currentTactic = 'safe';
+    updateUI();
     document.getElementById('start-race-btn').style.display = 'none';
     document.getElementById('race-simulation-box').style.display = 'block';
     submitTactic('safe'); playRaceTick();
@@ -466,7 +469,15 @@ function endStrategicRace() {
     let league = LEAGUES[currentLeagueIdx];
     if (racePosition <= 3 && energy > 0 && stress < 100) { 
         money += league.reward; gainXP(70); alert(`🏆 ПОДІУМ! P${racePosition}! +${league.reward}₴`); 
-        if (currentLeagueIdx < LEAGUES.length - 1) { currentLeagueIdx++; alert("🎖️ Новий рівень ліги відкритий!"); }
+        if (currentLeagueIdx < LEAGUES.length - 1) { 
+            const nextLeague = LEAGUES[currentLeagueIdx + 1];
+            if (nextLeague.req === "none" || upgrades[nextLeague.req]) {
+                currentLeagueIdx++; 
+                alert("🎖️ Новий рівень ліги відкритий!");
+            } else {
+                alert(`🔒 Наступна ліга потребує: ${nextLeague.req}. Купи в гаражі!`);
+            }
+        }
     }
     else { alert(`🏁 Фініш на P${racePosition}. Потрібен ТОП-3.`); }
     currentHour += 2; if (currentHour >= 18) endDayRoutine(); updateUI();
