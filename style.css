@@ -1,9 +1,84 @@
 /* Додаткові стилі до попереднього файлу style.css */
 body {
     font-family: 'Rajdhani', Arial, sans-serif;
-    background-color: #060606; color: #e0e0e0; margin: 0; padding: 10px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; box-sizing: border-box;
+    background-color: #060606; color: #e0e0e0; margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    height: 100vh; box-sizing: border-box; overflow: hidden;
 }
+
+/* SPLASH SCREEN - PERFECT CENTERING */
+#splash-screen {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a0a0a;
+    z-index: 99999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 320px;
+}
+
+.splash-logo {
+    font-family: 'Orbitron', sans-serif;
+    color: #ff5722;
+    font-size: 28px;
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.splash-sub {
+    font-family: 'Rajdhani', sans-serif;
+    color: #888;
+    font-size: 14px;
+    margin: 5px 0 15px 0;
+    letter-spacing: 1px;
+}
+
+.game-version-display {
+    color: #555;
+    font-size: 11px;
+    margin-bottom: 30px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+#splash-start-btn {
+    background: #4caf50 !important;
+    color: white !important;
+    border: none !important;
+    padding: 15px 40px !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3) !important;
+}
+
+#splash-start-btn:hover {
+    background: #45a049 !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5) !important;
+}
+
+#splash-start-btn:active {
+    transform: scale(0.98) !important;
+}
+
 #game-container {
     background-color: #111111; border-radius: 16px; width: 100%; max-width: 400px;
     height: 100%; max-height: 660px; display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid #222;
@@ -46,8 +121,8 @@ body {
 .game-screen { display: none; flex-direction: column; padding: 15px; flex-grow: 1; overflow-y: auto; margin-bottom: 60px; }
 .game-screen.active { display: flex; }
 h2 { font-family: 'Orbitron', sans-serif; font-size: 13px; color: #ff5722; text-align: center; margin-bottom: 12px; }
-.main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 13px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-family: 'Orbitron', sans-serif; }
-.energy-btn { background-color: #0d47a1; color: white; border: none; padding: 11px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: left; margin: 3px 0; font-family: 'Rajdhani', sans-serif; width: 100%; }
+.main-action-btn { background-color: #1b5e20; color: white; border: none; padding: 13px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
+.energy-btn { background-color: #0d47a1; color: white; border: none; padding: 11px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: left; margin: 3px 0; font-family: 'Rajdhani', sans-serif; }
 .energy-btn.orange { background-color: #e65100; }
 .energy-btn.blue { background-color: #01579b; }
 #work-log, #race-live-log { background: #050505; padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.4; margin-bottom: 12px; border: 1px solid #1c1c1c; min-height: 60px; }
@@ -63,14 +138,14 @@ h2 { font-family: 'Orbitron', sans-serif; font-size: 13px; color: #ff5722; text-
 .upgrade-list { display: flex; flex-direction: column; gap: 6px; }
 .upgrade-card { background: #161616; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-left: 4px solid #d84315; }
 .upgrade-card.work-item { border-left-color: #0288d1; }
-.upgrade-card button { background: #333; color: #ffcc00; border: 1px solid #ffcc00; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif; font-size: 11px; }
+.upgrade-card button { background: #333; color: #ffcc00; border: 1px solid #ffcc00; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif; }
 .upgrade-card.owned { border-left-color: #4caf50; }
 .upgrade-card.owned button { background: #222; color: #444; border-color: #222; cursor: not-allowed; }
 .tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 55px; background-color: #0a0a0a; display: flex; border-top: 1px solid #222; }
 .tab-button { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; font-family: 'Orbitron', sans-serif; text-align: center; }
 .tab-button.active { color: white; background-color: #121212; border-top: 3px solid #ff5722; }
 .quest-choice-btn { width: 100%; background: #e65100; border: none; color: white; padding: 11px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; margin: 3px 0; }
-.tactic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; text-align: left; }
+.tactic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
 .track-line { background-color: #1a1a1a; border-radius: 6px; height: 35px; width: 100%; position: relative; margin-bottom: 15px; border: 1px solid #2c2c2c; }
 #apex-zone { background-color: #2e7d32; height: 100%; width: 35px; position: absolute; left: 50%; transform: translateX(-50%); }
 #car-runner { background-color: #ffcc00; height: 100%; width: 10px; position: absolute; left: 0; }
