@@ -2,25 +2,53 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 tg.MainButton.setText("Закрити гру").show().onClick(() => tg.close());
 
-// --- 🔊 СИСТЕМА ЗВУКІВ ---
-let isSoundEnabled = true; let audioCtx = null;
-function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+// --- 🔊 СИСТЕМА ЗВУКІВ (БЕЗПЕЧНА ІНІЦІАЛІЗАЦІЯ) ---
+let isSoundEnabled = true; 
+let audioCtx = null;
+
+function initAudio() { 
+    // Створюємо аудіо-контекст тільки після реального жесту користувача
+    if (!audioCtx) {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.warn("AudioContext не підтримується цим браузером");
+        }
+    }
+    // Якщо контекст призупинено (захист браузера), відновлюємо його
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
 function playClickSound(type = 'click') {
     if (!isSoundEnabled) return;
     try {
-        initAudio(); if (!audioCtx) return;
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (!audioCtx) return; // Якщо ще не ініціалізовано кліком, просто пропускаємо
+        
+        const osc = audioCtx.createOscillator(); 
+        const gain = audioCtx.createGain();
+        osc.connect(gain); 
+        gain.connect(audioCtx.destination);
+        
         if (type === 'click') {
-            osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start(); 
+            osc.stop(audioCtx.currentTime + 0.1);
         } else if (type === 'success') {
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.08);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime); 
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); 
+            osc.stop(audioCtx.currentTime + 0.2);
         }
-    } catch (e) {}
+    } catch (e) {
+        console.error("Помилка відтворення звуку:", e);
+    }
 }
 
 // --- 👤 ГЛОБАЛЬНІ ЗМІННІ ГРАВЦЯ ---
@@ -86,9 +114,12 @@ const LOG_MESSAGES = {
     audit: ["[AUDIT] Checking user chats...", "[SYS] Bad tonality flag detected!", "[WARN] Verification mismatch found!"]
 };
 
-// ХІД ІНІЦІАЛІЗАЦІЇ
+// ХІД ІНІЦІАЛІЗАЦІЇ (КЛІК НА КНОПКУ ЗАСТАВКИ)
 function closeSplashScreen() {
+    // Спочатку активуємо аудіо на жест користувача, щоб браузер не ламав скрипт
+    initAudio(); 
     playClickSound('success');
+    
     document.getElementById('splash-screen').style.display = 'none';
     
     const container = document.getElementById('game-container');
@@ -137,16 +168,12 @@ function startDailyIncident() {
         let stabilityDrop = Math.max(2, 6 - stats.eng); 
         if (upgrades.keyboard) stabilityDrop *= 0.7;
         
-        // 📡 ISP: Мобільний інтернет час від часу лагає і сильніше просаджує стабільність офісу
         if (racerISP === "cellular" && Math.random() < 0.15) {
             stabilityDrop += 4; 
         }
         
-        // 🛹 Одяг: Стріт-рейсер дає +5% пасивного стресу
         let stressGain = 1.0;
         if (racerStyle === "🛹 Стріт-рейсер") stressGain = 1.05;
-
-        // 💺 Апгрейд: Крісло Recaro гасить 10% стресу
         if (upgrades.chair) stressGain *= 0.9;
 
         incidentStability = Math.max(0, Math.min(100, incidentStability - Math.floor(stabilityDrop)));
@@ -247,10 +274,12 @@ function signUkrainianSponsor(idx) {
 }
 
 function updateSaveMenuDisplay() {
-    const raw = localStorage.getItem('simracer_tycoon_save'); const display = document.getElementById('menu-save-details');
-    if (raw && display) {
+    const raw = localStorage.getItem('simracer_tycoon_save'); 
+    const display = document.getElementById('menu-save-details');
+    if (!display) return;
+    if (raw) {
         try { const data = JSON.parse(raw); display.innerHTML = `👤 Нік: <b>${data.racerName}</b> | 💵 Баланс: <b>${data.money}₴</b>`; } catch(e) { display.innerText = "Помилка файлу"; }
-    } else if (display) { display.innerText = "Збережень немає"; }
+    } else { display.innerText = "Збережень немає"; }
 }
 
 function saveGameData() {
@@ -318,14 +347,16 @@ function toggleSound() { isSoundEnabled = !isSoundEnabled; document.getElementBy
 function initPassiveEnergyRegen() { setInterval(() => { if (!isIncidentActive && energy < maxEnergy) { energy = Math.min(maxEnergy, energy + 1); updateUI(); } }, 120000); }
 
 function applyBioToUI() { 
-    document.getElementById('bio-name').innerText = racerName; 
-    document.getElementById('bio-gender').innerText = racerGender; 
-    document.getElementById('bio-talent').innerText = TALENT_NAMES[selectedTalentIdx];
-    document.getElementById('bio-housing').innerText = racerHousing === "rent" ? "Оренда квартири" : "З батьками";
+    if(document.getElementById('bio-name')) document.getElementById('bio-name').innerText = racerName; 
+    if(document.getElementById('bio-gender')) document.getElementById('bio-gender').innerText = racerGender; 
+    if(document.getElementById('bio-talent')) document.getElementById('bio-talent').innerText = TALENT_NAMES[selectedTalentIdx];
+    if(document.getElementById('bio-housing')) document.getElementById('bio-housing').innerText = racerHousing === "rent" ? "Оренда квартири" : "З батьками";
 }
 
 function startGameWithCharacter() {
+    initAudio(); // Дублюючий запуск аудіо на випадок якщо сплеш не прокинувся
     playClickSound('success');
+    
     racerName = document.getElementById('creation-name').value.trim() || "Mykyta";
     racerGender = document.getElementById('creation-gender').value;
     racerHousing = document.getElementById('creation-housing').value;
@@ -372,7 +403,6 @@ function switchTab(tabName) {
     }
 }
 
-// 💵 ЕКОНОМІЧНЕ БАЛАНСУВАННЯ (80₴ КВАРТИРА / 20₴ БАТЬКИ)
 function endDayRoutine() {
     currentHour = 9; currentMinute = 0; currentDay += 1;
     let dailyCost = racerHousing === "rent" ? 80 : 20; 
@@ -384,9 +414,7 @@ function endDayRoutine() {
 }
 
 function gainXP(amount) {
-    // 🏎️ Одяг: Про-пілот дає бонус до досвіду
     if (racerStyle === "🏎️ Про-пілот") amount = Math.floor(amount * 1.2);
-    
     if (racerHousing === "parents") amount = Math.floor(amount * 0.8);
     if (racerHousing === "rent") amount = Math.floor(amount * 1.2);
     xp += amount; if (xp >= 100) { xp -= 100; level += 1; skillPoints += 2; playClickSound('success'); }
@@ -401,9 +429,7 @@ function relaxAction(type) {
     else if (type === 'varus') { if (money < 100) return; money -= 100; energy = Math.min(maxEnergy, energy + 35); stress = Math.max(0, stress - 15); currentHour += 1; }
     else if (type === 'glovo') { if (money < 180) return; money -= 180; energy = Math.min(maxEnergy, energy + 55); stress = Math.max(0, stress - 25); currentHour += 1; }
     
-    // 🛹 Одяг: Стріт-рейсер дає +10% до спонсорських виплат
     let styleBonus = (racerStyle === "🛹 Стріт-рейсер") ? 1.10 : 1.0;
-
     if (activeSponsorIdx !== null) { 
         money += Math.floor(SPONSORS[activeSponsorIdx].pay * (type === 'sleep' ? 2 : 1) * styleBonus); 
     }
@@ -421,12 +447,10 @@ const RACE_SITUATIONS = [
 
 function startStrategicRace() {
     let league = LEAGUES[currentLeagueIdx];
-    
-    // Перевірка ультимативної бази Moza R16 для вищих змагань
     if (league.req === "wheel" && !upgrades.wheel && !upgrades.wheel16) { alert("Необхідно кермо Moza R9 або R16!"); return; }
     if (league.req !== "none" && league.req !== "wheel" && !upgrades[league.req]) { alert(`Необхідно девайс: ${league.req}`); return; }
-    
     if (money < league.fee) { alert("Мало грошей!"); return; }
+    
     money -= league.fee; isRaceActive = true; currentLap = 1; racePosition = 20; raceTicks = 0; currentTactic = 'safe';
     updateUI();
     document.getElementById('start-race-btn').style.display = 'none';
@@ -453,9 +477,7 @@ function playRaceTick() {
     if (currentTactic === 'push' && selectedTalentIdx === 0) posChange += 1;
     if (upgrades.pedals && outcome === 'lose') posChange = -1;
 
-    // 🎮 Одяг: Кіберспортсмен економить 15% сил в гонках
     let baseEnergyCost = (racerStyle === "🎮 Кіберспортсмен") ? 3.4 : 4.0;
-
     racePosition = Math.max(1, Math.min(20, racePosition - posChange));
     
     let stressFactor = (selectedTalentIdx === 1) ? 1.2 : 1.0; 
@@ -502,36 +524,45 @@ function buyUpgrade(type, price) {
 }
 
 function updateUI() {
-    document.getElementById('global-money').innerText = money;
-    document.getElementById('global-energy').innerText = energy;
-    document.getElementById('global-stress').innerText = Math.floor(stress);
-    document.getElementById('racer-level').innerText = level;
-    document.getElementById('racer-xp').innerText = xp;
-    document.getElementById('skill-points').innerText = skillPoints;
-    document.getElementById('racer-age').innerText = racerAge;
-    document.getElementById('game-day').innerText = currentDay;
-    document.getElementById('game-hour').innerText = currentHour < 10 ? '0' + currentHour : currentHour;
-    document.getElementById('game-minute').innerText = currentMinute === 0 ? '00' : currentMinute;
+    // Безпечний виклик, перевіряємо наявність елементів перед оновленням
+    if (document.getElementById('global-money')) document.getElementById('global-money').innerText = money;
+    if (document.getElementById('global-energy')) document.getElementById('global-energy').innerText = energy;
+    if (document.getElementById('global-stress')) document.getElementById('global-stress').innerText = Math.floor(stress);
+    if (document.getElementById('racer-level')) document.getElementById('racer-level').innerText = level;
+    if (document.getElementById('racer-xp')) document.getElementById('racer-xp').innerText = xp;
+    if (document.getElementById('skill-points')) document.getElementById('skill-points').innerText = skillPoints;
+    if (document.getElementById('racer-age')) document.getElementById('racer-age').innerText = racerAge;
+    if (document.getElementById('game-day')) document.getElementById('game-day').innerText = currentDay;
+    if (document.getElementById('game-hour')) document.getElementById('game-hour').innerText = currentHour < 10 ? '0' + currentHour : currentHour;
+    if (document.getElementById('game-minute')) document.getElementById('game-minute').innerText = currentMinute === 0 ? '00' : currentMinute;
 
-    let dayIdx = (currentDay - 1) % 7; document.getElementById('game-weekday').innerText = WEEKDAYS[dayIdx];
+    let dayIdx = (currentDay - 1) % 7; 
+    if (document.getElementById('game-weekday')) document.getElementById('game-weekday').innerText = WEEKDAYS[dayIdx];
+    
     let isWeekend = (dayIdx === 5 || dayIdx === 6);
-    if (isWeekend) { document.getElementById('work-weekend-notice').style.display = "block"; document.getElementById('project-init-zone').style.display = "none"; }
-    else { document.getElementById('work-weekend-notice').style.display = "none"; if (!isIncidentActive) document.getElementById('project-init-zone').style.display = "block"; }
+    
+    const notice = document.getElementById('work-weekend-notice');
+    const initZone = document.getElementById('project-init-zone');
+    
+    if (notice && initZone) {
+        if (isWeekend) { notice.style.display = "block"; initZone.style.display = "none"; }
+        else { notice.style.display = "none"; if (!isIncidentActive) initZone.style.display = "block"; }
+    }
 
-    document.getElementById('stat-val-ment').innerText = stats.ment;
-    document.getElementById('stat-val-phys').innerText = stats.phys;
-    document.getElementById('stat-val-eng').innerText = stats.eng;
-    document.getElementById('wheel-condition').innerText = wheelCondition;
+    if (document.getElementById('stat-val-ment')) document.getElementById('stat-val-ment').innerText = stats.ment;
+    if (document.getElementById('stat-val-phys')) document.getElementById('stat-val-phys').innerText = stats.phys;
+    if (document.getElementById('stat-val-eng')) document.getElementById('stat-val-eng').innerText = stats.eng;
+    if (document.getElementById('wheel-condition')) document.getElementById('wheel-condition').innerText = wheelCondition;
 
     let league = LEAGUES[currentLeagueIdx];
-    document.getElementById('current-league-name').innerText = league.name;
-    document.getElementById('race-fee').innerText = league.fee;
-    document.getElementById('target-laps').innerText = league.laps;
-    document.getElementById('max-laps-display').innerText = league.laps;
-    document.getElementById('race-laps').innerText = currentLap;
-    document.getElementById('race-pos').innerText = "P" + racePosition;
+    if (document.getElementById('current-league-name')) document.getElementById('current-league-name').innerText = league.name;
+    if (document.getElementById('race-fee')) document.getElementById('race-fee').innerText = league.fee;
+    if (document.getElementById('target-laps')) document.getElementById('target-laps').innerText = league.laps;
+    if (document.getElementById('max-laps-display')) document.getElementById('max-laps-display').innerText = league.laps;
+    if (document.getElementById('race-laps')) document.getElementById('race-laps').innerText = currentLap;
+    if (document.getElementById('race-pos')) document.getElementById('race-pos').innerText = "P" + racePosition;
 
-    if (activeSponsorIdx !== null) { 
+    if (activeSponsorIdx !== null && document.getElementById('active-sponsor-status')) { 
         document.getElementById('active-sponsor-status').innerText = `🤝 Контракт: ${SPONSORS[activeSponsorIdx].name} (+${SPONSORS[activeSponsorIdx].pay}₴/год)`;
     }
 
@@ -557,4 +588,5 @@ function endGame(title, desc) {
 }
 function resetGame() { localStorage.removeItem('simracer_tycoon_save'); location.reload(); }
 
+// Перший запуск оновлення інтерфейсу без крашів
 updateUI();
